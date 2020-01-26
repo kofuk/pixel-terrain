@@ -3,13 +3,13 @@ from PIL import Image
 import anvil
 import blockcolors
 
-def main(region, outname):
+def generate_256(region, region_x, region_z, offx, offz):
     outimg = Image.new('RGBA', (16*16,16*16))
-
+    outname = str(region_x * 2 + offx) + ',' + str(region_z * 2 + offz) + '.png'
     for chz in range(16):
         for chx in range(16):
             try:
-                chunk = anvil.Chunk.from_region(region, chx, chz)
+               chunk = anvil.Chunk.from_region(region, offx * 16 + chx, offz * 16 + chz)
             except:
                 print('nonexisting chunk')
                 for x in range(16):
@@ -55,9 +55,15 @@ def main(region, outname):
 
     outimg.save(outname)
 
+def main(region_dir, region_x, region_z):
+    region = anvil.Region.from_file(region_dir + '/r.' + str(region_x) + '.' + str(region_z) + '.mca')
+    for offx in range(2):
+        for offz in range(2):
+            generate_256(region, region_x, region_z, offx, offz)
+
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print('usage: top_view region_file outname')
+    if len(sys.argv) < 4:
+        print('usage: generate.py region_dir region_x region_z')
         exit()
     else:
-        main(sys.argv[1], sys.argv[2])
+        main(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
