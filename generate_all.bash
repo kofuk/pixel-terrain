@@ -27,7 +27,7 @@ echo 0 > gen_progress.txt
 ((n_processed=0))
 
 for f in $1/*.mca; do
-    region="$(echo "$f" | sed -E 's/r\.([0-9-]+)\.([0-9-]+)\.mca$/\1 \2/')"
+    region="$(echo "$f" | sed -E 's/.*r\.([0-9-]+)\.([0-9-]+)\.mca$/\1 \2/')"
 
     python "$script_dir/generate.py" "$1" $region
 
