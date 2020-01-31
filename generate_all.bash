@@ -31,9 +31,8 @@ for f in $1/*.mca; do
 
     python "$script_dir/generate.py" "$1" $region
 
-    echo $((n_processed/n_files)) > gen_progress.txt
-
     ((++n_processed))
+    echo $((n_processed*100/n_files)) > gen_progress.txt
 done
 
 rm -f gen_progress.txt
