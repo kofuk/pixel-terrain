@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 1 ]; then
     echo 'Region file directory must be provided' >&2
 
     exit 1
