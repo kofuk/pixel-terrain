@@ -3,17 +3,15 @@
 #include <cstdio>
 #include <filesystem>
 #include <iostream>
-#include <unordered_map>
+#include <string>
 
 #include <png.h>
 #include <pngconf.h>
-#include <string>
 
+#include "blocks.hh"
 #include "Region.hh"
 
 using namespace std;
-
-static unordered_map<string, array<unsigned char, 3>> colors;
 
 static inline void put_pixel(png_bytepp image, int x, int y, unsigned char r,
                              unsigned char g, unsigned char b) {
@@ -173,10 +171,6 @@ static void generate_all(string src_dir, int x, int z) {
             generate_256(&r, x, z, off_x, off_z);
         }
     }
-}
-
-static void init_block_list() {
-#include "block_colors.inc"
 }
 
 static void print_usage() {
