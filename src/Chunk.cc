@@ -6,7 +6,8 @@
 #include "NBT.hh"
 
 namespace Anvil {
-    Chunk::Chunk(NBT::NBTFile *nbt_data) {
+    Chunk::Chunk(NBT::NBTFile *nbt_data)
+        : cache_palette(nullptr), cache_palette_section(-1) {
         NBT::Tag *version_tag = (*nbt_data)["DataVersion"];
         assert(version_tag->tag_type == NBT::TAG_INT);
         version = ((NBT::TagInt *)version_tag)->value;
@@ -22,6 +23,19 @@ namespace Anvil {
         NBT::Tag *z_tag = (*data)["zPos"];
         assert(x_tag->tag_type == NBT::TAG_INT);
         z = ((NBT::TagInt *)z_tag)->value;
+    }
+
+    Chunk::~Chunk() {
+        if (cache_palette != nullptr) {
+            for (auto itr = begin(*cache_palette); itr != end(*cache_palette); ++itr) {
+                delete *itr;
+            }
+
+            delete cache_palette;
+
+            cache_palette = nullptr;
+            cache_palette_section = -1;
+        }
     }
 
     NBT::TagCompound *Chunk::get_section(unsigned char y) {
@@ -79,15 +93,28 @@ namespace Anvil {
             return "";
         }
 
-        NBT::TagCompound *section = get_section(y / 16);
+        unsigned char section_no = y / 16;
+        NBT::TagCompound *section = get_section(section_no);
 
         y %= 16;
 
         if (section == nullptr || (*section)["BlockStates"] == nullptr) {
             return "air";
         }
+        vector<string *> *palette;
+        if (cache_palette_section != section_no || cache_palette == nullptr) {
+            if (cache_palette != nullptr) {
+                for (auto itr = begin(*cache_palette); itr != end(*cache_palette); ++itr) {
+                    delete *itr;
+                }
+                delete cache_palette;
+            }
 
-        vector<string *> *palette = get_palette(section);
+            cache_palette = get_palette(section);
+            cache_palette_section = section_no;
+        }
+
+        palette = cache_palette;
 
         int bits = 4;
         if (palette->size() - 1 > 15) {
@@ -133,13 +160,7 @@ namespace Anvil {
         if (palette_id <= 0 || (*palette).size() <= (size_t)palette_id)
             return "air";
 
-        string result = *(*palette)[palette_id];
-        for (auto itr = std::begin(*palette); itr != std::end(*palette);
-             ++itr) {
-            delete *itr;
-        }
-
-        return result;
+        return *(*palette)[palette_id];
     }
 
 } // namespace Anvil
