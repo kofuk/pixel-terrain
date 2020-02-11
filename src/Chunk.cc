@@ -111,6 +111,9 @@ namespace Anvil {
         assert(states_tag->tag_type == NBT::TAG_LONG_ARRAY);
         vector<int64_t> states = ((NBT::TagLongArray *)states_tag)->values;
         int state = index * bits / 64;
+
+        if ((uint64_t)state >= states.size()) return "air";
+
         uint64_t data = states[state];
         if (data < 0) data += pow(2, 64);
 
@@ -126,6 +129,9 @@ namespace Anvil {
         }
 
         int64_t palette_id = shifted_data & (int64_t)pow(2, bits) - 1;
+
+        if (palette_id <= 0 || (*palette).size() <= (size_t)palette_id)
+            return "air";
 
         string result = *(*palette)[palette_id];
         for (auto itr = std::begin(*palette); itr != std::end(*palette);

@@ -38,6 +38,8 @@ namespace Anvil {
     size_t Region::chunk_location_off(int chunk_x, int chunk_z) {
         size_t b_off = header_offset(chunk_x, chunk_z);
 
+        if (b_off + 2 >= len) return 0;
+
         unsigned char buf[] = {0, data[b_off], data[b_off + 1],
                                data[b_off + 2]};
 
@@ -46,6 +48,8 @@ namespace Anvil {
 
     size_t Region::chunk_location_sectors(int chunk_x, int chunk_z) {
         size_t b_off = header_offset(chunk_x, chunk_z);
+
+        if (b_off + 3 >= len) return 0;
 
         return data[b_off + 3];
     }
@@ -58,8 +62,14 @@ namespace Anvil {
         }
 
         location_off *= 4096;
+
+        if (location_off + 4 >= len) return nullptr;
+
         int32_t length =
             NBT::Utils::to_host_byte_order(*(int32_t *)(data + location_off));
+
+        if (location_off + 5 + length - 1 > len) return nullptr;
+
         int compression = data[location_off + 4];
         if (compression == 1) return nullptr;
 
