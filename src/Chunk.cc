@@ -7,7 +7,8 @@
 
 namespace Anvil {
     Chunk::Chunk(NBT::NBTFile *nbt_data)
-        : cache_palette(nullptr), cache_palette_section(-1) {
+        : nbt_file(nbt_data), cache_palette(nullptr),
+          cache_palette_section(-1) {
         NBT::Tag *version_tag = (*nbt_data)["DataVersion"];
         assert(version_tag->tag_type == NBT::TAG_INT);
         version = ((NBT::TagInt *)version_tag)->value;
@@ -27,7 +28,8 @@ namespace Anvil {
 
     Chunk::~Chunk() {
         if (cache_palette != nullptr) {
-            for (auto itr = begin(*cache_palette); itr != end(*cache_palette); ++itr) {
+            for (auto itr = begin(*cache_palette); itr != end(*cache_palette);
+                 ++itr) {
                 delete *itr;
             }
 
@@ -36,6 +38,8 @@ namespace Anvil {
             cache_palette = nullptr;
             cache_palette_section = -1;
         }
+
+        delete nbt_file;
     }
 
     NBT::TagCompound *Chunk::get_section(unsigned char y) {
@@ -104,7 +108,8 @@ namespace Anvil {
         vector<string *> *palette;
         if (cache_palette_section != section_no || cache_palette == nullptr) {
             if (cache_palette != nullptr) {
-                for (auto itr = begin(*cache_palette); itr != end(*cache_palette); ++itr) {
+                for (auto itr = begin(*cache_palette);
+                     itr != end(*cache_palette); ++itr) {
                     delete *itr;
                 }
                 delete cache_palette;

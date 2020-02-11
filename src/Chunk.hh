@@ -12,6 +12,7 @@ using namespace std;
 namespace Anvil {
     class Chunk {
         int32_t version;
+        NBT::NBTFile *nbt_file;
         NBT::TagCompound *data;
         int32_t x;
         int32_t z;
