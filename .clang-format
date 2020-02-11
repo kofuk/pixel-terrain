@@ -1,0 +1,8 @@
+BasedOnStyle: LLVM
+AccessModifierOffset: -4
+AlignEscapedNewlines: Left
+AllowShortIfStatementsOnASingleLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+BreakBeforeBraces: Attach
+IndentWidth: 4
+NamespaceIndentation: All

@@ -1,12 +1,18 @@
 # Minecraft Image Generator
 
-It generates PNG image from Minecraft Java Edition's save data.
-`blockcolors.py` will not be a complete data. You must append to the file
-if generator errs.
+This generates map image from your Minecraft save data.
 
-# Requirements
+This software contains C++ re-implementation of [matcool/anvil-parser](https://github.com/matcool/anvil-parser)
+and [twoolie/NBT](https://github.com/twoolie/NBT).
 
-- Python 3
-- anvil-parser
-- PIL or other compatible library
-- frozendict
+## Prerequirements
+
+This project using functionally of C++17; you will need C++ compiler that support
+C++17.
+
+And, DtThis software depends on following libraries:
+
+- libpng
+- zlib
+
+also, this project uses CMake as build system so CMake (>= 3.16) is needed.
