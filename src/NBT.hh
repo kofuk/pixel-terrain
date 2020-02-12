@@ -1,6 +1,7 @@
 #ifndef NBT_HH
 #define NBT_HH
 
+#include <cassert>
 #include <cstdint>
 #include <iostream>
 #include <unordered_map>
@@ -39,51 +40,112 @@ namespace NBT {
     };
 
     struct TagByte : Tag {
-        TagByte(unsigned char const *buf, size_t const len, size_t &off);
+        unsigned char value;
 
+        TagByte(unsigned char const *buf, size_t const len, size_t &off);
         void parse_buffer(unsigned char const *buf, size_t const len,
                           size_t &off);
-        unsigned char value;
+
+        static inline unsigned char get_value(unsigned char const *buf,
+                                              size_t const len, size_t &off) {
+            unsigned char v = *(buf + off);
+
+            ++off;
+            assert(off < len);
+
+            return v;
+        }
     };
 
     struct TagShort : Tag {
-        TagShort(unsigned char const *buf, size_t const len, size_t &off);
+        int16_t value;
 
+        TagShort(unsigned char const *buf, size_t const len, size_t &off);
         void parse_buffer(unsigned char const *buf, size_t const len,
                           size_t &off);
-        int16_t value;
+
+        static inline int16_t get_value(unsigned char const *buf,
+                                        size_t const len, size_t &off) {
+            int16_t v = Utils::to_host_byte_order(*(int16_t *)(buf + off));
+
+            off += 2;
+            assert(off < len);
+
+            return v;
+        }
     };
 
     struct TagInt : Tag {
+        int32_t value;
+
         TagInt(unsigned char const *buf, size_t const len, size_t &off);
 
         void parse_buffer(unsigned char const *buf, size_t const len,
                           size_t &off);
-        int32_t value;
+
+        static inline int32_t get_value(unsigned char const *buf,
+                                        size_t const len, size_t &off) {
+            int32_t v = Utils::to_host_byte_order(*(int32_t *)(buf + off));
+
+            off += 4;
+            assert(off < len);
+
+            return v;
+        }
     };
 
     struct TagLong : Tag {
-        TagLong(unsigned char const *buf, size_t const len, size_t &off);
+        uint64_t value;
 
+        TagLong(unsigned char const *buf, size_t const len, size_t &off);
         void parse_buffer(unsigned char const *buf, size_t const len,
                           size_t &off);
-        uint64_t value;
+
+        static inline uint64_t get_value(unsigned char const *buf,
+                                         size_t const len, size_t &off) {
+            uint64_t v = Utils::to_host_byte_order(*(int64_t *)(buf + off));
+
+            off += 8;
+            assert(off < len);
+
+            return v;
+        }
     };
 
     struct TagFloat : Tag {
-        TagFloat(unsigned char const *buf, size_t const len, size_t &off);
+        float value;
 
+        TagFloat(unsigned char const *buf, size_t const len, size_t &off);
         void parse_buffer(unsigned char const *buf, size_t const len,
                           size_t &off);
-        float value;
+
+        static inline float get_value(unsigned char const *buf,
+                                      size_t const len, size_t &off) {
+            float v = Utils::to_host_byte_order(*(float *)(buf + off));
+
+            off += 4;
+            assert(off < len);
+
+            return v;
+        }
     };
 
     struct TagDouble : Tag {
-        TagDouble(unsigned char const *buf, size_t const len, size_t &off);
+        double value;
 
+        TagDouble(unsigned char const *buf, size_t const len, size_t &off);
         void parse_buffer(unsigned char const *buf, size_t const len,
                           size_t &off);
-        double value;
+
+        static inline double get_value(unsigned char const *buf,
+                                       size_t const len, size_t &off) {
+            double v = Utils::to_host_byte_order(*(double *)(buf + off));
+
+            off += 8;
+            assert(off < len);
+
+            return v;
+        }
     };
 
     struct TagByteArray : Tag {
@@ -114,12 +176,23 @@ namespace NBT {
     };
 
     struct TagString : Tag {
+        string *value;
+
         TagString(unsigned char const *buf, size_t const len, size_t &off);
         ~TagString();
-
         void parse_buffer(unsigned char const *buf, size_t const len,
                           size_t &off);
-        string *value;
+
+        static inline string *get_value(unsigned char const *buf,
+                                        size_t const len, size_t &off) {
+            int16_t str_len = TagShort::get_value(buf, len, off);
+            string *v = new string((char *)buf + off, (size_t)str_len);
+            off += (size_t)str_len;
+
+            assert(off < len);
+
+            return v;
+        }
     };
 
     struct TagList : Tag {

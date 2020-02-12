@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstdint>
 #include <iterator>
+#include <stdexcept>
 
 #include "NBT.hh"
 #include "Utils.hh"
@@ -15,10 +16,7 @@ namespace NBT {
 
     void TagByte::parse_buffer(unsigned char const *buf, size_t const len,
                                size_t &off) {
-        value = *(buf + off);
-
-        ++off;
-        assert(off < len);
+        value = get_value(buf, len, off);
     }
 
     TagShort::TagShort(unsigned char const *buf, size_t const len, size_t &off)
@@ -28,10 +26,7 @@ namespace NBT {
 
     void TagShort::parse_buffer(unsigned char const *buf, size_t const len,
                                 size_t &off) {
-        value = Utils::to_host_byte_order(*(int16_t *)(buf + off));
-
-        off += 2;
-        assert(off < len);
+        value = get_value(buf, len, off);
     }
 
     TagInt::TagInt(unsigned char const *buf, size_t const len, size_t &off)
@@ -41,10 +36,7 @@ namespace NBT {
 
     void TagInt::parse_buffer(unsigned char const *buf, size_t const len,
                               size_t &off) {
-        value = Utils::to_host_byte_order(*(int32_t *)(buf + off));
-
-        off += 4;
-        assert(off < len);
+        value = get_value(buf, len, off);
     }
 
     TagLong::TagLong(unsigned char const *buf, size_t const len, size_t &off)
@@ -54,10 +46,7 @@ namespace NBT {
 
     void TagLong::parse_buffer(unsigned char const *buf, size_t const len,
                                size_t &off) {
-        value = Utils::to_host_byte_order(*(int64_t *)(buf + off));
-
-        off += 8;
-        assert(off < len);
+        value = get_value(buf, len, off);
     }
 
     TagFloat::TagFloat(unsigned char const *buf, size_t const len, size_t &off)
@@ -67,10 +56,7 @@ namespace NBT {
 
     void TagFloat::parse_buffer(unsigned char const *buf, size_t const len,
                                 size_t &off) {
-        value = Utils::to_host_byte_order(*(float *)(buf + off));
-
-        off += 4;
-        assert(off < len);
+        value = get_value(buf, len, off);
     }
 
     TagDouble::TagDouble(unsigned char const *buf, size_t const len,
@@ -81,10 +67,7 @@ namespace NBT {
 
     void TagDouble::parse_buffer(unsigned char const *buf, size_t const len,
                                  size_t &off) {
-        value = Utils::to_host_byte_order(*(double *)(buf + off));
-
-        off += 8;
-        assert(off < len);
+        value = get_value(buf, len, off);
     }
 
     TagByteArray::TagByteArray(unsigned char const *buf, size_t const len,
@@ -95,8 +78,7 @@ namespace NBT {
 
     void TagByteArray::parse_buffer(unsigned char const *buf, size_t const len,
                                     size_t &off) {
-        TagInt len_tag(buf, len, off);
-        int32_t arr_len = len_tag.value;
+        int32_t arr_len = TagInt::get_value(buf, len, off);
         for (int32_t i = 0; i < arr_len; ++i) {
             values.push_back(*(buf + off));
 
@@ -113,14 +95,9 @@ namespace NBT {
 
     void TagIntArray::parse_buffer(unsigned char const *buf, size_t const len,
                                    size_t &off) {
-        TagInt len_tag(buf, len, off);
-        int32_t arr_len = len_tag.value;
+        int32_t arr_len = TagInt::get_value(buf, len, off);
         for (int32_t i = 0; i < arr_len; ++i) {
-            values.push_back(
-                Utils::to_host_byte_order(*(int32_t *)(buf + off)));
-
-            off += 4;
-            assert(off < len);
+            values.push_back(TagInt::get_value(buf, len, off));
         }
     }
 
@@ -132,14 +109,9 @@ namespace NBT {
 
     void TagLongArray::parse_buffer(unsigned char const *buf, size_t const len,
                                     size_t &off) {
-        TagInt len_tag(buf, len, off);
-        int32_t arr_len = len_tag.value;
+        int32_t arr_len = TagInt::get_value(buf, len, off);
         for (int32_t i = 0; i < arr_len; ++i) {
-            values.push_back(
-                (uint64_t)Utils::to_host_byte_order(*(int64_t *)(buf + off)));
-            off += 8;
-
-            assert(off < len);
+            values.push_back(TagLong::get_value(buf, len, off));
         }
     }
 
@@ -153,12 +125,7 @@ namespace NBT {
 
     void TagString::parse_buffer(unsigned char const *buf, size_t const len,
                                  size_t &off) {
-        TagShort len_tag(buf, len, off);
-        int16_t str_len = len_tag.value;
-        value = new string((char *)buf + off, (size_t)str_len);
-        off += (size_t)str_len;
-
-        assert(off < len);
+        value = get_value(buf, len, off);
     }
 
     TagList::TagList(unsigned char const *buf, size_t const len, size_t &off)
@@ -174,11 +141,9 @@ namespace NBT {
 
     void TagList::parse_buffer(unsigned char const *buf, size_t const len,
                                size_t &off) {
-        TagByte type_tag(buf, len, off);
-        payload_type = type_tag.value;
+        payload_type = TagByte::get_value(buf, len, off);
 
-        TagInt len_tag(buf, len, off);
-        int32_t list_len = len_tag.value;
+        int32_t list_len = TagInt::get_value(buf, len, off);
 
         Tag *tag;
         for (int32_t i = 0; i < list_len; ++i) {
@@ -230,12 +195,11 @@ namespace NBT {
     void TagCompound::parse_buffer(unsigned char const *buf, size_t const len,
                                    size_t &off) {
         for (;;) {
-            TagByte type_tag(buf, len, off);
-            tagtype_t type = type_tag.value;
+            tagtype_t type = TagByte::get_value(buf, len, off);
 
             if (type == TAG_END) break;
 
-            TagString name_tag(buf, len, off);
+            string *name = TagString::get_value(buf, len, off);
 
             Tag *tag;
             if (type == TAG_BYTE)
@@ -265,8 +229,9 @@ namespace NBT {
             else
                 assert(0); /* will never happen */
 
-            string name = *name_tag.value;
-            tags[name] = tag;
+            tags[*name] = tag;
+
+            delete name;
 
             /* FIXME: Work around for known issue, reaches end of file after
              * last TagCompound element read. */
@@ -288,15 +253,13 @@ namespace NBT {
     void NBTFile::parse_file() {
         size_t off = 0;
 
-        TagByte type_tag(data->data, data->len, off);
-        tagtype_t type = type_tag.value;
+        tagtype_t type = TagByte::get_value(data->data, data->len, off);
 
         if (type != tag_type) {
-            throw 1;
+            throw invalid_argument("corrupted data file");
         }
 
-        TagString name_tag(data->data, data->len, off);
-        name = *name_tag.value;
+        name = *TagString::get_value(data->data, data->len, off);
         parse_buffer(data->data, data->len, off);
     }
 } // namespace NBT
