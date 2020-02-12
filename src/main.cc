@@ -28,7 +28,7 @@ static void generate_all(string src_dir, int x, int z) {
     filesystem::path path(src_dir);
     path /= "r." + to_string(x) + "." + to_string(z) + ".mca";
 
-    Anvil::Region *r = new Anvil::Region(path);
+    Anvil::Region *r = new Anvil::Region(path.string());
 
     init_worker(r, x, z);
 
