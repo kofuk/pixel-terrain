@@ -24,33 +24,53 @@
 
 using namespace std;
 
-static void generate_all(string src_dir, int x, int z) {
-    filesystem::path path(src_dir);
-    path /= "r." + to_string(x) + "." + to_string(z) + ".mca";
+static void generate_all(string src_dir) {
+    for (filesystem::directory_entry const &path :
+         filesystem::directory_iterator(src_dir)) {
+        if (path.is_directory()) continue;
 
-    Anvil::Region *r = new Anvil::Region(path.string());
+        string name = path.path().filename();
 
-    init_worker(r, x, z);
+        if (name[0] != 'r' || name[1] != '.') continue;
+        size_t i = 2;
+        while (i < name.size() &&
+               (name[i] == '-' || ('0' <= name[i] && name[i] <= '9')))
+            ++i;
 
-    for (int off_x = 0; off_x < 2; ++off_x) {
-        for (int off_z = 0; off_z < 2; ++off_z) {
-            queue_offset(new pair<int, int>(off_x, off_z));
+        if (name[i] == '.' && i + 1 >= name.size()) continue;
+        ++i;
+
+        size_t start_z = i;
+        while (i < name.size() &&
+               (name[i] == '-' || ('0' <= name[i] && name[i] <= '9')))
+            ++i;
+
+        int x = stoi(name.substr(2, i - 2));
+        int z = stoi(name.substr(start_z, i - start_z));
+
+        Anvil::Region *r = new Anvil::Region(path.path().string());
+
+        init_worker(r, x, z);
+
+        for (int off_x = 0; off_x < 2; ++off_x) {
+            for (int off_z = 0; off_z < 2; ++off_z) {
+                queue_offset(new pair<int, int>(off_x, off_z));
+            }
         }
+
+        start_worker();
+
+        delete r;
     }
-
-    start_worker();
-
-    delete r;
 }
 
 static void print_usage() {
 #ifdef _GNU_SOURCE
-    cout << "Usage: mcmap [OPTION]... [--] SRC_DIR REGION_X REGION_Z" << endl
-         << endl;
+    cout << "Usage: mcmap [OPTION]... SRC_DIR" << endl << endl;
     cout << " -j N, --jobs=N  generate N images concurrently. (default: "
             "processor count)"
          << endl;
-    cout << " -o --out        specify output directory. (default: current "
+    cout << " -o --out DIR    specify output directory. (default: current "
             "directory)"
          << endl;
     cout << " -n --nether     Use nether image generation algorythm "
@@ -60,8 +80,7 @@ static void print_usage() {
     cout << " -h --help       display this help and exit." << endl;
     cout << " -V --version    display version information and exit" << endl;
 #else
-    cout << "Usage: mcmap [OPTION]... SRC_DIR REGION_X REGION_Z" << endl
-         << endl;
+    cout << "Usage: mcmap [OPTION]... SRC_DIR" << endl << endl;
     cout
         << " /j N    generate N images concurrently. (default: processor count)"
         << endl;
@@ -77,7 +96,7 @@ static void print_usage() {
 }
 
 static void print_version() {
-    cout << "mcmap 1.0" << endl;
+    cout << "mcmap 1.1" << endl;
     cout << "Copyright (C) 2020, Koki Fukuda." << endl;
     cout << "This program includes C++ re-implementation of" << endl
          << "anvil-parser and nbt, originally written in Python." << endl
@@ -147,7 +166,8 @@ int main(int argc, char **argv) {
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "/j")) {
             if (i + 1 < argc) {
-                ++i; ++mcmap_optind;
+                ++i;
+                ++mcmap_optind;
                 option_jobs = stoi(argv[i]);
             } else {
                 print_usage();
@@ -175,7 +195,7 @@ int main(int argc, char **argv) {
     }
 #endif /* _GNU_SOURCE */
 
-    if (mcmap_optind + 2 >= argc) {
+    if (mcmap_optind >= argc) {
         print_usage();
 
         return 0;
@@ -183,8 +203,7 @@ int main(int argc, char **argv) {
 
     init_block_list();
 
-    generate_all(argv[mcmap_optind], stoi(argv[mcmap_optind + 1]),
-                 stoi(argv[mcmap_optind + 2]));
+    generate_all(argv[mcmap_optind]);
 
     return 0;
 }

@@ -249,4 +249,6 @@ void start_worker() {
     for (auto itr = begin(threads); itr != end(threads); ++itr) {
         delete *itr;
     }
+
+    threads.clear();
 }
