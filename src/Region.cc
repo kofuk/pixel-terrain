@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <fstream>
+#include <stdexcept>
 
 #include "NBT.hh"
 #include "Region.hh"
@@ -11,7 +12,7 @@ namespace Anvil {
         ifstream f(file_name);
 
         if (!f) {
-            throw 1;
+            throw invalid_argument("failed to open specified file for reading");
         }
 
         vector<unsigned char> dest;
@@ -22,7 +23,7 @@ namespace Anvil {
             dest.insert(std::end(dest), buf, buf + f.gcount());
         } while (!f.fail());
 
-        if (!f.eof()) throw 1;
+        if (!f.eof()) throw logic_error("an error occurred while reading file");
 
         len = dest.size();
         data = new unsigned char[len];
