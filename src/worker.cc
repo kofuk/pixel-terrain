@@ -19,9 +19,11 @@ static queue<pair<int, int> *> offs_queue;
 static mutex queue_mutex;
 static vector<thread *> threads;
 
+string option_out_dir;
+bool option_verbose;
+int option_jobs;
+
 static Anvil::Region *region;
-static string out_dir;
-static bool verbose;
 static int region_x;
 static int region_z;
 
@@ -33,16 +35,16 @@ static inline void put_pixel(png_bytepp image, int x, int y, unsigned char r,
     image[y][base_off + 2] = b;
 }
 
-static void generate_256(Anvil::Region *region, string out_dir, int region_x,
-                         int region_z, int off_x, int off_z, bool verbose) {
+static void generate_256(Anvil::Region *region, int region_x, int region_z,
+                         int off_x, int off_z) {
     string frame_ident;
-    if (verbose) {
+    if (option_verbose) {
         frame_ident = to_string(region_x) + "+" + to_string(off_x) + ", " +
                       to_string(region_z) + "+" + to_string(off_z);
         cerr << "generating " + frame_ident + " ..." << endl;
     }
 
-    filesystem::path path = out_dir;
+    filesystem::path path = option_out_dir;
     path /= (to_string(region_x * 2 + off_x) + ',' +
              to_string(region_z * 2 + off_z) + ".png");
 
@@ -179,7 +181,7 @@ static void generate_256(Anvil::Region *region, string out_dir, int region_x,
 
     fclose(f);
 
-    if (verbose) {
+    if (option_verbose) {
         cerr << "generated " + frame_ident + "." << endl;
     }
 }
@@ -199,14 +201,11 @@ static void run_worker_loop() {
         pair<int, int> *off = fetch_offs();
         if (off == nullptr) break;
 
-        generate_256(region, out_dir, region_x, region_z, off->first,
-                     off->second, verbose);
+        generate_256(region, region_x, region_z, off->first, off->second);
     }
 }
 
-void init_worker(Anvil::Region *r, int rx, int rz, string out, bool v) {
-    out_dir = out;
-    verbose = v;
+void init_worker(Anvil::Region *r, int rx, int rz) {
     region = r;
     region_x = rx;
     region_z = rz;
@@ -214,8 +213,8 @@ void init_worker(Anvil::Region *r, int rx, int rz, string out, bool v) {
 
 void queue_offset(pair<int, int> *off) { offs_queue.push(off); }
 
-void start_worker(int jobs) {
-    for (int i = 0; i < jobs; ++i) {
+void start_worker() {
+    for (int i = 0; i < option_jobs; ++i) {
         threads.push_back(new thread(&run_worker_loop));
     }
 

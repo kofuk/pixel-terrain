@@ -16,14 +16,13 @@
 
 using namespace std;
 
-static void generate_all(string src_dir, string out_dir, int x, int z, int jobs,
-                         bool verbose) {
+static void generate_all(string src_dir, int x, int z) {
     filesystem::path path(src_dir);
     path /= "r." + to_string(x) + "." + to_string(z) + ".mca";
 
     Anvil::Region *r = new Anvil::Region(path);
 
-    init_worker(r, x, z, out_dir, verbose);
+    init_worker(r, x, z);
 
     for (int off_x = 0; off_x < 2; ++off_x) {
         for (int off_z = 0; off_z < 2; ++off_z) {
@@ -31,7 +30,7 @@ static void generate_all(string src_dir, string out_dir, int x, int z, int jobs,
         }
     }
 
-    start_worker(jobs);
+    start_worker();
 
     delete r;
 }
@@ -65,9 +64,8 @@ static option command_options[] = {
     {"out", required_argument, 0, 'o'}, {0, 0, 0, 0}};
 
 int main(int argc, char **argv) {
-    bool verbose = false;
-    int jobs = thread::hardware_concurrency();
-    string out_dir = ".";
+    option_jobs = thread::hardware_concurrency();
+    option_out_dir = ".";
 
     int c;
     for (;;) {
@@ -82,7 +80,7 @@ int main(int argc, char **argv) {
             break;
 
         case 'v':
-            verbose = true;
+            option_verbose = true;
             break;
 
         case 'V':
@@ -91,11 +89,11 @@ int main(int argc, char **argv) {
             break;
 
         case 'j':
-            jobs = stoi(optarg);
+            option_jobs = stoi(optarg);
             break;
 
         case 'o':
-            out_dir = optarg;
+            option_out_dir = optarg;
             break;
 
         default:
@@ -112,8 +110,7 @@ int main(int argc, char **argv) {
 
     init_block_list();
 
-    generate_all(argv[optind], out_dir, stoi(argv[optind + 1]),
-                 stoi(argv[optind + 2]), jobs, verbose);
+    generate_all(argv[optind], stoi(argv[optind + 1]), stoi(argv[optind + 2]));
 
     return 0;
 }

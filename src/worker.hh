@@ -7,9 +7,12 @@
 
 using namespace std;
 
-void init_worker(Anvil::Region *r, int rx, int rz, string out_dir,
-                 bool verbose);
+extern string option_out_dir;
+extern bool option_verbose;
+extern int option_jobs;
+
+void init_worker(Anvil::Region *r, int rx, int rz);
 void queue_offset(pair<int, int> *off);
-void start_worker(int jobs);
+void start_worker();
 
 #endif
