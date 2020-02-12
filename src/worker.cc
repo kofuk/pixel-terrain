@@ -105,17 +105,16 @@ static void generate_256(Anvil::Region *region, int region_x, int region_z,
                 int prev_y = -1;
                 for (int x = 0; x < 16; ++x) {
                     bool air_found = false;
-                    bool bedrock_found = false;
-                    for (int y = 255; y >= 0; --y) {
-                        string block = chunk->get_block(x, y, z);
 
-                        if (option_nether && block == "bedrock") {
-                            bedrock_found = true;
-                        }
+                    int max_y = 255;
+                    if (option_nether) max_y = 127;
+
+                    for (int y = max_y; y >= 0; --y) {
+                        string block = chunk->get_block(x, y, z);
 
                         if (block == "air" || block == "cave_air" ||
                             block == "void_air") {
-                            if (bedrock_found) air_found = true;
+                            air_found = true;
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
                                           chunk_z * 16 + z, 0, 0, 0);
@@ -123,7 +122,7 @@ static void generate_256(Anvil::Region *region, int region_x, int region_z,
                             continue;
                         }
 
-                        if (option_nether && (!bedrock_found || !air_found)) {
+                        if (option_nether && !air_found) {
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
                                           chunk_z * 16 + z, 0, 0, 0);
