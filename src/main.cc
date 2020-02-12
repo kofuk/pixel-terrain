@@ -50,7 +50,14 @@ static void print_usage() {
     cout << " -V --version    display version information and exit" << endl;
 }
 
-static void print_version() {}
+static void print_version() {
+    cout << "mcmap 1.0" << endl;
+    cout << "Copyright (C) 2020, Koki Fukuda." << endl;
+    cout << "This program includes C++ re-implementation of" << endl
+         << "anvil-parser and nbt, originally written in Python." << endl
+         << "Visit https://github.com/kofuk/minecraft-image-gemerator" << endl
+         << "for more information and the source code." << endl;
+}
 
 static option command_options[] = {
     {"help", no_argument, 0, 'h'},      {"version", no_argument, 0, 'V'},
