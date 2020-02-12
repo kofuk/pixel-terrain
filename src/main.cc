@@ -7,8 +7,16 @@
 #include <string>
 #include <thread>
 
+#ifdef _GNU_SOURCE
+
 #include <getopt.h>
 #include <unistd.h>
+
+#else
+
+#include <cstring>
+
+#endif /* _GNU_SOURCE */
 
 #include "Region.hh"
 #include "blocks.hh"
@@ -36,6 +44,7 @@ static void generate_all(string src_dir, int x, int z) {
 }
 
 static void print_usage() {
+#ifdef _GNU_SOURCE
     cout << "Usage: mcmap [OPTION]... [--] SRC_DIR REGION_X REGION_Z" << endl
          << endl;
     cout << " -j N, --jobs=N  generate N images concurrently. (default: "
@@ -50,6 +59,21 @@ static void print_usage() {
     cout << " -v --verbose    output verbose log" << endl;
     cout << " -h --help       display this help and exit." << endl;
     cout << " -V --version    display version information and exit" << endl;
+#else
+    cout << "Usage: mcmap [OPTION]... SRC_DIR REGION_X REGION_Z" << endl
+         << endl;
+    cout
+        << " /j N    generate N images concurrently. (default: processor count)"
+        << endl;
+    cout << " /o DIR  specify output directory. (default: current directory)"
+         << endl;
+    cout << " /n      Use nether image generation algorythm (experimental)."
+         << endl;
+    cout << " /v      output verbose log" << endl;
+    cout << " /h      display this help and exit." << endl;
+    cout << " /V      display version information and exit" << endl;
+
+#endif
 }
 
 static void print_version() {
@@ -61,6 +85,7 @@ static void print_version() {
          << "for more information and the source code." << endl;
 }
 
+#ifdef _GNU_SOURCE
 static option command_options[] = {{"help", no_argument, 0, 'h'},
                                    {"version", no_argument, 0, 'V'},
                                    {"verbose", no_argument, 0, 'v'},
@@ -68,11 +93,15 @@ static option command_options[] = {{"help", no_argument, 0, 'h'},
                                    {"nether", no_argument, 0, 'n'},
                                    {"out", required_argument, 0, 'o'},
                                    {0, 0, 0, 0}};
+#endif /* _GNU_SOURCE */
 
 int main(int argc, char **argv) {
+    int mcmap_optind = 1;
+
     option_jobs = thread::hardware_concurrency();
     option_out_dir = ".";
 
+#ifdef _GNU_SOURCE
     int c;
     for (;;) {
         c = getopt_long(argc, argv, "hVvj:no:", command_options, nullptr);
@@ -112,7 +141,41 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (optind + 2 >= argc) {
+    mcmap_optind = optind;
+
+#else
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "/j")) {
+            if (i + 1 < argc) {
+                ++i; ++mcmap_optind;
+                option_jobs = stoi(argv[i]);
+            } else {
+                print_usage();
+
+                exit(1);
+            }
+        } else if (!strcmp(argv[i], "/o")) {
+            option_out_dir = argv[i];
+        } else if (!strcmp(argv[i], "/n")) {
+            option_nether = true;
+        } else if (!strcmp(argv[i], "/v")) {
+            option_verbose = true;
+        } else if (!strcmp(argv[i], "/h")) {
+            print_usage();
+
+            exit(0);
+        } else if (!strcmp(argv[i], "/V")) {
+            print_version();
+
+            exit(0);
+        } else {
+            break;
+        }
+        ++mcmap_optind;
+    }
+#endif /* _GNU_SOURCE */
+
+    if (mcmap_optind + 2 >= argc) {
         print_usage();
 
         return 0;
@@ -120,7 +183,8 @@ int main(int argc, char **argv) {
 
     init_block_list();
 
-    generate_all(argv[optind], stoi(argv[optind + 1]), stoi(argv[optind + 2]));
+    generate_all(argv[mcmap_optind], stoi(argv[mcmap_optind + 1]),
+                 stoi(argv[mcmap_optind + 2]));
 
     return 0;
 }

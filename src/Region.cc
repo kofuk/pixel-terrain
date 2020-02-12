@@ -9,7 +9,7 @@
 
 namespace Anvil {
     Region::Region(string file_name) {
-        ifstream f(file_name);
+        ifstream f(file_name, ios::binary);
 
         if (!f) {
             throw invalid_argument("failed to open specified file for reading");

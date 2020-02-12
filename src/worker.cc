@@ -49,7 +49,7 @@ static void generate_256(Anvil::Region *region, int region_x, int region_z,
     path /= (to_string(region_x * 2 + off_x) + ',' +
              to_string(region_z * 2 + off_z) + ".png");
 
-    FILE *f = fopen(path.c_str(), "w");
+    FILE *f = fopen(path.c_str(), "wb");
     if (f == nullptr) {
         return;
     }
