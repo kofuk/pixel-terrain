@@ -44,6 +44,9 @@ static void print_usage() {
     cout << " -o --out        specify output directory. (default: current "
             "directory)"
          << endl;
+    cout << " -n --nether     Use nether image generation algorythm "
+            "(experimental)."
+         << endl;
     cout << " -v --verbose    output verbose log" << endl;
     cout << " -h --help       display this help and exit." << endl;
     cout << " -V --version    display version information and exit" << endl;
@@ -58,10 +61,13 @@ static void print_version() {
          << "for more information and the source code." << endl;
 }
 
-static option command_options[] = {
-    {"help", no_argument, 0, 'h'},      {"version", no_argument, 0, 'V'},
-    {"verbose", no_argument, 0, 'v'},   {"jobs", required_argument, 0, 'j'},
-    {"out", required_argument, 0, 'o'}, {0, 0, 0, 0}};
+static option command_options[] = {{"help", no_argument, 0, 'h'},
+                                   {"version", no_argument, 0, 'V'},
+                                   {"verbose", no_argument, 0, 'v'},
+                                   {"jobs", required_argument, 0, 'j'},
+                                   {"nether", no_argument, 0, 'n'},
+                                   {"out", required_argument, 0, 'o'},
+                                   {0, 0, 0, 0}};
 
 int main(int argc, char **argv) {
     option_jobs = thread::hardware_concurrency();
@@ -69,7 +75,7 @@ int main(int argc, char **argv) {
 
     int c;
     for (;;) {
-        c = getopt_long(argc, argv, "hvVj:o:", command_options, nullptr);
+        c = getopt_long(argc, argv, "hVvj:no:", command_options, nullptr);
 
         if (c == -1) break;
 
@@ -90,6 +96,10 @@ int main(int argc, char **argv) {
 
         case 'j':
             option_jobs = stoi(optarg);
+            break;
+
+        case 'n':
+            option_nether = true;
             break;
 
         case 'o':
