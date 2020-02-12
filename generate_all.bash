@@ -29,7 +29,7 @@ echo 0 > gen_progress.txt
 for f in $1/*.mca; do
     region="$(echo "$f" | sed -E 's/.*r\.([0-9-]+)\.([0-9-]+)\.mca$/\1 \2/')"
 
-    "$script_dir/build/src/gen_map" "$1" $region
+    "$script_dir/build/src/mcmap" -- "$1" $region
 
     ((++n_processed))
     echo $((n_processed*100/n_files)) > gen_progress.txt
