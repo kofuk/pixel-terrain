@@ -105,12 +105,17 @@ static void generate_256(Anvil::Region *region, int region_x, int region_z,
                 int prev_y = -1;
                 for (int x = 0; x < 16; ++x) {
                     bool air_found = false;
+                    bool bedrock_found = false;
                     for (int y = 255; y >= 0; --y) {
                         string block = chunk->get_block(x, y, z);
 
+                        if (option_nether && block == "bedrock") {
+                            bedrock_found = true;
+                        }
+
                         if (block == "air" || block == "cave_air" ||
                             block == "void_air") {
-                            air_found = true;
+                            if (bedrock_found) air_found = true;
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
                                           chunk_z * 16 + z, 0, 0, 0);
@@ -118,7 +123,7 @@ static void generate_256(Anvil::Region *region, int region_x, int region_z,
                             continue;
                         }
 
-                        if (option_nether && !air_found) {
+                        if (option_nether && (!bedrock_found || !air_found)) {
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
                                           chunk_z * 16 + z, 0, 0, 0);
@@ -226,6 +231,14 @@ void init_worker(Anvil::Region *r, int rx, int rz) {
 void queue_offset(pair<int, int> *off) { offs_queue.push(off); }
 
 void start_worker() {
+    if (option_verbose) {
+        cout << "starting worker thread(s) ...";
+        if (option_nether) {
+            cout << "(nether mode)";
+        }
+        cout << endl;
+    }
+
     for (int i = 0; i < option_jobs; ++i) {
         threads.push_back(new thread(&run_worker_loop));
     }
