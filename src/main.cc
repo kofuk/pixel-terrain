@@ -37,7 +37,7 @@ static void generate_all(string src_dir, string out_dir, int x, int z, int jobs,
 }
 
 static void print_usage() {
-    cout << "Usage: gen_map [OPTION]... [--] SRC_DIR REGION_X REGION_Z" << endl
+    cout << "Usage: mcmap [OPTION]... [--] SRC_DIR REGION_X REGION_Z" << endl
          << endl;
     cout << " -j N, --jobs=N  generate N images concurrently. (default: "
             "processor count)"
