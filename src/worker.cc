@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -19,6 +20,8 @@ static mutex queue_mutex;
 static vector<thread *> threads;
 
 static Anvil::Region *region;
+static string out_dir;
+static bool verbose;
 static int region_x;
 static int region_z;
 
@@ -30,12 +33,20 @@ static inline void put_pixel(png_bytepp image, int x, int y, unsigned char r,
     image[y][base_off + 2] = b;
 }
 
-static void generate_256(Anvil::Region *region, int region_x, int region_z,
-                         int off_x, int off_z) {
-    FILE *f = fopen((to_string(region_x * 2 + off_x) + ',' +
-                     to_string(region_z * 2 + off_z) + ".png")
-                        .c_str(),
-                    "w");
+static void generate_256(Anvil::Region *region, string out_dir, int region_x,
+                         int region_z, int off_x, int off_z, bool verbose) {
+    string frame_ident;
+    if (verbose) {
+        frame_ident = to_string(region_x) + "+" + to_string(off_x) + ", " +
+                      to_string(region_z) + "+" + to_string(off_z);
+        cerr << "generating " + frame_ident + " ..." << endl;
+    }
+
+    filesystem::path path = out_dir;
+    path /= (to_string(region_x * 2 + off_x) + ',' +
+             to_string(region_z * 2 + off_z) + ".png");
+
+    FILE *f = fopen(path.c_str(), "w");
     if (f == nullptr) {
         return;
     }
@@ -167,6 +178,10 @@ static void generate_256(Anvil::Region *region, int region_x, int region_z,
     png_destroy_write_struct(&png, &info);
 
     fclose(f);
+
+    if (verbose) {
+        cerr << "generated " + frame_ident + "." << endl;
+    }
 }
 
 static pair<int, int> *fetch_offs() {
@@ -184,11 +199,14 @@ static void run_worker_loop() {
         pair<int, int> *off = fetch_offs();
         if (off == nullptr) break;
 
-        generate_256(region, region_x, region_z, off->first, off->second);
+        generate_256(region, out_dir, region_x, region_z, off->first,
+                     off->second, verbose);
     }
 }
 
-void init_worker(Anvil::Region *r, int rx, int rz) {
+void init_worker(Anvil::Region *r, int rx, int rz, string out, bool v) {
+    out_dir = out;
+    verbose = v;
     region = r;
     region_x = rx;
     region_z = rz;
