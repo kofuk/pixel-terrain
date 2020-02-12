@@ -6,10 +6,9 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
-if ! python --version | grep '^Python 3.' &>/dev/null; then
-    echo 'python command must be Python 3' >&2
-
-    exit 1
+nether=
+if [ $# -ge 2 ] && [ "$2" = '--nether' ]; then
+    nether='-n'
 fi
 
 n_files="$(ls $1/*.mca | wc -l)"
@@ -29,7 +28,7 @@ echo 0 > gen_progress.txt
 for f in $1/*.mca; do
     region="$(echo "$f" | sed -E 's/.*r\.([0-9-]+)\.([0-9-]+)\.mca$/\1 \2/')"
 
-    "$script_dir/build/src/mcmap" -- "$1" $region
+    "$script_dir/build/src/mcmap" $nether -- "$1" $region
 
     ((++n_processed))
     echo $((n_processed*100/n_files)) > gen_progress.txt
