@@ -19,9 +19,7 @@ using namespace std;
 RegionContainer::RegionContainer(Anvil::Region *region, int rx, int rz)
     : region(region), rx(rx), rz(rz) {}
 
-RegionContainer::~RegionContainer() {
-    delete region;
-}
+RegionContainer::~RegionContainer() { delete region; }
 
 void RegionContainer::set_ref_count(int ref_count) {
     unique_lock<mutex> lock(ref_count_mutex);

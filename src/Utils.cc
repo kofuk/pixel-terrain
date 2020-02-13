@@ -33,6 +33,7 @@ namespace NBT {
             if (z_ret != Z_OK) return nullptr;
 
             vector<unsigned char> all_out;
+            all_out.reserve(len * 2);
 
             strm.avail_in = len;
             strm.next_in = data;
@@ -50,8 +51,7 @@ namespace NBT {
                     return nullptr;
                 }
 
-                all_out.insert(std::end(all_out), out,
-                               out + 1024 - strm.avail_out);
+                all_out.insert(end(all_out), out, out + 1024 - strm.avail_out);
             } while (strm.avail_out == 0);
 
             assert(z_ret == Z_STREAM_END);
@@ -60,7 +60,7 @@ namespace NBT {
 
             DecompressedData *dd = new DecompressedData;
             unsigned char *dd_out = new unsigned char[all_out.size()];
-            std::copy(std::begin(all_out), std::end(all_out), dd_out);
+            copy(begin(all_out), end(all_out), dd_out);
             dd->data = dd_out;
             dd->len = all_out.size();
 

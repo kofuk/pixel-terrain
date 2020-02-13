@@ -9,21 +9,20 @@ namespace Anvil {
     Chunk::Chunk(NBT::NBTFile *nbt_data)
         : nbt_file(nbt_data), cache_palette(nullptr),
           cache_palette_section(-1) {
-        NBT::Tag *version_tag = (*nbt_data)["DataVersion"];
+        NBT::TagInt *version_tag = (NBT::TagInt *)((*nbt_data)["DataVersion"]);
         assert(version_tag->tag_type == NBT::TAG_INT);
-        version = ((NBT::TagInt *)version_tag)->value;
+        version = version_tag->value;
 
-        NBT::Tag *data_tag = (*nbt_data)["Level"];
-        assert(data_tag->tag_type == NBT::TAG_COMPOUND);
-        data = (NBT::TagCompound *)data_tag;
+        data = (NBT::TagCompound *)((*nbt_data)["Level"]);
+        assert(data->tag_type == NBT::TAG_COMPOUND);
 
-        NBT::Tag *x_tag = (*data)["xPos"];
+        NBT::TagInt *x_tag = (NBT::TagInt *)((*data)["xPos"]);
         assert(x_tag->tag_type == NBT::TAG_INT);
-        x = ((NBT::TagInt *)x_tag)->value;
+        x = x_tag->value;
 
-        NBT::Tag *z_tag = (*data)["zPos"];
+        NBT::TagInt *z_tag = (NBT::TagInt *)((*data)["zPos"]);
         assert(x_tag->tag_type == NBT::TAG_INT);
-        z = ((NBT::TagInt *)z_tag)->value;
+        z = z_tag->value;
     }
 
     Chunk::~Chunk() {
@@ -47,18 +46,17 @@ namespace Anvil {
             return nullptr;
         }
 
-        NBT::Tag *section_tag = (*data)["Sections"];
-        assert(section_tag->tag_type == NBT::TAG_LIST);
-        NBT::TagList *section = (NBT::TagList *)section_tag;
+        NBT::TagList *section = (NBT::TagList *)(*data)["Sections"];
+        assert(section->tag_type == NBT::TAG_LIST);
+        assert(section->payload_type == NBT::TAG_COMPOUND);
 
-        for (auto itr = std::begin(section->tags);
-             itr != std::end(section->tags); ++itr) {
-            assert((*itr)->tag_type == NBT::TAG_COMPOUND);
-            NBT::Tag *y_tag = (*(NBT::TagCompound *)(*itr))["Y"];
+        for (auto itr = begin(section->tags); itr != end(section->tags);
+             ++itr) {
+            NBT::TagByte *y_tag =
+                (NBT::TagByte *)((*(NBT::TagCompound *)(*itr))["Y"]);
             assert(y_tag->tag_type == NBT::TAG_BYTE);
 
-            if (((NBT::TagByte *)y_tag)->value == y)
-                return (NBT::TagCompound *)(*itr);
+            if (y_tag->value == y) return (NBT::TagCompound *)(*itr);
         }
 
         return nullptr;
@@ -67,19 +65,19 @@ namespace Anvil {
     vector<string *> *Chunk::get_palette(NBT::TagCompound *section) {
         vector<string *> *palette = new vector<string *>;
 
-        NBT::Tag *palette_tag = (*section)["Palette"];
-        assert(palette_tag->tag_type == NBT::TAG_LIST);
-        NBT::TagList *palette_tag_list = (NBT::TagList *)palette_tag;
+        NBT::TagList *palette_tag_list =
+            (NBT::TagList *)((*section)["Palette"]);
+        assert(palette_tag_list->tag_type == NBT::TAG_LIST);
         assert(palette_tag_list->payload_type == NBT::TAG_COMPOUND);
 
-        for (auto itr = std::begin(palette_tag_list->tags);
-             itr != std::end(palette_tag_list->tags); ++itr) {
+        for (auto itr = begin(palette_tag_list->tags);
+             itr != end(palette_tag_list->tags); ++itr) {
             NBT::TagCompound *tag = (NBT::TagCompound *)(*itr);
 
-            NBT::Tag *name_tag = (*tag)["Name"];
+            NBT::TagString *name_tag = (NBT::TagString *)((*tag)["Name"]);
             assert(name_tag->tag_type == NBT::TAG_STRING);
 
-            string *src_name = ((NBT::TagString *)name_tag)->value;
+            string *src_name = name_tag->value;
             string *name;
             if (src_name->find("minecraft:") == 0) {
                 name = new string(src_name->substr(10));
@@ -139,9 +137,10 @@ namespace Anvil {
         }
 
         int index = y * 16 * 16 + z * 16 + x;
-        NBT::Tag *states_tag = (*section)["BlockStates"];
+        NBT::TagLongArray *states_tag =
+            (NBT::TagLongArray *)((*section)["BlockStates"]);
         assert(states_tag->tag_type == NBT::TAG_LONG_ARRAY);
-        vector<int64_t> states = ((NBT::TagLongArray *)states_tag)->values;
+        vector<int64_t> states = states_tag->values;
         int state = index * bits / 64;
 
         if ((uint64_t)state >= states.size()) return "air";
