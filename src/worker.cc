@@ -73,6 +73,7 @@ bool option_verbose;
 int option_jobs;
 bool option_nether;
 bool option_generate_progress;
+bool option_generate_range;
 
 static inline void put_pixel(png_bytepp image, int x, int y, unsigned char r,
                              unsigned char g, unsigned char b) {
