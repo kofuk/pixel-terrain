@@ -197,6 +197,7 @@ colors["diorite_stairs"] = {206, 206, 207};
 colors["diorite_wall"] = {190, 191, 193};
 colors["dirt"] = {159, 107, 73};
 colors["dispenser"] = {134, 134, 134};
+colors["dragon_egg"] = {20, 0, 22};
 colors["dragon_head"] = {15, 15, 15};
 colors["dragon_wall_head"] = {15, 15, 15};
 colors["emerald_block"] = {0, 177, 62};
