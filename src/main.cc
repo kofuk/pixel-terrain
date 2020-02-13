@@ -41,7 +41,7 @@ static void generate_all(string src_dir) {
     filesystem::directory_iterator dir =
         filesystem::directory_iterator(src_dir);
 
-    int progress = 0;
+    int progress = -1;
     int nfile = distance(begin(dir), end(dir));
     int n_processed = 0;
 
