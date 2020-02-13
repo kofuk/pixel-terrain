@@ -32,7 +32,9 @@ bool RegionContainer::decrease_ref() {
         if (ref_count > 0) return false;
     }
 
-    cout << "discarding " + to_string(rx) + ", " + to_string(rz) << endl;
+    if (option_verbose) {
+        cout << "discarding " + to_string(rx) + ", " + to_string(rz) << endl;
+    }
 
     delete this;
 
