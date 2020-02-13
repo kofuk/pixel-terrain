@@ -38,6 +38,7 @@ extern string option_out_dir;
 extern bool option_verbose;
 extern int option_jobs;
 extern bool option_nether;
+extern bool option_generate_progress;
 
 void queue_item(QueuedItem *item);
 void start_worker();

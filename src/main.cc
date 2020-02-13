@@ -1,9 +1,12 @@
+#include <algorithm>
 #include <array>
 #include <csetjmp>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <thread>
 
@@ -24,11 +27,28 @@
 
 using namespace std;
 
+static void write_progress_file(int progress) {
+    filesystem::path out_path(option_out_dir);
+    out_path /= "gen_progress.txt";
+
+    ofstream out(out_path.string());
+    out << progress << endl;
+}
+
 static void generate_all(string src_dir) {
     start_worker();
 
+    filesystem::directory_iterator dir =
+        filesystem::directory_iterator(src_dir);
+
+    int progress = 0;
+    int nfile = distance(begin(dir), end(dir));
+    int n_processed = 0;
+
     for (filesystem::directory_entry const &path :
          filesystem::directory_iterator(src_dir)) {
+        ++n_processed;
+
         if (path.is_directory()) continue;
 
         string name = path.path().filename();
@@ -61,6 +81,14 @@ static void generate_all(string src_dir) {
                 queue_item(item);
             }
         }
+
+        if (option_generate_progress) {
+            int cur_progress = n_processed * 100 / nfile;
+            if (cur_progress != progress) {
+                progress = cur_progress;
+                write_progress_file(progress);
+            }
+        }
     }
 
     for (int i = 0; i < option_jobs; ++i) {
@@ -69,6 +97,12 @@ static void generate_all(string src_dir) {
     }
 
     wait_for_worker();
+
+    if (option_generate_progress) {
+        filesystem::path progress_file(option_out_dir);
+        progress_file /= "gen_progress.txt";
+        filesystem::remove(progress_file);
+    }
 }
 
 static void print_usage() {
@@ -77,11 +111,13 @@ static void print_usage() {
     cout << " -j N, --jobs=N  generate N images concurrently. (default: "
             "processor count)"
          << endl;
+    cout << " -n --nether     Use nether image generation algorythm "
+            "(experimental)."
+         << endl;
     cout << " -o --out DIR    specify output directory. (default: current "
             "directory)"
          << endl;
-    cout << " -n --nether     Use nether image generation algorythm "
-            "(experimental)."
+    cout << " -p --generate-progess  output progress to gen_progess.txt"
          << endl;
     cout << " -v --verbose    output verbose log" << endl;
     cout << " -h --help       display this help and exit." << endl;
@@ -91,10 +127,11 @@ static void print_usage() {
     cout
         << " /j N    generate N images concurrently. (default: processor count)"
         << endl;
-    cout << " /o DIR  specify output directory. (default: current directory)"
-         << endl;
     cout << " /n      Use nether image generation algorythm (experimental)."
          << endl;
+    cout << " /o DIR  specify output directory. (default: current directory)"
+         << endl;
+    cout << " /p      output progress to gen_progress.txt" << endl;
     cout << " /v      output verbose log" << endl;
     cout << " /h      display this help and exit." << endl;
     cout << " /V      display version information and exit" << endl;
@@ -114,10 +151,11 @@ static void print_version() {
 #ifdef _GNU_SOURCE
 static option command_options[] = {{"help", no_argument, 0, 'h'},
                                    {"version", no_argument, 0, 'V'},
-                                   {"verbose", no_argument, 0, 'v'},
                                    {"jobs", required_argument, 0, 'j'},
                                    {"nether", no_argument, 0, 'n'},
                                    {"out", required_argument, 0, 'o'},
+                                   {"generate-progress", no_argument, 0, 'p'},
+                                   {"verbose", no_argument, 0, 'v'},
                                    {0, 0, 0, 0}};
 #endif /* _GNU_SOURCE */
 
@@ -130,7 +168,7 @@ int main(int argc, char **argv) {
 #ifdef _GNU_SOURCE
     int c;
     for (;;) {
-        c = getopt_long(argc, argv, "hVvj:no:", command_options, nullptr);
+        c = getopt_long(argc, argv, "hVj:no:pv", command_options, nullptr);
 
         if (c == -1) break;
 
@@ -161,6 +199,10 @@ int main(int argc, char **argv) {
             option_out_dir = optarg;
             break;
 
+        case 'p':
+            option_generate_progress = true;
+            break;
+
         default:
             print_usage();
             exit(1);
@@ -185,6 +227,7 @@ int main(int argc, char **argv) {
             option_out_dir = argv[i];
         } else if (!strcmp(argv[i], "/n")) {
             option_nether = true;
+        } else if (!strcmp(argv[i], "/p")) {
         } else if (!strcmp(argv[i], "/v")) {
             option_verbose = true;
         } else if (!strcmp(argv[i], "/h")) {
