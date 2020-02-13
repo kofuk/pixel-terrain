@@ -218,6 +218,7 @@ colors["fire_coral_block"] = {140, 29, 42};
 colors["fire_coral_fan"] = {140, 29, 42};
 colors["fire_coral_wall_fan"] = {140, 29, 42};
 colors["flower_pot"] = {121, 67, 52};
+colors["furnace"] = {84, 84, 84};
 colors["glass"] = {193, 232, 229};
 colors["glass_pane"] = {164, 243, 250};
 colors["glowstone"] = {206, 184, 93};
