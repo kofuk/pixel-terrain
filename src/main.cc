@@ -68,7 +68,7 @@ static void generate_all(string src_dir) {
 
         if (path.is_directory()) continue;
 
-        string name = path.path().filename();
+        string name = path.path().filename().string();
 
         if (name[0] != 'r' || name[1] != '.') continue;
         size_t i = 2;
