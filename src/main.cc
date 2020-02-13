@@ -25,6 +25,8 @@
 using namespace std;
 
 static void generate_all(string src_dir) {
+    start_worker();
+
     for (filesystem::directory_entry const &path :
          filesystem::directory_iterator(src_dir)) {
         if (path.is_directory()) continue;
@@ -50,18 +52,23 @@ static void generate_all(string src_dir) {
 
         Anvil::Region *r = new Anvil::Region(path.path().string());
 
-        init_worker(r, x, z);
+        RegionContainer *rc = new RegionContainer(r, x, z);
+        rc->set_ref_count(4);
 
         for (int off_x = 0; off_x < 2; ++off_x) {
             for (int off_z = 0; off_z < 2; ++off_z) {
-                queue_offset(new pair<int, int>(off_x, off_z));
+                QueuedItem *item = new QueuedItem(rc, off_x, off_z);
+                queue_item(item);
             }
         }
-
-        start_worker();
-
-        delete r;
     }
+
+    for (int i = 0; i < option_jobs; ++i) {
+        QueuedItem *item = new QueuedItem(nullptr, 0, 0);
+        queue_item(item);
+    }
+
+    wait_for_worker();
 }
 
 static void print_usage() {

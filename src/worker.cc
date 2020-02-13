@@ -1,6 +1,8 @@
+#include <condition_variable>
 #include <filesystem>
 #include <mutex>
 #include <queue>
+#include <string>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -14,19 +16,56 @@
 
 using namespace std;
 
-static queue<pair<int, int> *> offs_queue;
+RegionContainer::RegionContainer(Anvil::Region *region, int rx, int rz)
+    : region(region), rx(rx), rz(rz) {}
+
+void RegionContainer::set_ref_count(int ref_count) {
+    unique_lock<mutex> lock(ref_count_mutex);
+    this->ref_count = ref_count;
+}
+
+bool RegionContainer::decrease_ref() {
+    {
+        unique_lock<mutex> lock(ref_count_mutex);
+        --ref_count;
+
+        if (ref_count > 0) return false;
+    }
+
+    cout << "discarding " + to_string(rx) + ", " + to_string(rz) << endl;
+
+    delete this;
+
+    return true;
+}
+
+QueuedItem::QueuedItem(RegionContainer *region, int off_x, int off_z)
+    : region(region), off_x(off_x), off_z(off_z) {}
+
+string QueuedItem::debug_string() {
+    if (region == nullptr) {
+        return "(finishing job)";
+    }
+
+    return "(" + to_string(region->rx) + "+" + to_string(off_x) + ", " +
+           to_string(region->rz) + "+" + to_string(off_z) + ")";
+}
+
+static queue<QueuedItem *> offs_queue;
 
 static mutex queue_mutex;
 static vector<thread *> threads;
+
+static condition_variable queue_cap_cond;
+static mutex queue_cap_cond_mutex;
+
+static condition_variable queued_cond;
+static mutex queued_cond_mutex;
 
 string option_out_dir;
 bool option_verbose;
 int option_jobs;
 bool option_nether;
-
-static Anvil::Region *region;
-static int region_x;
-static int region_z;
 
 static inline void put_pixel(png_bytepp image, int x, int y, unsigned char r,
                              unsigned char g, unsigned char b) {
@@ -36,13 +75,15 @@ static inline void put_pixel(png_bytepp image, int x, int y, unsigned char r,
     image[y][base_off + 2] = b;
 }
 
-static void generate_256(Anvil::Region *region, int region_x, int region_z,
-                         int off_x, int off_z) {
-    string frame_ident;
+static void generate_256(QueuedItem *item) {
+    Anvil::Region *region = item->region->region;
+    int region_x = item->region->rx;
+    int region_z = item->region->rz;
+    int off_x = item->off_x;
+    int off_z = item->off_z;
+
     if (option_verbose) {
-        frame_ident = to_string(region_x) + "+" + to_string(off_x) + ", " +
-                      to_string(region_z) + "+" + to_string(off_z);
-        cerr << "generating " + frame_ident + " ..." << endl;
+        cerr << "generating " + item->debug_string() + " ..." << endl;
     }
 
     filesystem::path path = option_out_dir;
@@ -198,36 +239,82 @@ static void generate_256(Anvil::Region *region, int region_x, int region_z,
     fclose(f);
 
     if (option_verbose) {
-        cerr << "generated " + frame_ident + "." << endl;
+        cerr << "generated " + item->debug_string() + "." << endl;
     }
 }
 
-static pair<int, int> *fetch_offs() {
+static QueuedItem *fetch_item() {
+    QueuedItem *result;
+
     unique_lock<mutex> lock(queue_mutex);
+
     if (offs_queue.empty()) return nullptr;
 
-    pair<int, int> *result = offs_queue.front();
+    result = offs_queue.front();
     offs_queue.pop();
+
+    queue_cap_cond.notify_one();
 
     return result;
 }
 
 static void run_worker_loop() {
     for (;;) {
-        pair<int, int> *off = fetch_offs();
-        if (off == nullptr) break;
+        QueuedItem *item = fetch_item();
+        if (item == nullptr) {
+            {
+                unique_lock<mutex> lock(queued_cond_mutex);
+                queued_cond.wait(lock);
+            }
 
-        generate_256(region, region_x, region_z, off->first, off->second);
+            continue;
+        }
+
+        if (item->region == nullptr) {
+            if (option_verbose) {
+                cout << "shutting down worker" << endl;
+            }
+
+            delete item;
+
+            break;
+        }
+
+        generate_256(item);
+
+        item->region->decrease_ref();
+        delete item;
     }
 }
 
-void init_worker(Anvil::Region *r, int rx, int rz) {
-    region = r;
-    region_x = rx;
-    region_z = rz;
-}
+void queue_item(QueuedItem *item) {
+    if (option_verbose) {
+        cout << "trying to queue " + item->debug_string() << endl;
+    }
 
-void queue_offset(pair<int, int> *off) { offs_queue.push(off); }
+    unique_lock<mutex> lock(queue_cap_cond_mutex);
+
+    for (;;) {
+        {
+            unique_lock<mutex> queue_lock(queue_mutex);
+
+            if (offs_queue.size() < (size_t)option_jobs * 2) {
+                offs_queue.push(item);
+
+                queued_cond.notify_all();
+
+                if (option_verbose) {
+                    cout << "item " + item->debug_string() +
+                                " successfully queued."
+                         << endl;
+                }
+                return;
+            }
+        }
+
+        queue_cap_cond.wait(lock);
+    }
+}
 
 void start_worker() {
     if (option_verbose) {
@@ -241,14 +328,11 @@ void start_worker() {
     for (int i = 0; i < option_jobs; ++i) {
         threads.push_back(new thread(&run_worker_loop));
     }
+}
 
+void wait_for_worker() {
     for (auto itr = begin(threads); itr != end(threads); ++itr) {
         (*itr)->join();
-    }
-
-    for (auto itr = begin(threads); itr != end(threads); ++itr) {
         delete *itr;
     }
-
-    threads.clear();
 }
