@@ -84,7 +84,7 @@ namespace Anvil {
             if (src_name->find("minecraft:") == 0) {
                 name = new string(src_name->substr(10));
             } else {
-                name = src_name;
+                name = new string(*src_name);
             }
             palette->push_back(name);
         }
@@ -156,7 +156,7 @@ namespace Anvil {
             if (data < 0) data += pow(2, 64);
             int leftover = (bits - ((state + 1) * 64 % bits)) % bits;
             shifted_data =
-                ((data & (int64_t)pow(2, leftover - 1)) << (bits - leftover)) |
+                ((data & (int64_t)pow(2, leftover) - 1) << (bits - leftover)) |
                 shifted_data;
         }
 
