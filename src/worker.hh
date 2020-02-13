@@ -18,6 +18,7 @@ public:
     int rz;
 
     RegionContainer(Anvil::Region *region, int rx, int rz);
+    ~RegionContainer();
     void set_ref_count(int ref_count);
     /* if decreased ref count is less than 1, object commits suicide and returns
      * true. */
