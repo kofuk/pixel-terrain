@@ -48,10 +48,10 @@ namespace Anvil {
 
         NBT::TagList *section = (NBT::TagList *)(*data)["Sections"];
         assert(section->tag_type == NBT::TAG_LIST);
-        assert(section->payload_type == NBT::TAG_COMPOUND);
 
         for (auto itr = begin(section->tags); itr != end(section->tags);
              ++itr) {
+            assert((*itr)->tag_type == NBT::TAG_COMPOUND);
             NBT::TagByte *y_tag =
                 (NBT::TagByte *)((*(NBT::TagCompound *)(*itr))["Y"]);
             assert(y_tag->tag_type == NBT::TAG_BYTE);
