@@ -570,6 +570,7 @@ colors["shulker_box"] = {152, 105, 152};
 colors["skeleton_skull"] = {211, 211, 211};
 colors["skeleton_wall_skull"] = {211, 211, 211};
 colors["skull"] = {58, 33, 9};
+colors["slime_block"] = {158, 213, 142};
 colors["smooth_quartz"] = {238, 234, 230};
 colors["smooth_quartz_slab"] = {238, 230, 222};
 colors["smooth_quartz_stairs"] = {238, 230, 222};
