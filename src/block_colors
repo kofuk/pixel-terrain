@@ -1,6 +1,5 @@
 colors["acacia_button"] = {160, 86, 48, 50};
 colors["acacia_door"] = {177, 102, 64, 150};
-;
 colors["acacia_fence"] = {153, 80, 43, 150};
 colors["acacia_fence_gate"] = {153, 80, 43, 150};
 colors["acacia_leaves"] = {41, 99, 13, 255};
@@ -237,6 +236,7 @@ colors["fire_coral"] = {140, 29, 42, 200};
 colors["fire_coral_block"] = {140, 29, 42, 255};
 colors["fire_coral_fan"] = {140, 29, 42, 200};
 colors["fire_coral_wall_fan"] = {140, 29, 42, 200};
+colors["fletching_table"] = {193, 179, 125};
 colors["flower_pot"] = {121, 67, 52, 100};
 colors["frosted_ice"] = {148, 168, 217, 255};
 colors["furnace"] = {84, 84, 84, 255};

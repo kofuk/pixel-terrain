@@ -195,7 +195,7 @@ static void generate_256(QueuedItem *item) {
                         if (option_nether && !air_found) {
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
-                                          chunk_z * 16 + z, 0, 0, 0, 0);
+                                          chunk_z * 16 + z, 0, 0, 0, 255);
                             }
 
                             continue;
