@@ -187,7 +187,7 @@ static void generate_256(QueuedItem *item) {
                             air_found = true;
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
-                                          chunk_z * 16 + z, 0, 0, 0, 255);
+                                          chunk_z * 16 + z, 0, 0, 0, 0);
                             }
                             continue;
                         }
@@ -195,14 +195,14 @@ static void generate_256(QueuedItem *item) {
                         if (option_nether && !air_found) {
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
-                                          chunk_z * 16 + z, 0, 0, 0, 176);
+                                          chunk_z * 16 + z, 0, 0, 0, 0);
                             }
 
                             continue;
                         }
 
                         auto color_itr = colors.find(block);
-                        if (color_itr == std::end(colors)) {
+                        if (color_itr == end(colors)) {
                             cout << R"(colors[")" << block << R"("] = ???)"
                                  << endl;
 
