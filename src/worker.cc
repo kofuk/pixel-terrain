@@ -160,7 +160,7 @@ static void generate_256(QueuedItem *item) {
                 for (int x = 0; x < 16; ++x) {
                     for (int z = 0; z < 16; ++z) {
                         put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z, 0,
-                                  0, 0, 255);
+                                  0, 0, 0);
                     }
                 }
 
