@@ -73,12 +73,25 @@ bool option_nether;
 bool option_generate_progress;
 bool option_generate_range;
 
-static inline void put_pixel(png_bytepp image, int x, int y, unsigned char r,
-                             unsigned char g, unsigned char b) {
-    int base_off = x * 3;
-    image[y][base_off] = r;
-    image[y][base_off + 1] = g;
-    image[y][base_off + 2] = b;
+/* blend specified color with existing color. */
+static inline unsigned char put_pixel(png_bytepp image, int x, int y, unsigned char r,
+                             unsigned char g, unsigned char b,
+                             unsigned char a) {
+    int base_off = x * 4;
+
+    unsigned char old_r = image[y][base_off];
+    unsigned char old_g = image[y][base_off + 1];
+    unsigned char old_b = image[y][base_off + 2];
+    unsigned char old_a = image[y][base_off + 3];
+
+    unsigned char new_a = (a + old_a) - a * old_a / 255;
+
+    image[y][base_off] = (old_r * old_a + r * (255 - old_a) * a / 255) / new_a;
+    image[y][base_off + 1] = (old_g * old_a + g * (255 - old_a) * a / 255) / new_a;
+    image[y][base_off + 2] = (old_b * old_b + b * (255 - old_a) * a / 255) / new_a;
+    image[y][base_off + 3] = new_a;
+
+    return new_a;
 }
 
 static void generate_256(QueuedItem *item) {
@@ -117,8 +130,9 @@ static void generate_256(QueuedItem *item) {
 
         return;
     }
-    png_set_IHDR(png, info, 256, 256, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+    png_set_IHDR(png, info, 256, 256, 8, PNG_COLOR_TYPE_RGBA,
+                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+                 PNG_FILTER_TYPE_DEFAULT);
 
     if (setjmp(png_jmpbuf(png))) {
         png_destroy_write_struct(&png, &info);
@@ -129,8 +143,13 @@ static void generate_256(QueuedItem *item) {
 
     png_bytepp rows = new png_bytep[256];
     /* allocate memory for each row, 3 bytes (rgb) per a pixel. */
-    for (int i = 0; i < 256; ++i)
-        rows[i] = new png_byte[256 * 3];
+    for (int i = 0; i < 256; ++i) {
+        rows[i] = new png_byte[256 * 4];
+
+        for (int j = 0; j < 256 * 4; ++j) {
+            rows[i][j] = 0;
+        }
+    }
 
     for (int chunk_z = 0; chunk_z < 16; ++chunk_z) {
         for (int chunk_x = 0; chunk_x < 16; ++chunk_x) {
@@ -141,7 +160,7 @@ static void generate_256(QueuedItem *item) {
                 for (int x = 0; x < 16; ++x) {
                     for (int z = 0; z < 16; ++z) {
                         put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z, 0,
-                                  0, 0);
+                                  0, 0, 255);
                     }
                 }
 
@@ -149,6 +168,7 @@ static void generate_256(QueuedItem *item) {
             }
 
             for (int z = 0; z < 16; ++z) {
+                int prev_x = -1;
                 int prev_y = -1;
                 for (int x = 0; x < 16; ++x) {
                     bool air_found = false;
@@ -157,6 +177,7 @@ static void generate_256(QueuedItem *item) {
                     if (option_nether) max_y = 127;
 
                     for (int y = max_y; y >= 0; --y) {
+                        unsigned char new_alpha;
                         string block = chunk->get_block(x, y, z);
 
                         if (block == "air" || block == "cave_air" ||
@@ -164,7 +185,7 @@ static void generate_256(QueuedItem *item) {
                             air_found = true;
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
-                                          chunk_z * 16 + z, 0, 0, 0);
+                                          chunk_z * 16 + z, 0, 0, 0, 255);
                             }
                             continue;
                         }
@@ -172,7 +193,7 @@ static void generate_256(QueuedItem *item) {
                         if (option_nether && !air_found) {
                             if (y == 0) {
                                 put_pixel(rows, chunk_x * 16 + x,
-                                          chunk_z * 16 + z, 0, 0, 0);
+                                          chunk_z * 16 + z, 0, 0, 0, 176);
                             }
 
                             continue;
@@ -183,12 +204,12 @@ static void generate_256(QueuedItem *item) {
                             cout << R"(colors[")" << block << R"("] = ???)"
                                  << endl;
 
-                            put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z,
-                                      0, 0, 0);
+                            new_alpha = put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z,
+                                      0, 0, 0, 255);
                         } else {
-                            array<unsigned char, 3> color = color_itr->second;
-                            array<int, 3> rcolor = {color[0], color[1],
-                                                    color[2]};
+                            array<unsigned char, 4> color = color_itr->second;
+                            array<int, 4> rcolor = {color[0], color[1],
+                                                    color[2], color[3]};
 
                             int plus;
                             if (prev_y < 0 || prev_y == y) {
@@ -207,11 +228,17 @@ static void generate_256(QueuedItem *item) {
                                     rcolor[i] = 0;
                             }
 
-                            put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z,
-                                      rcolor[0], rcolor[1], rcolor[2]);
+                            new_alpha = put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z,
+                                      rcolor[0], rcolor[1], rcolor[2],
+                                      rcolor[3]);
                         }
 
-                        prev_y = y;
+                        if (prev_x != x && new_alpha > 130) {
+                            prev_x = x;
+                            prev_y = y;
+                        }
+
+                        if (new_alpha < 255) continue;
 
                         break;
                     }

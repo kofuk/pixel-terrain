@@ -169,7 +169,7 @@ static void print_usage() {
 }
 
 static void print_version() {
-    cout << "mcmap 1.1" << endl;
+    cout << "mcmap 1.2" << endl;
     cout << "Copyright (C) 2020, Koki Fukuda." << endl;
     cout << "This program includes C++ re-implementation of" << endl
          << "anvil-parser and nbt, originally written in Python." << endl
