@@ -90,7 +90,7 @@ static inline unsigned char put_pixel(png_bytepp image, int x, int y, unsigned c
 
     image[y][base_off] = (old_r * old_a + r * (255 - old_a) * a / 255) / new_a;
     image[y][base_off + 1] = (old_g * old_a + g * (255 - old_a) * a / 255) / new_a;
-    image[y][base_off + 2] = (old_b * old_b + b * (255 - old_a) * a / 255) / new_a;
+    image[y][base_off + 2] = (old_b * old_a + b * (255 - old_a) * a / 255) / new_a;
     image[y][base_off + 3] = new_a;
 
     return new_a;
