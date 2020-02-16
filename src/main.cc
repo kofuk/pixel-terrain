@@ -129,7 +129,14 @@ static void generate_all(string src_dir) {
     }
 
     if (option_generate_range) {
-        write_range_file(min_x, min_z, max_x + 1, max_z + 1);
+        /* max_* is exclusive */
+        ++max_x;
+        ++max_z;
+        min_x *= 2;
+        min_z *= 2;
+        max_x *= 2;
+        max_z *= 2;
+        write_range_file(min_x, min_z, max_x, max_z);
     }
 }
 
