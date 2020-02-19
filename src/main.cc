@@ -3,6 +3,7 @@
 #include <csetjmp>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -11,19 +12,18 @@
 #include <string>
 #include <thread>
 
-#ifdef _GNU_SOURCE
-
-#include <getopt.h>
+#ifdef __unix__
 #include <unistd.h>
 
-#else
-
-#include <cstring>
-
+#ifdef _GNU_SOURCE
+#include <getopt.h>
 #endif /* _GNU_SOURCE */
+
+#endif /* __unix__ */
 
 #include "Region.hh"
 #include "blocks.hh"
+#include "server.hh"
 #include "worker.hh"
 
 using namespace std;
@@ -141,8 +141,16 @@ static void generate_all(string src_dir) {
 }
 
 static void print_usage() {
-#ifdef _GNU_SOURCE
-    cout << "Usage: mcmap [OPTION]... SRC_DIR" << endl << endl;
+#ifdef __unix__
+    cout << "Usage: mcmap generate [OPTION]... SRC_DIR" << endl;
+    cout << "       mcmap server CONFIG" << endl;
+    cout << "Modes:" << endl;
+    cout << " generate  image generating mode" << endl;
+    cout << " server    block info provider server" << endl << endl;
+    cout << "Global options:" << endl;
+    cout << " --help     display this help and exit" << endl;
+    cout << " --version  display version information and exit" << endl << endl;
+    cout << "GENERATE mode options:" << endl;
     cout << " -j N, --jobs=N    generate N images concurrently. (default: "
             "processor count)"
          << endl;
@@ -154,9 +162,11 @@ static void print_usage() {
          << endl;
     cout << " -p --gen_progess  output progress to gen_progess.txt" << endl;
     cout << " -r --gen-range    output chunk range to chunk_range.json" << endl;
-    cout << " -v --verbose      output verbose log" << endl;
-    cout << " -h --help         display this help and exit." << endl;
-    cout << " -V --version      display version information and exit" << endl;
+    cout << " -v --verbose      output verbose log" << endl << endl;
+    cout << "SERVER mode options:" << endl;
+    cout << " --help  display protocol and config detail and exit" << endl
+         << endl;
+    cout << "Note: long options is supported only on GNU system" << endl;
 #else
     cout << "Usage: mcmap [OPTION]... SRC_DIR" << endl << endl;
     cout
@@ -171,12 +181,11 @@ static void print_usage() {
     cout << " /v      output verbose log" << endl;
     cout << " /h      display this help and exit." << endl;
     cout << " /V      display version information and exit" << endl;
-
-#endif
+#endif /* __unix__ */
 }
 
 static void print_version() {
-    cout << "mcmap 1.2" << endl;
+    cout << "mcmap 2.0" << endl;
     cout << "Copyright (C) 2020, Koki Fukuda." << endl;
     cout << "This program includes C++ re-implementation of" << endl
          << "anvil-parser and nbt, originally written in Python." << endl
@@ -185,40 +194,37 @@ static void print_version() {
 }
 
 #ifdef _GNU_SOURCE
-static option command_options[] = {{"help", no_argument, 0, 'h'},
-                                   {"version", no_argument, 0, 'V'},
-                                   {"jobs", required_argument, 0, 'j'},
-                                   {"nether", no_argument, 0, 'n'},
-                                   {"out", required_argument, 0, 'o'},
-                                   {"gen-progress", no_argument, 0, 'p'},
-                                   {"gen-range", no_argument, 0, 'r'},
-                                   {"verbose", no_argument, 0, 'v'},
-                                   {0, 0, 0, 0}};
+static option generate_command_options[] = {
+    {"jobs", required_argument, 0, 'j'},
+    {"nether", no_argument, 0, 'n'},
+    {"out", required_argument, 0, 'o'},
+    {"gen-progress", no_argument, 0, 'p'},
+    {"gen-range", no_argument, 0, 'r'},
+    {"verbose", no_argument, 0, 'v'},
+    {0, 0, 0, 0}};
+
+static option server_command_options[] = {{"help", no_argument, 0, 'h'},
+                                          {0, 0, 0, 0}};
 #endif /* _GNU_SOURCE */
 
-int main(int argc, char **argv) {
-    int mcmap_optind = 1;
+static int generate_command(int argc, char **argv) {
+    int mcmap_optind = 0;
 
     option_jobs = thread::hardware_concurrency();
     option_out_dir = ".";
 
-#ifdef _GNU_SOURCE
+#ifdef __unix__
     int c;
     for (;;) {
-        c = getopt_long(argc, argv, "hVj:no:prv", command_options, nullptr);
-
+#ifdef _GNU_SOURCE
+        c = getopt_long(argc, argv, "j:no:prv", generate_command_options,
+                        nullptr);
+#else
+        c = getopt(argc, argv, "j:no:prv");
+#endif /* _GNU_SOURCE */
         if (c == -1) break;
 
         switch (c) {
-        case 'h':
-            print_usage();
-            exit(0);
-            break;
-
-        case 'v':
-            option_verbose = true;
-            break;
-
         case 'V':
             print_version();
             exit(0);
@@ -251,7 +257,6 @@ int main(int argc, char **argv) {
     }
 
     mcmap_optind = optind;
-
 #else
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "/j")) {
@@ -287,7 +292,7 @@ int main(int argc, char **argv) {
         }
         ++mcmap_optind;
     }
-#endif /* _GNU_SOURCE */
+#endif /* __unix__ */
 
     if (mcmap_optind >= argc) {
         print_usage();
@@ -298,6 +303,76 @@ int main(int argc, char **argv) {
     init_block_list();
 
     generate_all(argv[mcmap_optind]);
+
+    return 0;
+}
+
+static int server_command(int argc, char **argv) {
+#ifdef __unix__
+    int opt;
+    for (;;) {
+#ifdef _GNU_SOURCE
+        opt = getopt_long(argc, argv, "h", server_command_options, nullptr);
+#else
+        opt = getopt(argc, argv, "h");
+#endif /* _GNU_SOURCE */
+
+        if (opt == -1) break;
+
+        switch (opt) {
+        case 'h':
+            Server::print_protocol_detail();
+            exit(0);
+
+        default:
+            print_usage();
+            exit(1);
+        }
+    }
+
+    if (argc - optind == 1) {
+        Server::launch_server(argv[optind]);
+    } else {
+        print_usage();
+        exit(1);
+    }
+#else
+    cout << "server mode on non *nix system is not supported." << endl;
+
+    return 1;
+#endif /* __unix__ */
+
+    return 0;
+}
+
+int main(int argc, char **argv) {
+#ifdef __unix__
+    if (argc < 2) {
+        print_usage();
+        exit(1);
+    }
+
+    if (!strcmp(argv[1], "--help")) {
+        print_usage();
+        exit(0);
+    } else if (!strcmp(argv[1], "--version")) {
+        print_version();
+        exit(0);
+    } else if (!strcmp(argv[1], "generate")) {
+        generate_command(--argc, ++argv);
+    } else if (!strcmp(argv[1], "server")) {
+        server_command(--argc, ++argv);
+    } else {
+        cout << "unrecognized option: " << argv[1] << endl;
+        print_usage();
+        exit(1);
+    }
+
+#else
+
+    generate_command(argc, argv);
+
+#endif /* __unix__ */
 
     return 0;
 }
