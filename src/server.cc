@@ -123,14 +123,21 @@ namespace Server {
         }
     }
 
+    static inline int positive_mod(int a, int b) {
+        int mod = a % b;
+        if (mod < 0) mod += b;
+
+        return mod;
+    }
+
     static void resolve_block(FILE *f, string dimen, long long int x,
                               long long int z) {
         int region_x = x / 512;
         int region_z = z / 512;
-        int chunk_x = x % 512 / 16;
-        int chunk_z = z % 512 / 16;
-        int x_in_chunk = x % 512 % 16;
-        int z_in_chunk = z % 512 % 16;
+        int chunk_x = positive_mod(x, 512);
+        int chunk_z = positive_mod(z, 512);
+        int x_in_chunk = chunk_x % 16;
+        int z_in_chunk = chunk_z % 16;
 
         filesystem::path region_file;
 
