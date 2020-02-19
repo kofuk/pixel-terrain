@@ -103,7 +103,7 @@ namespace Server {
 
     static void send_response(FILE *f, int response_code, int altitude,
                               string *block) {
-        fputs("NMP/1.0 ", f);
+        fputs("MMP/1.0 ", f);
         putc('0' + response_code / 100, f);
         putc('0' + response_code / 10 % 10, f);
         putc('0' + response_code % 10, f);
