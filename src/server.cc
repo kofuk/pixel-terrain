@@ -14,6 +14,7 @@
 
 #include <signal.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/un.h>
@@ -383,12 +384,21 @@ namespace Server {
         for (;;) {
             int fd;
             if ((fd = accept(ssock, (sockaddr *)&sa_peer, &addr_len)) > 0) {
-                if (fork() == 0) {
+                pid_t pid;
+                if ((pid = fork()) == 0) {
                     close(ssock);
-                    handle_request(fd);
 
-                    return;
+                    pid = fork();
+                    if (pid == 0) {
+                        handle_request(fd);
+
+                        exit(0);
+                    }
+
+                    exit(0);
                 }
+
+                waitpid(pid, nullptr, 0);
             }
             close(fd);
         }
