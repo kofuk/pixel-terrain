@@ -133,8 +133,21 @@ namespace Server {
 
     static void resolve_block(FILE *f, string dimen, long long int x,
                               long long int z) {
-        int region_x = x / 512;
-        int region_z = z / 512;
+        int region_x;
+        int region_z;
+
+        if (x >= 0) {
+            region_x = x / 512;
+        } else {
+            region_x = (x + 1) / 512 - 1;
+        }
+
+        if (z >= 0) {
+            region_z = z / 512;
+        } else {
+            region_z = (z + 1) / 512 - 1;
+        }
+
         int chunk_x = positive_mod(x, 512) / 16;
         int chunk_z = positive_mod(z, 512) / 16;
         int x_in_chunk = positive_mod(x, 512) % 16;
