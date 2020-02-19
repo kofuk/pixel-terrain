@@ -5,16 +5,16 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
-
-#include <fstream>
-#include <iostream>
 #include <unordered_map>
 
 #include <signal.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -349,6 +349,11 @@ namespace Server {
         }
 
         if (listen(ssock, 4) == -1) {
+            goto fail;
+        }
+
+        if (chmod("/tmp/mcmap.sock", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
+                                         S_IROTH | S_IWOTH) == -1) {
             goto fail;
         }
 
