@@ -109,9 +109,15 @@ namespace Server {
         putc('0' + response_code % 10, f);
         fputs("\r\n\r\n", f);
 
+        string block_name = *block;
+
+        if (block->find(":") == string::npos) {
+            block_name = "minecraft:" + block_name;
+        }
+
         if (response_code == 200) {
             fputs(string(R"({"altitude": )" + to_string(altitude) +
-                         R"(, "block": ")" + *block + R"("})" + "\n")
+                         R"(, "block": ")" + block_name + R"("})" + "\n")
                       .c_str(),
                   f);
         }
