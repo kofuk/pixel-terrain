@@ -164,7 +164,8 @@ static void print_usage() {
     cout << " -r --gen-range    output chunk range to chunk_range.json" << endl;
     cout << " -v --verbose      output verbose log" << endl << endl;
     cout << "SERVER mode options:" << endl;
-    cout << " --help  display protocol and config detail and exit" << endl
+    cout << " --daemon  run server process in background" << endl;
+    cout << " --help    display protocol and config detail and exit" << endl
          << endl;
     cout << "Note: long options is supported only on GNU system" << endl;
 #else
@@ -203,7 +204,8 @@ static option generate_command_options[] = {
     {"verbose", no_argument, 0, 'v'},
     {0, 0, 0, 0}};
 
-static option server_command_options[] = {{"help", no_argument, 0, 'h'},
+static option server_command_options[] = {{"daemon", no_argument, 0, 'd'},
+                                          {"help", no_argument, 0, 'h'},
                                           {0, 0, 0, 0}};
 #endif /* _GNU_SOURCE */
 
@@ -309,17 +311,22 @@ static int generate_command(int argc, char **argv) {
 
 static int server_command(int argc, char **argv) {
 #ifdef __unix__
+    bool daemon_mode = false;
     int opt;
     for (;;) {
 #ifdef _GNU_SOURCE
-        opt = getopt_long(argc, argv, "h", server_command_options, nullptr);
+        opt = getopt_long(argc, argv, "dh", server_command_options, nullptr);
 #else
-        opt = getopt(argc, argv, "h");
+        opt = getopt(argc, argv, "dh");
 #endif /* _GNU_SOURCE */
 
         if (opt == -1) break;
 
         switch (opt) {
+        case 'd':
+            daemon_mode = true;
+            break;
+
         case 'h':
             Server::print_protocol_detail();
             exit(0);
@@ -331,7 +338,7 @@ static int server_command(int argc, char **argv) {
     }
 
     if (argc - optind == 1) {
-        Server::launch_server(argv[optind]);
+        Server::launch_server(argv[optind], daemon_mode);
     } else {
         print_usage();
         exit(1);

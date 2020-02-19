@@ -323,8 +323,16 @@ namespace Server {
         fclose(f);
     }
 
-    void launch_server(string config_filename) {
+    void launch_server(string config_filename, bool daemon_mode) {
         parse_config(config_filename);
+
+        if (daemon_mode) {
+            if (daemon(0, 0) == -1) {
+                cerr << "cannot run in daemon mode" << endl;
+
+                exit(1);
+            }
+        }
 
         int ssock;
 
