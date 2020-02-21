@@ -222,7 +222,11 @@ namespace Server {
                     continue;
                 }
 
-                send_response(f, 200, y, &block);
+                if (block.empty()) {
+                    send_response(f, 404, 0, nullptr);
+                } else {
+                    send_response(f, 200, y, &block);
+                }
 
                 break;
             }
@@ -240,7 +244,11 @@ namespace Server {
                     continue;
                 }
 
-                send_response(f, 200, y, &block);
+                if (block.empty()) {
+                    send_response(f, 404, 0, nullptr);
+                } else {
+                    send_response(f, 200, y, &block);
+                }
 
                 break;
             }
