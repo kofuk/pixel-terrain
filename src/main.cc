@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -58,7 +59,7 @@ static void generate_all(string src_dir) {
     if (!option_journal_dir.empty()) {
         try {
             filesystem::create_directories(option_journal_dir);
-        } catch(filesystem::filesystem_error const &e) {
+        } catch (filesystem::filesystem_error const &e) {
             cerr << "cannot create journal directory: " << e.what() << endl;
 
             exit(1);
@@ -112,10 +113,18 @@ static void generate_all(string src_dir) {
         }
 
         Anvil::Region *r;
-        if (option_journal_dir.empty()) {
-            r = new Anvil::Region(path.path().string());
-        } else {
-            r = new Anvil::Region(path.path().string(), option_journal_dir);
+        try {
+            if (option_journal_dir.empty()) {
+                r = new Anvil::Region(path.path().string());
+            } else {
+                r = new Anvil::Region(path.path().string(), option_journal_dir);
+            }
+        } catch (exception const &e) {
+            cerr << "failed to read region: " + to_string(x) + ", " +
+                        to_string(z)
+                 << endl;
+
+            continue;
         }
 
         RegionContainer *rc = new RegionContainer(r, x, z);
