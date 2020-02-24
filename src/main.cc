@@ -22,6 +22,8 @@
 #include <getopt.h>
 #endif /* _GNU_SOURCE */
 
+#else
+#include "getopt_dos.hh"
 #endif /* __unix__ */
 
 #include <cpptoml.h>
@@ -268,19 +270,18 @@ static option server_command_options[] = {{"daemon", no_argument, 0, 'd'},
 #endif /* _GNU_SOURCE */
 
 static int generate_command(int argc, char **argv) {
-    int mcmap_optind = 0;
-
     option_jobs = thread::hardware_concurrency();
     option_out_dir = ".";
 
-#ifdef __unix__
     int c;
     for (;;) {
 #ifdef _GNU_SOURCE
         c = getopt_long(argc, argv, "c:j:no:prU:v", generate_command_options,
                         nullptr);
-#else
+#elif defined(__unix__)
         c = getopt(argc, argv, "c:j:no:prU:v");
+#else
+        c = getopt_dos(argc, argv, "c:j:no:prU:v");
 #endif /* _GNU_SOURCE */
         if (c == -1) break;
 
@@ -331,56 +332,7 @@ static int generate_command(int argc, char **argv) {
         }
     }
 
-    mcmap_optind = optind;
-#else
-    for (int i = 1; i < argc; ++i) {
-        if (!strcmp(argv[1], "/c")) {
-            if (i + 1 < argc) {
-                ++i;
-                ++mcmap_optind;
-
-                load_config(argv[i]);
-            } else {
-                print_usage();
-
-                exit(1);
-            }
-        } else if (!strcmp(argv[i], "/j")) {
-            if (i + 1 < argc) {
-                ++i;
-                ++mcmap_optind;
-                option_jobs = stoi(argv[i]);
-            } else {
-                print_usage();
-
-                exit(1);
-            }
-        } else if (!strcmp(argv[i], "/o")) {
-            option_out_dir = argv[i];
-        } else if (!strcmp(argv[i], "/n")) {
-            option_nether = true;
-        } else if (!strcmp(argv[i], "/p")) {
-            option_generate_progress = true;
-        } else if (!strcmp(argv[i], "/r")) {
-            option_generate_range = true;
-        } else if (!strcmp(argv[i], "/v")) {
-            option_verbose = true;
-        } else if (!strcmp(argv[i], "/h")) {
-            print_usage();
-
-            exit(0);
-        } else if (!strcmp(argv[i], "/V")) {
-            print_version();
-
-            exit(0);
-        } else {
-            break;
-        }
-        ++mcmap_optind;
-    }
-#endif /* __unix__ */
-
-    if (mcmap_optind >= argc) {
+    if (optind >= argc) {
         print_usage();
 
         return 0;
@@ -388,7 +340,7 @@ static int generate_command(int argc, char **argv) {
 
     init_block_list();
 
-    generate_all(argv[mcmap_optind]);
+    generate_all(argv[optind]);
 
     return 0;
 }
