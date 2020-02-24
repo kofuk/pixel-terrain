@@ -1,5 +1,8 @@
+#include <algorithm>
 #include <condition_variable>
+#include <csetjmp>
 #include <filesystem>
+#include <iterator>
 #include <mutex>
 #include <queue>
 #include <string>
@@ -72,6 +75,7 @@ int option_jobs;
 bool option_nether;
 bool option_generate_progress;
 bool option_generate_range;
+string option_journal_dir;
 
 /* blend specified color with existing color. */
 static inline unsigned char put_pixel(png_bytepp image, int x, int y,
@@ -98,6 +102,66 @@ static inline unsigned char put_pixel(png_bytepp image, int x, int y,
     return new_a;
 }
 
+static inline void clear_pixel(png_bytepp image, int x, int y) {
+    for(int i = x * 4; i < x * 4 + 4; ++i) {
+        image[i] = 0;
+    }
+}
+
+static png_bytepp read_existing(string name) {
+    png_bytepp rows = new png_bytep[256];
+    /* allocate memory for each row, 4 bytes (rgba) per a pixel. */
+    for (int i = 0; i < 256; ++i) {
+        rows[i] = new png_byte[256 * 4];
+        for (int j = 0; j < 256 * 4; ++j) {
+            rows[i][j] = 0;
+        }
+    }
+
+    FILE *in = fopen(name.c_str(), "rb");
+    if (in == nullptr) {
+        return rows;
+    }
+
+    unsigned char sig[8];
+    fread(sig, 1, 8, in);
+    if (!png_check_sig(sig, 8)) {
+        return rows;
+    }
+
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
+                                             nullptr, nullptr);
+    png_infop png_info = png_create_info_struct(png);
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_read_struct(&png, &png_info, nullptr);
+
+        return rows;
+    }
+    png_init_io(png, in);
+    png_set_sig_bytes(png, 8);
+
+    png_read_info(png, png_info);
+
+    png_uint_32 width, height;
+    int bit_depth, color_type;
+    png_get_IHDR(png, png_info, &width, &height, &bit_depth, &color_type,
+                 nullptr, nullptr, nullptr);
+
+    if (width != 256 || height != 256 || bit_depth != 8 ||
+        color_type != PNG_COLOR_TYPE_RGBA) {
+        png_destroy_read_struct(&png, &png_info, nullptr);
+
+        return rows;
+    }
+
+    png_read_image(png, rows);
+
+    png_destroy_read_struct(&png, &png_info, nullptr);
+
+    return rows;
+}
+
 static void generate_256(QueuedItem *item) {
     Anvil::Region *region = item->region->region;
     int region_x = item->region->rx;
@@ -113,62 +177,19 @@ static void generate_256(QueuedItem *item) {
     path /= (to_string(region_x * 2 + off_x) + ',' +
              to_string(region_z * 2 + off_z) + ".png");
 
-    FILE *f = fopen(path.string().c_str(), "wb");
-    if (f == nullptr) {
-        return;
-    }
-
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr,
-                                              nullptr, nullptr);
-    png_infop info = png_create_info_struct(png);
-
-    if (setjmp(png_jmpbuf(png))) {
-        png_destroy_write_struct(&png, &info);
-
-        return;
-    }
-    png_init_io(png, f);
-
-    if (setjmp(png_jmpbuf(png))) {
-        png_destroy_write_struct(&png, &info);
-
-        return;
-    }
-    png_set_IHDR(png, info, 256, 256, 8, PNG_COLOR_TYPE_RGBA,
-                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
-                 PNG_FILTER_TYPE_DEFAULT);
-
-    if (setjmp(png_jmpbuf(png))) {
-        png_destroy_write_struct(&png, &info);
-
-        return;
-    }
-    png_write_info(png, info);
-
-    png_bytepp rows = new png_bytep[256];
-    /* allocate memory for each row, 3 bytes (rgb) per a pixel. */
-    for (int i = 0; i < 256; ++i) {
-        rows[i] = new png_byte[256 * 4];
-
-        for (int j = 0; j < 256 * 4; ++j) {
-            rows[i][j] = 0;
-        }
-    }
+    png_bytepp rows = nullptr;
 
     for (int chunk_z = 0; chunk_z < 16; ++chunk_z) {
         for (int chunk_x = 0; chunk_x < 16; ++chunk_x) {
-            Anvil::Chunk *chunk =
-                region->get_chunk(off_x * 16 + chunk_x, off_z * 16 + chunk_z);
+            Anvil::Chunk *chunk = region->get_chunk_if_dirty(
+                off_x * 16 + chunk_x, off_z * 16 + chunk_z);
 
             if (chunk == nullptr) {
-                for (int x = 0; x < 16; ++x) {
-                    for (int z = 0; z < 16; ++z) {
-                        put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z, 0,
-                                  0, 0, 0);
-                    }
-                }
-
                 continue;
+            }
+
+            if (rows == nullptr) {
+                rows = read_existing(path.string());
             }
 
             for (int z = 0; z < 16; ++z) {
@@ -253,6 +274,46 @@ static void generate_256(QueuedItem *item) {
             delete chunk;
         }
     }
+
+    if (rows == nullptr) {
+        if (option_verbose) {
+            cerr << "exiting without generating; any chunk changed in " + item->debug_string() << endl;
+        }
+
+        return;
+    }
+
+    FILE *f = fopen(path.string().c_str(), "wb");
+    if (f == nullptr) {
+        return;
+    }
+
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr,
+                                              nullptr, nullptr);
+    png_infop info = png_create_info_struct(png);
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_write_struct(&png, &info);
+
+        return;
+    }
+    png_init_io(png, f);
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_write_struct(&png, &info);
+
+        return;
+    }
+    png_set_IHDR(png, info, 256, 256, 8, PNG_COLOR_TYPE_RGBA,
+                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+                 PNG_FILTER_TYPE_DEFAULT);
+
+    if (setjmp(png_jmpbuf(png))) {
+        png_destroy_write_struct(&png, &info);
+
+        return;
+    }
+    png_write_info(png, info);
 
     if (setjmp(png_jmpbuf(png))) {
         png_destroy_write_struct(&png, &info);

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <bits/getopt_core.h>
 #include <csetjmp>
 #include <cstdio>
 #include <cstdlib>
@@ -98,7 +99,12 @@ static void generate_all(string src_dir) {
             if (z > max_z) max_z = z;
         }
 
-        Anvil::Region *r = new Anvil::Region(path.path().string());
+        Anvil::Region *r;
+        if (option_journal_dir.empty()) {
+            r = new Anvil::Region(path.path().string());
+        } else {
+            r = new Anvil::Region(path.path().string(), option_journal_dir);
+        }
 
         RegionContainer *rc = new RegionContainer(r, x, z);
         rc->set_ref_count(4);
@@ -163,6 +169,9 @@ static bool load_config(string filename) {
         if (config->contains("gen-range")) {
             option_generate_range = *config->get_as<bool>("gen-range");
         }
+        if (config->contains("journal")) {
+            option_journal_dir = *config->get_as<string>("journal");
+        }
         if (config->contains("verbose")) {
             option_verbose = *config->get_as<bool>("verbose");
         }
@@ -198,6 +207,7 @@ static void print_usage() {
          << endl;
     cout << " -p --gen-progess  output progress to gen_progess.txt" << endl;
     cout << " -r --gen-range    output chunk range to chunk_range.json" << endl;
+    cout << " -U --journal DIR  read journal from DIR" << endl;
     cout << " -v --verbose      output verbose log" << endl << endl;
     cout << "SERVER mode options:" << endl;
     cout << " --daemon  run server process in background" << endl;
@@ -232,10 +242,15 @@ static void print_version() {
 
 #ifdef _GNU_SOURCE
 static option generate_command_options[] = {
-    {"config", required_argument, 0, 'c'}, {"jobs", required_argument, 0, 'j'},
-    {"nether", no_argument, 0, 'n'},       {"out", required_argument, 0, 'o'},
-    {"gen-progress", no_argument, 0, 'p'}, {"gen-range", no_argument, 0, 'r'},
-    {"verbose", no_argument, 0, 'v'},      {0, 0, 0, 0}};
+    {"config", required_argument, 0, 'c'},
+    {"jobs", required_argument, 0, 'j'},
+    {"journal", required_argument, 0, 'U'},
+    {"nether", no_argument, 0, 'n'},
+    {"out", required_argument, 0, 'o'},
+    {"gen-progress", no_argument, 0, 'p'},
+    {"gen-range", no_argument, 0, 'r'},
+    {"verbose", no_argument, 0, 'v'},
+    {0, 0, 0, 0}};
 
 static option server_command_options[] = {{"daemon", no_argument, 0, 'd'},
                                           {"help", no_argument, 0, 'h'},
@@ -252,10 +267,10 @@ static int generate_command(int argc, char **argv) {
     int c;
     for (;;) {
 #ifdef _GNU_SOURCE
-        c = getopt_long(argc, argv, "c:j:no:prv", generate_command_options,
+        c = getopt_long(argc, argv, "c:j:no:prU:v", generate_command_options,
                         nullptr);
 #else
-        c = getopt(argc, argv, "c:j:no:prv");
+        c = getopt(argc, argv, "c:j:no:prU:v");
 #endif /* _GNU_SOURCE */
         if (c == -1) break;
 
@@ -290,6 +305,10 @@ static int generate_command(int argc, char **argv) {
 
         case 'r':
             option_generate_range = true;
+            break;
+
+        case 'U':
+            option_journal_dir = optarg;
             break;
 
         default:

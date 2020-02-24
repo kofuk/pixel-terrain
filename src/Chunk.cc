@@ -16,6 +16,10 @@ namespace Anvil {
         data = (NBT::TagCompound *)((*nbt_data)["Level"]);
         assert(data->tag_type == NBT::TAG_COMPOUND);
 
+        NBT::TagLong *last_update_tag = (NBT::TagLong *)((*data)["LastUpdate"]);
+        assert(last_update_tag->tag_type == NBT::TAG_LONG);
+        last_update = last_update_tag->value;
+
         NBT::TagInt *x_tag = (NBT::TagInt *)((*data)["xPos"]);
         assert(x_tag->tag_type == NBT::TAG_INT);
         x = x_tag->value;

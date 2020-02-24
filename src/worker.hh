@@ -41,6 +41,7 @@ extern int option_jobs;
 extern bool option_nether;
 extern bool option_generate_progress;
 extern bool option_generate_range;
+extern string option_journal_dir;
 
 void queue_item(QueuedItem *item);
 void start_worker();

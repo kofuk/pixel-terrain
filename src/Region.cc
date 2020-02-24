@@ -1,15 +1,59 @@
 #include <algorithm>
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <stdexcept>
 
 #include "NBT.hh"
 #include "Region.hh"
 #include "Utils.hh"
+#include "worker.hh"
 
 namespace Anvil {
-    Region::Region(string file_name) {
-        ifstream f(file_name, ios::binary);
+    Region::Region(string file_name) : journal_changed(false) {
+        read_region_file(file_name);
+    }
+
+    Region::Region(string filename, string journal_dir)
+        : journal_changed(false) {
+        read_region_file(filename);
+
+        filesystem::path journal_path(journal_dir);
+        journal_path /=
+            filesystem::path(filename).filename().string() + ".journal";
+
+        this->journal_file = journal_path.string();
+
+        ifstream journal(journal_path.string());
+        if (!journal) {
+            fill(begin(last_update), end(last_update), 0);
+
+            return;
+        }
+
+        journal.read((char *)last_update, sizeof(uint64_t) * 1024);
+    }
+
+    Region::~Region() {
+        delete[] data;
+
+        if (journal_changed && !journal_file.empty()) {
+            if (option_verbose) {
+                cout << "writing journal" << endl;
+            }
+
+            ofstream out(journal_file);
+
+            if (!out) {
+                return;
+            }
+
+            out.write((char *)last_update, sizeof(uint64_t) * 1024);
+        }
+    }
+
+    void Region::read_region_file(string filename) {
+        ifstream f(filename, ios::binary);
 
         if (!f) {
             throw invalid_argument("failed to open specified file for reading");
@@ -29,8 +73,6 @@ namespace Anvil {
         data = new unsigned char[len];
         std::copy(std::begin(dest), std::end(dest), data);
     }
-
-    Region::~Region() { delete[] data; }
 
     size_t Region::header_offset(int chunk_x, int chunk_z) {
         return 4 * (chunk_x % 32 + chunk_z % 32 * 32);
@@ -86,5 +128,20 @@ namespace Anvil {
         if (chunk == nullptr) return nullptr;
 
         return new Chunk(chunk);
+    }
+
+    Chunk *Region::get_chunk_if_dirty(int chunk_x, int chunk_z) {
+        Chunk *chunk = get_chunk(chunk_x, chunk_z);
+        if (chunk == nullptr ||
+            last_update[chunk_z * 32 + chunk_x] >= chunk->last_update) {
+            delete chunk;
+
+            return nullptr;
+        }
+
+        journal_changed = true;
+        last_update[chunk_z * 32 + chunk_x] = chunk->last_update;
+
+        return chunk;
     }
 } // namespace Anvil
