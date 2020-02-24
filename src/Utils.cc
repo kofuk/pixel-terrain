@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <cassert>
+#include <stdexcept>
 #include <vector>
 
 #include <zlib.h>
@@ -54,7 +54,9 @@ namespace NBT {
                 all_out.insert(end(all_out), out, out + 1024 - strm.avail_out);
             } while (strm.avail_out == 0);
 
-            assert(z_ret == Z_STREAM_END);
+            if (z_ret != Z_STREAM_END) {
+                throw out_of_range("buffer exausted before stream end of zlib");
+            }
 
             inflateEnd(&strm);
 

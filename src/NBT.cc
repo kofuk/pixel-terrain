@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cstdint>
 #include <iterator>
 #include <stdexcept>
@@ -83,7 +82,9 @@ namespace NBT {
             values.push_back(*(buf + off));
 
             ++off;
-            assert(off < len);
+            if(off >= len){
+                throw out_of_range("off >= len in TagByteArray");
+            }
         }
     }
 
@@ -111,7 +112,7 @@ namespace NBT {
                                     size_t &off) {
         int32_t arr_len = TagInt::get_value(buf, len, off);
         for (int32_t i = 0; i < arr_len; ++i) {
-            values.push_back(TagLong::get_value(buf, len, off));
+            value.push_back(TagLong::get_value(buf, len, off));
         }
     }
 
@@ -172,7 +173,7 @@ namespace NBT {
             else if (payload_type == TAG_LONG_ARRAY)
                 tag = new TagLongArray(buf, len, off);
             else
-                assert(0); /* will never happen */
+                throw runtime_error("Unknown type of tag: " + to_string(payload_type));
 
             tags.push_back(tag);
         }
@@ -227,7 +228,7 @@ namespace NBT {
             else if (type == TAG_LONG_ARRAY)
                 tag = new TagLongArray(buf, len, off);
             else
-                assert(0); /* will never happen */
+                throw runtime_error("unknown type of tag: " + to_string(type));
 
             tags[*name] = tag;
 
@@ -240,8 +241,6 @@ namespace NBT {
             }
         }
     }
-
-    Tag *TagCompound::operator[](string key) { return tags[key]; }
 
     NBTFile::NBTFile(Utils::DecompressedData *data)
         : TagCompound(), data(data) {

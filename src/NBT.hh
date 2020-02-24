@@ -1,9 +1,9 @@
 #ifndef NBT_HH
 #define NBT_HH
 
-#include <cassert>
 #include <cstdint>
 #include <iostream>
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 
@@ -51,7 +51,9 @@ namespace NBT {
             unsigned char v = *(buf + off);
 
             ++off;
-            assert(off < len);
+            if (off >= len) {
+                throw out_of_range("off >= len in TagByte");
+            }
 
             return v;
         }
@@ -69,7 +71,9 @@ namespace NBT {
             int16_t v = Utils::to_host_byte_order(*(int16_t *)(buf + off));
 
             off += 2;
-            assert(off < len);
+            if (off >= len) {
+                throw out_of_range("off >= len in TagShort");
+            }
 
             return v;
         }
@@ -88,7 +92,9 @@ namespace NBT {
             int32_t v = Utils::to_host_byte_order(*(int32_t *)(buf + off));
 
             off += 4;
-            assert(off < len);
+            if (off >= len) {
+                throw out_of_range("off >= len in TagInt");
+            }
 
             return v;
         }
@@ -106,7 +112,9 @@ namespace NBT {
             uint64_t v = Utils::to_host_byte_order(*(int64_t *)(buf + off));
 
             off += 8;
-            assert(off < len);
+            if (off >= len) {
+                throw out_of_range("off >= len in TagLong");
+            }
 
             return v;
         }
@@ -124,7 +132,9 @@ namespace NBT {
             float v = Utils::to_host_byte_order(*(float *)(buf + off));
 
             off += 4;
-            assert(off < len);
+            if (off >= len) {
+                throw out_of_range("off >= len in TagFloat");
+            }
 
             return v;
         }
@@ -142,7 +152,9 @@ namespace NBT {
             double v = Utils::to_host_byte_order(*(double *)(buf + off));
 
             off += 8;
-            assert(off < len);
+            if (off >= len) {
+                throw out_of_range("off >= len in TagDouble");
+            }
 
             return v;
         }
@@ -167,7 +179,7 @@ namespace NBT {
     };
 
     struct TagLongArray : Tag {
-        vector<int64_t> values;
+        vector<int64_t> value;
 
         TagLongArray(unsigned char const *buf, size_t const len, size_t &off);
 
@@ -189,7 +201,9 @@ namespace NBT {
             string *v = new string((char *)buf + off, (size_t)str_len);
             off += (size_t)str_len;
 
-            assert(off < len);
+            if (off >= len) {
+                throw runtime_error("off >= len in tagString");
+            }
 
             return v;
         }
@@ -206,6 +220,14 @@ namespace NBT {
                           size_t &off);
     };
 
+    template <typename T, class C> T value(C *clazz) {
+        if (clazz == nullptr) {
+            throw runtime_error("no value");
+        }
+
+        return clazz->value;
+    }
+
     struct TagCompound : Tag {
         unordered_map<string, NBT::Tag *> tags;
 
@@ -215,7 +237,15 @@ namespace NBT {
 
         void parse_buffer(unsigned char const *buf, size_t const len,
                           size_t &off);
-        Tag *operator[](string key);
+
+        template <typename T, tagtype_t TT> T *get_as(string key) {
+            auto r = tags.find(key);
+            if (r == end(tags) || r->second->tag_type != TT) {
+                return nullptr;
+            }
+
+            return (T *)r->second;
+        }
     };
 
     struct NBTFile : TagCompound {

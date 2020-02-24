@@ -103,7 +103,7 @@ static inline unsigned char put_pixel(png_bytepp image, int x, int y,
 }
 
 static inline void clear_pixel(png_bytepp image, int x, int y) {
-    for(int i = x * 4; i < x * 4 + 4; ++i) {
+    for (int i = x * 4; i < x * 4 + 4; ++i) {
         image[i] = 0;
     }
 }
@@ -181,8 +181,18 @@ static void generate_256(QueuedItem *item) {
 
     for (int chunk_z = 0; chunk_z < 16; ++chunk_z) {
         for (int chunk_x = 0; chunk_x < 16; ++chunk_x) {
-            Anvil::Chunk *chunk = region->get_chunk_if_dirty(
-                off_x * 16 + chunk_x, off_z * 16 + chunk_z);
+            Anvil::Chunk *chunk;
+
+            try {
+                chunk = region->get_chunk_if_dirty(off_x * 16 + chunk_x,
+                                                   off_z * 16 + chunk_z);
+            } catch (exception const &e) {
+                cerr << "Warning: parse error in " + item->debug_string()
+                     << endl;
+                cerr << e.what() << endl;
+
+                continue;
+            }
 
             if (chunk == nullptr) {
                 continue;
@@ -203,7 +213,17 @@ static void generate_256(QueuedItem *item) {
 
                     for (int y = max_y; y >= 0; --y) {
                         unsigned char new_alpha;
-                        string block = chunk->get_block(x, y, z);
+                        string block;
+                        try {
+                            block = chunk->get_block(x, y, z);
+                        } catch (exception const &e) {
+                            cerr << "Warning: error occurred while obtaining "
+                                    "block"
+                                 << endl;
+                            cerr << e.what() << endl;
+
+                            continue;
+                        }
 
                         if (block == "air" || block == "cave_air" ||
                             block == "void_air") {
@@ -277,7 +297,9 @@ static void generate_256(QueuedItem *item) {
 
     if (rows == nullptr) {
         if (option_verbose) {
-            cerr << "exiting without generating; any chunk changed in " + item->debug_string() << endl;
+            cerr << "exiting without generating; any chunk changed in " +
+                        item->debug_string()
+                 << endl;
         }
 
         return;

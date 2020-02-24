@@ -1,6 +1,6 @@
-#include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <stdexcept>
 
 #include "Chunk.hh"
 #include "NBT.hh"
@@ -9,24 +9,22 @@ namespace Anvil {
     Chunk::Chunk(NBT::NBTFile *nbt_data)
         : nbt_file(nbt_data), cache_palette(nullptr),
           cache_palette_section(-1) {
-        NBT::TagInt *version_tag = (NBT::TagInt *)((*nbt_data)["DataVersion"]);
-        assert(version_tag->tag_type == NBT::TAG_INT);
-        version = version_tag->value;
+        version = NBT::value<int32_t>(
+            nbt_data->get_as<NBT::TagInt, NBT::TAG_INT>("DataVersion"));
 
-        data = (NBT::TagCompound *)((*nbt_data)["Level"]);
-        assert(data->tag_type == NBT::TAG_COMPOUND);
+        data = nbt_data->get_as<NBT::TagCompound, NBT::TAG_COMPOUND>("Level");
+        if (data == nullptr) {
+            throw runtime_error("Level tag not found in chunk");
+        }
 
-        NBT::TagLong *last_update_tag = (NBT::TagLong *)((*data)["LastUpdate"]);
-        assert(last_update_tag->tag_type == NBT::TAG_LONG);
-        last_update = last_update_tag->value;
+        last_update = NBT::value<uint64_t>(
+            data->get_as<NBT::TagLong, NBT::TAG_LONG>("LastUpdate"));
 
-        NBT::TagInt *x_tag = (NBT::TagInt *)((*data)["xPos"]);
-        assert(x_tag->tag_type == NBT::TAG_INT);
-        x = x_tag->value;
+        x = NBT::value<int32_t>(
+            data->get_as<NBT::TagInt, NBT::TAG_INT>("xPos"));
 
-        NBT::TagInt *z_tag = (NBT::TagInt *)((*data)["zPos"]);
-        assert(x_tag->tag_type == NBT::TAG_INT);
-        z = z_tag->value;
+        z = NBT::value<int32_t>(
+            data->get_as<NBT::TagInt, NBT::TAG_INT>("zPos"));
     }
 
     Chunk::~Chunk() {
@@ -50,17 +48,28 @@ namespace Anvil {
             return nullptr;
         }
 
-        NBT::TagList *section = (NBT::TagList *)(*data)["Sections"];
-        assert(section->tag_type == NBT::TAG_LIST);
+        NBT::TagList *section =
+            data->get_as<NBT::TagList, NBT::TAG_LIST>("Sections");
+        if (section == nullptr) {
+            throw runtime_error("Sections tag not found in Level");
+        }
 
         for (auto itr = begin(section->tags); itr != end(section->tags);
              ++itr) {
-            assert((*itr)->tag_type == NBT::TAG_COMPOUND);
-            NBT::TagByte *y_tag =
-                (NBT::TagByte *)((*(NBT::TagCompound *)(*itr))["Y"]);
-            assert(y_tag->tag_type == NBT::TAG_BYTE);
+            if ((*itr)->tag_type != NBT::TAG_COMPOUND) {
+                throw runtime_error("Sections' payload is not TAG_COMPOUND");
+            }
 
-            if (y_tag->value == y) return (NBT::TagCompound *)(*itr);
+            unsigned char tag_y;
+            try {
+                tag_y = NBT::value<unsigned char>(
+                    ((NBT::TagCompound *)(*itr))
+                        ->get_as<NBT::TagByte, NBT::TAG_BYTE>("Y"));
+            } catch (runtime_error const &) {
+                continue;
+            }
+
+            if (tag_y == y) return (NBT::TagCompound *)(*itr);
         }
 
         return nullptr;
@@ -70,18 +79,21 @@ namespace Anvil {
         vector<string *> *palette = new vector<string *>;
 
         NBT::TagList *palette_tag_list =
-            (NBT::TagList *)((*section)["Palette"]);
-        assert(palette_tag_list->tag_type == NBT::TAG_LIST);
-        assert(palette_tag_list->payload_type == NBT::TAG_COMPOUND);
+            section->get_as<NBT::TagList, NBT::TAG_LIST>("Palette");
+        if (palette_tag_list == nullptr) {
+            throw runtime_error("Palette not found");
+        }
+        if (palette_tag_list->payload_type != NBT::TAG_COMPOUND) {
+            throw runtime_error("corrupted data (payload type != TAG_COMPOUND)");
+        }
 
         for (auto itr = begin(palette_tag_list->tags);
              itr != end(palette_tag_list->tags); ++itr) {
             NBT::TagCompound *tag = (NBT::TagCompound *)(*itr);
 
-            NBT::TagString *name_tag = (NBT::TagString *)((*tag)["Name"]);
-            assert(name_tag->tag_type == NBT::TAG_STRING);
+            string *src_name = NBT::value<string *>(
+                tag->get_as<NBT::TagString, NBT::TAG_STRING>("Name"));
 
-            string *src_name = name_tag->value;
             string *name;
             if (src_name->find("minecraft:") == 0) {
                 name = new string(src_name->substr(10));
@@ -104,7 +116,9 @@ namespace Anvil {
 
         y %= 16;
 
-        if (section == nullptr || (*section)["BlockStates"] == nullptr) {
+        if (section == nullptr ||
+            section->get_as<NBT::TagLongArray, NBT::TAG_LONG_ARRAY>(
+                "BlockStates") == nullptr) {
             return "air";
         }
         vector<string *> *palette;
@@ -141,10 +155,9 @@ namespace Anvil {
         }
 
         int index = y * 16 * 16 + z * 16 + x;
-        NBT::TagLongArray *states_tag =
-            (NBT::TagLongArray *)((*section)["BlockStates"]);
-        assert(states_tag->tag_type == NBT::TAG_LONG_ARRAY);
-        vector<int64_t> states = states_tag->values;
+        vector<int64_t> states = NBT::value<vector<int64_t>>(
+            section->get_as<NBT::TagLongArray, NBT::TAG_LONG_ARRAY>(
+                "BlockStates"));
         int state = index * bits / 64;
 
         if ((uint64_t)state >= states.size()) return "air";
