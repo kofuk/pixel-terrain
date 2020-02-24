@@ -53,6 +53,16 @@ static void write_range_file(int start_x, int start_z, int end_x, int end_z) {
 }
 
 static void generate_all(string src_dir) {
+    if (!option_journal_dir.empty()) {
+        try {
+            filesystem::create_directories(option_journal_dir);
+        } catch(filesystem::filesystem_error const &e) {
+            cerr << "cannot create journal directory: " << e.what() << endl;
+
+            exit(1);
+        }
+    }
+
     start_worker();
 
     filesystem::directory_iterator dir =
