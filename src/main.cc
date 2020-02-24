@@ -9,6 +9,8 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <thread>
 
@@ -20,6 +22,8 @@
 #endif /* _GNU_SOURCE */
 
 #endif /* __unix__ */
+
+#include <cpptoml.h>
 
 #include "Region.hh"
 #include "blocks.hh"
@@ -140,6 +144,37 @@ static void generate_all(string src_dir) {
     }
 }
 
+static bool load_config(string filename) {
+    try {
+        shared_ptr<cpptoml::table> config = cpptoml::parse_file(filename);
+
+        if (config->contains("jobs")) {
+            option_jobs = *config->get_as<int>("jobs");
+        }
+        if (config->contains("nether")) {
+            option_nether = *config->get_as<bool>("nether");
+        }
+        if (config->contains("out")) {
+            option_out_dir = *config->get_as<string>("out");
+        }
+        if (config->contains("gen-progress")) {
+            option_generate_progress = *config->get_as<bool>("gen-progress");
+        }
+        if (config->contains("gen-range")) {
+            option_generate_range = *config->get_as<bool>("gen-range");
+        }
+        if (config->contains("verbose")) {
+            option_verbose = *config->get_as<bool>("verbose");
+        }
+    } catch (cpptoml::parse_exception const &e) {
+        cerr << e.what() << endl;
+
+        return false;
+    }
+
+    return true;
+}
+
 static void print_usage() {
 #ifdef __unix__
     cout << "Usage: mcmap generate [OPTION]... SRC_DIR" << endl;
@@ -151,6 +186,7 @@ static void print_usage() {
     cout << " --help     display this help and exit" << endl;
     cout << " --version  display version information and exit" << endl << endl;
     cout << "GENERATE mode options:" << endl;
+    cout << " -c, --config FILE read config file." << endl;
     cout << " -j N, --jobs=N    generate N images concurrently. (default: "
             "processor count)"
          << endl;
@@ -160,7 +196,7 @@ static void print_usage() {
     cout << " -o --out DIR      specify output directory. (default: current "
             "directory)"
          << endl;
-    cout << " -p --gen_progess  output progress to gen_progess.txt" << endl;
+    cout << " -p --gen-progess  output progress to gen_progess.txt" << endl;
     cout << " -r --gen-range    output chunk range to chunk_range.json" << endl;
     cout << " -v --verbose      output verbose log" << endl << endl;
     cout << "SERVER mode options:" << endl;
@@ -196,13 +232,10 @@ static void print_version() {
 
 #ifdef _GNU_SOURCE
 static option generate_command_options[] = {
-    {"jobs", required_argument, 0, 'j'},
-    {"nether", no_argument, 0, 'n'},
-    {"out", required_argument, 0, 'o'},
-    {"gen-progress", no_argument, 0, 'p'},
-    {"gen-range", no_argument, 0, 'r'},
-    {"verbose", no_argument, 0, 'v'},
-    {0, 0, 0, 0}};
+    {"config", required_argument, 0, 'c'}, {"jobs", required_argument, 0, 'j'},
+    {"nether", no_argument, 0, 'n'},       {"out", required_argument, 0, 'o'},
+    {"gen-progress", no_argument, 0, 'p'}, {"gen-range", no_argument, 0, 'r'},
+    {"verbose", no_argument, 0, 'v'},      {0, 0, 0, 0}};
 
 static option server_command_options[] = {{"daemon", no_argument, 0, 'd'},
                                           {"help", no_argument, 0, 'h'},
@@ -219,10 +252,10 @@ static int generate_command(int argc, char **argv) {
     int c;
     for (;;) {
 #ifdef _GNU_SOURCE
-        c = getopt_long(argc, argv, "j:no:prv", generate_command_options,
+        c = getopt_long(argc, argv, "c:j:no:prv", generate_command_options,
                         nullptr);
 #else
-        c = getopt(argc, argv, "j:no:prv");
+        c = getopt(argc, argv, "c:j:no:prv");
 #endif /* _GNU_SOURCE */
         if (c == -1) break;
 
@@ -230,6 +263,13 @@ static int generate_command(int argc, char **argv) {
         case 'V':
             print_version();
             exit(0);
+            break;
+
+        case 'c':
+            if (!load_config(optarg)) {
+                print_usage();
+                exit(1);
+            }
             break;
 
         case 'j':
@@ -261,7 +301,18 @@ static int generate_command(int argc, char **argv) {
     mcmap_optind = optind;
 #else
     for (int i = 1; i < argc; ++i) {
-        if (!strcmp(argv[i], "/j")) {
+        if (!strcmp(argv[1], "/c")) {
+            if (i + 1 < argc) {
+                ++i;
+                ++mcmap_optind;
+
+                load_config(argv[i]);
+            } else {
+                print_usage();
+
+                exit(1);
+            }
+        } else if (!strcmp(argv[i], "/j")) {
             if (i + 1 < argc) {
                 ++i;
                 ++mcmap_optind;

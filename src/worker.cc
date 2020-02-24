@@ -74,9 +74,9 @@ bool option_generate_progress;
 bool option_generate_range;
 
 /* blend specified color with existing color. */
-static inline unsigned char put_pixel(png_bytepp image, int x, int y, unsigned char r,
-                             unsigned char g, unsigned char b,
-                             unsigned char a) {
+static inline unsigned char put_pixel(png_bytepp image, int x, int y,
+                                      unsigned char r, unsigned char g,
+                                      unsigned char b, unsigned char a) {
     int base_off = x * 4;
 
     unsigned char old_r = image[y][base_off];
@@ -89,8 +89,10 @@ static inline unsigned char put_pixel(png_bytepp image, int x, int y, unsigned c
     unsigned char new_a = (a + old_a) - a * old_a / 255;
 
     image[y][base_off] = (old_r * old_a + r * (255 - old_a) * a / 255) / new_a;
-    image[y][base_off + 1] = (old_g * old_a + g * (255 - old_a) * a / 255) / new_a;
-    image[y][base_off + 2] = (old_b * old_a + b * (255 - old_a) * a / 255) / new_a;
+    image[y][base_off + 1] =
+        (old_g * old_a + g * (255 - old_a) * a / 255) / new_a;
+    image[y][base_off + 2] =
+        (old_b * old_a + b * (255 - old_a) * a / 255) / new_a;
     image[y][base_off + 3] = new_a;
 
     return new_a;
@@ -206,8 +208,9 @@ static void generate_256(QueuedItem *item) {
                             cout << R"(colors[")" << block << R"("] = ???)"
                                  << endl;
 
-                            new_alpha = put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z,
-                                      0, 0, 0, 255);
+                            new_alpha =
+                                put_pixel(rows, chunk_x * 16 + x,
+                                          chunk_z * 16 + z, 0, 0, 0, 255);
                         } else {
                             array<unsigned char, 4> color = color_itr->second;
                             array<int, 4> rcolor = {color[0], color[1],
@@ -230,9 +233,9 @@ static void generate_256(QueuedItem *item) {
                                     rcolor[i] = 0;
                             }
 
-                            new_alpha = put_pixel(rows, chunk_x * 16 + x, chunk_z * 16 + z,
-                                      rcolor[0], rcolor[1], rcolor[2],
-                                      rcolor[3]);
+                            new_alpha = put_pixel(
+                                rows, chunk_x * 16 + x, chunk_z * 16 + z,
+                                rcolor[0], rcolor[1], rcolor[2], rcolor[3]);
                         }
 
                         if (prev_x != x && new_alpha > 130) {
@@ -360,8 +363,18 @@ void start_worker() {
         cout << endl;
     }
 
-    for (int i = 0; i < option_jobs; ++i) {
-        threads.push_back(new thread(&run_worker_loop));
+    try {
+        for (int i = 0; i < option_jobs; ++i) {
+            threads.push_back(new thread(&run_worker_loop));
+        }
+    } catch (system_error const &e) {
+        cerr << "Cannot create thread: " << e.what() << endl;
+
+        for (thread *t : threads) {
+            t->join();
+        }
+
+        exit(1);
     }
 }
 
