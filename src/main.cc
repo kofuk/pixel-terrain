@@ -290,6 +290,10 @@ static int generate_command(int argc, char **argv) {
             exit(0);
             break;
 
+        case 'v':
+            option_verbose = true;
+            break;
+
         case 'c':
             if (!load_config(optarg)) {
                 print_usage();
