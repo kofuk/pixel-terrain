@@ -162,6 +162,98 @@ static png_bytepp read_existing (string name) {
     return rows;
 }
 
+static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
+                            png_bytepp &image) {
+    for (int z = 0; z < 16; ++z) {
+        int prev_x = -1;
+        int prev_y = -1;
+        for (int x = 0; x < 16; ++x) {
+            clear_pixel (image, chunk_x * 16 + x, chunk_z * 16 + z);
+
+            bool air_found = false;
+
+            int max_y = 255;
+            if (option_nether) max_y = 127;
+
+            for (int y = max_y; y >= 0; --y) {
+                unsigned char new_alpha;
+                string block;
+                try {
+                    block = chunk->get_block (x, y, z);
+                } catch (exception const &e) {
+                    cerr << "Warning: error occurred while obtaining "
+                            "block"
+                         << endl;
+                    cerr << e.what () << endl;
+
+                    continue;
+                }
+
+                if (block == "air" || block == "cave_air" ||
+                    block == "void_air") {
+                    air_found = true;
+                    if (y == 0) {
+                        put_pixel (image, chunk_x * 16 + x, chunk_z * 16 + z, 0,
+                                   0, 0, 255);
+                    }
+                    continue;
+                }
+
+                if (option_nether && !air_found) {
+                    if (y == 0) {
+                        put_pixel (image, chunk_x * 16 + x, chunk_z * 16 + z, 0,
+                                   0, 0, 255);
+                    }
+
+                    continue;
+                }
+
+                auto color_itr = colors.find (block);
+                if (color_itr == end (colors)) {
+                    cout << R"(colors[")" << block << R"("] = ???)" << endl;
+
+                    new_alpha = put_pixel (image, chunk_x * 16 + x,
+                                           chunk_z * 16 + z, 0, 0, 0, 255);
+                } else {
+                    array<unsigned char, 4> color = color_itr->second;
+                    array<int, 4> rcolor = {color[0], color[1], color[2],
+                                            color[3]};
+
+                    int plus;
+                    if (prev_y < 0 || prev_y == y) {
+                        plus = 0;
+                    } else if (prev_y < y) {
+                        plus = 30;
+                    } else {
+                        plus = -30;
+                    }
+
+                    for (int i = 0; i < 3; ++i) {
+                        rcolor[i] += plus;
+                        if (rcolor[i] > 255)
+                            rcolor[i] = 255;
+                        else if (rcolor[i] < 0)
+                            rcolor[i] = 0;
+                    }
+
+                    new_alpha =
+                        put_pixel (image, chunk_x * 16 + x, chunk_z * 16 + z,
+                                   rcolor[0], rcolor[1], rcolor[2], rcolor[3]);
+                }
+
+                if (prev_x != x && new_alpha > 130) {
+                    prev_x = x;
+                    prev_y = y;
+                }
+
+                if (new_alpha < 255) continue;
+
+                break;
+            }
+        }
+    }
+}
+
 static void generate_256 (QueuedItem *item) {
     Anvil::Region *region = item->region->region;
     int region_x = item->region->rx;
@@ -202,96 +294,7 @@ static void generate_256 (QueuedItem *item) {
                 rows = read_existing (path.string ());
             }
 
-            for (int z = 0; z < 16; ++z) {
-                int prev_x = -1;
-                int prev_y = -1;
-                for (int x = 0; x < 16; ++x) {
-                    clear_pixel (rows, x, z);
-
-                    bool air_found = false;
-
-                    int max_y = 255;
-                    if (option_nether) max_y = 127;
-
-                    for (int y = max_y; y >= 0; --y) {
-                        unsigned char new_alpha;
-                        string block;
-                        try {
-                            block = chunk->get_block (x, y, z);
-                        } catch (exception const &e) {
-                            cerr << "Warning: error occurred while obtaining "
-                                    "block"
-                                 << endl;
-                            cerr << e.what () << endl;
-
-                            continue;
-                        }
-
-                        if (block == "air" || block == "cave_air" ||
-                            block == "void_air") {
-                            air_found = true;
-                            if (y == 0) {
-                                put_pixel (rows, chunk_x * 16 + x,
-                                           chunk_z * 16 + z, 0, 0, 0, 255);
-                            }
-                            continue;
-                        }
-
-                        if (option_nether && !air_found) {
-                            if (y == 0) {
-                                put_pixel (rows, chunk_x * 16 + x,
-                                           chunk_z * 16 + z, 0, 0, 0, 255);
-                            }
-
-                            continue;
-                        }
-
-                        auto color_itr = colors.find (block);
-                        if (color_itr == end (colors)) {
-                            cout << R"(colors[")" << block << R"("] = ???)"
-                                 << endl;
-
-                            new_alpha =
-                                put_pixel (rows, chunk_x * 16 + x,
-                                           chunk_z * 16 + z, 0, 0, 0, 255);
-                        } else {
-                            array<unsigned char, 4> color = color_itr->second;
-                            array<int, 4> rcolor = {color[0], color[1],
-                                                    color[2], color[3]};
-
-                            int plus;
-                            if (prev_y < 0 || prev_y == y) {
-                                plus = 0;
-                            } else if (prev_y < y) {
-                                plus = 30;
-                            } else {
-                                plus = -30;
-                            }
-
-                            for (int i = 0; i < 3; ++i) {
-                                rcolor[i] += plus;
-                                if (rcolor[i] > 255)
-                                    rcolor[i] = 255;
-                                else if (rcolor[i] < 0)
-                                    rcolor[i] = 0;
-                            }
-
-                            new_alpha = put_pixel (
-                                rows, chunk_x * 16 + x, chunk_z * 16 + z,
-                                rcolor[0], rcolor[1], rcolor[2], rcolor[3]);
-                        }
-
-                        if (prev_x != x && new_alpha > 130) {
-                            prev_x = x;
-                            prev_y = y;
-                        }
-
-                        if (new_alpha < 255) continue;
-
-                        break;
-                    }
-                }
-            }
+            generate_chunk (chunk, chunk_x, chunk_z, rows);
 
             delete chunk;
         }
