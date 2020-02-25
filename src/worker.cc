@@ -104,7 +104,7 @@ static inline unsigned char put_pixel(png_bytepp image, int x, int y,
 
 static inline void clear_pixel(png_bytepp image, int x, int y) {
     for (int i = x * 4; i < x * 4 + 4; ++i) {
-        image[i] = 0;
+        image[y][i] = 0;
     }
 }
 
