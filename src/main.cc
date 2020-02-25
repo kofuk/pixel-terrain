@@ -120,9 +120,7 @@ static void generate_all(string src_dir) {
                 r = new Anvil::Region(path.path().string(), option_journal_dir);
             }
         } catch (exception const &e) {
-            cerr << "failed to read region: " + to_string(x) + ", " +
-                        to_string(z)
-                 << endl;
+            cerr << "failed to read region: " + path.path().string() << endl;
 
             continue;
         }
