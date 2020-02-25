@@ -17,12 +17,12 @@ public:
     int rx;
     int rz;
 
-    RegionContainer(Anvil::Region *region, int rx, int rz);
-    ~RegionContainer();
-    void set_ref_count(int ref_count);
+    RegionContainer (Anvil::Region *region, int rx, int rz);
+    ~RegionContainer ();
+    void set_ref_count (int ref_count);
     /* if decreased ref count is less than 1, object commits suicide and returns
      * true. */
-    bool decrease_ref();
+    bool decrease_ref ();
 };
 
 struct QueuedItem {
@@ -30,9 +30,9 @@ struct QueuedItem {
     int off_x;
     int off_z;
 
-    QueuedItem(RegionContainer *region, int off_x, int off_z);
+    QueuedItem (RegionContainer *region, int off_x, int off_z);
 
-    string debug_string();
+    string debug_string ();
 };
 
 extern string option_out_dir;
@@ -43,8 +43,8 @@ extern bool option_generate_progress;
 extern bool option_generate_range;
 extern string option_journal_dir;
 
-void queue_item(QueuedItem *item);
-void start_worker();
-void wait_for_worker();
+void queue_item (QueuedItem *item);
+void start_worker ();
+void wait_for_worker ();
 
 #endif

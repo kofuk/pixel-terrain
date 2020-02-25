@@ -6,3 +6,4 @@ AllowAllParametersOfDeclarationOnNextLine: true
 BreakBeforeBraces: Attach
 IndentWidth: 4
 NamespaceIndentation: All
+SpaceBeforeParens: Always

@@ -36,74 +36,74 @@
 
 using namespace std;
 
-static void write_progress_file(int progress) {
-    filesystem::path out_path(option_out_dir);
+static void write_progress_file (int progress) {
+    filesystem::path out_path (option_out_dir);
     out_path /= "gen_progress.txt";
 
-    ofstream out(out_path.string());
+    ofstream out (out_path.string ());
     out << progress << endl;
 }
 
-static void write_range_file(int start_x, int start_z, int end_x, int end_z) {
-    filesystem::path out_path(option_out_dir);
+static void write_range_file (int start_x, int start_z, int end_x, int end_z) {
+    filesystem::path out_path (option_out_dir);
     out_path /= "chunk_range.json";
 
-    ofstream out(out_path.string());
+    ofstream out (out_path.string ());
     if (!out) return;
 
     out << "[" << start_x << ", " << start_z << ", " << end_x << ", " << end_z
         << "]" << endl;
 }
 
-static void generate_all(string src_dir) {
-    if (!option_journal_dir.empty()) {
+static void generate_all (string src_dir) {
+    if (!option_journal_dir.empty ()) {
         try {
-            filesystem::create_directories(option_journal_dir);
+            filesystem::create_directories (option_journal_dir);
         } catch (filesystem::filesystem_error const &e) {
-            cerr << "cannot create journal directory: " << e.what() << endl;
+            cerr << "cannot create journal directory: " << e.what () << endl;
 
-            exit(1);
+            exit (1);
         }
     }
 
-    start_worker();
+    start_worker ();
 
     filesystem::directory_iterator dir =
-        filesystem::directory_iterator(src_dir);
+        filesystem::directory_iterator (src_dir);
 
     int progress = -1;
-    int nfile = distance(begin(dir), end(dir));
+    int nfile = distance (begin (dir), end (dir));
     int n_processed = 0;
 
-    int min_x = numeric_limits<int>::max();
-    int min_z = numeric_limits<int>::max();
-    int max_x = numeric_limits<int>::min();
-    int max_z = numeric_limits<int>::min();
+    int min_x = numeric_limits<int>::max ();
+    int min_z = numeric_limits<int>::max ();
+    int max_x = numeric_limits<int>::min ();
+    int max_z = numeric_limits<int>::min ();
 
     for (filesystem::directory_entry const &path :
-         filesystem::directory_iterator(src_dir)) {
+         filesystem::directory_iterator (src_dir)) {
         ++n_processed;
 
-        if (path.is_directory()) continue;
+        if (path.is_directory ()) continue;
 
-        string name = path.path().filename().string();
+        string name = path.path ().filename ().string ();
 
         if (name[0] != 'r' || name[1] != '.') continue;
         size_t i = 2;
-        while (i < name.size() &&
+        while (i < name.size () &&
                (name[i] == '-' || ('0' <= name[i] && name[i] <= '9')))
             ++i;
 
-        if (name[i] == '.' && i + 1 >= name.size()) continue;
+        if (name[i] == '.' && i + 1 >= name.size ()) continue;
         ++i;
 
         size_t start_z = i;
-        while (i < name.size() &&
+        while (i < name.size () &&
                (name[i] == '-' || ('0' <= name[i] && name[i] <= '9')))
             ++i;
 
-        int x = stoi(name.substr(2, i - 2));
-        int z = stoi(name.substr(start_z, i - start_z));
+        int x = stoi (name.substr (2, i - 2));
+        int z = stoi (name.substr (start_z, i - start_z));
 
         if (option_generate_range) {
             if (x < min_x) min_x = x;
@@ -114,24 +114,25 @@ static void generate_all(string src_dir) {
 
         Anvil::Region *r;
         try {
-            if (option_journal_dir.empty()) {
-                r = new Anvil::Region(path.path().string());
+            if (option_journal_dir.empty ()) {
+                r = new Anvil::Region (path.path ().string ());
             } else {
-                r = new Anvil::Region(path.path().string(), option_journal_dir);
+                r = new Anvil::Region (path.path ().string (),
+                                       option_journal_dir);
             }
         } catch (exception const &e) {
-            cerr << "failed to read region: " + path.path().string() << endl;
+            cerr << "failed to read region: " + path.path ().string () << endl;
 
             continue;
         }
 
-        RegionContainer *rc = new RegionContainer(r, x, z);
-        rc->set_ref_count(4);
+        RegionContainer *rc = new RegionContainer (r, x, z);
+        rc->set_ref_count (4);
 
         for (int off_x = 0; off_x < 2; ++off_x) {
             for (int off_z = 0; off_z < 2; ++off_z) {
-                QueuedItem *item = new QueuedItem(rc, off_x, off_z);
-                queue_item(item);
+                QueuedItem *item = new QueuedItem (rc, off_x, off_z);
+                queue_item (item);
             }
         }
 
@@ -139,22 +140,22 @@ static void generate_all(string src_dir) {
             int cur_progress = n_processed * 100 / nfile;
             if (cur_progress != progress) {
                 progress = cur_progress;
-                write_progress_file(progress);
+                write_progress_file (progress);
             }
         }
     }
 
     for (int i = 0; i < option_jobs; ++i) {
-        QueuedItem *item = new QueuedItem(nullptr, 0, 0);
-        queue_item(item);
+        QueuedItem *item = new QueuedItem (nullptr, 0, 0);
+        queue_item (item);
     }
 
-    wait_for_worker();
+    wait_for_worker ();
 
     if (option_generate_progress) {
-        filesystem::path progress_file(option_out_dir);
+        filesystem::path progress_file (option_out_dir);
         progress_file /= "gen_progress.txt";
-        filesystem::remove(progress_file);
+        filesystem::remove (progress_file);
     }
 
     if (option_generate_range) {
@@ -165,37 +166,37 @@ static void generate_all(string src_dir) {
         min_z *= 2;
         max_x *= 2;
         max_z *= 2;
-        write_range_file(min_x, min_z, max_x, max_z);
+        write_range_file (min_x, min_z, max_x, max_z);
     }
 }
 
-static bool load_config(string filename) {
+static bool load_config (string filename) {
     try {
-        shared_ptr<cpptoml::table> config = cpptoml::parse_file(filename);
+        shared_ptr<cpptoml::table> config = cpptoml::parse_file (filename);
 
-        if (config->contains("jobs")) {
-            option_jobs = *config->get_as<int>("jobs");
+        if (config->contains ("jobs")) {
+            option_jobs = *config->get_as<int> ("jobs");
         }
-        if (config->contains("nether")) {
-            option_nether = *config->get_as<bool>("nether");
+        if (config->contains ("nether")) {
+            option_nether = *config->get_as<bool> ("nether");
         }
-        if (config->contains("out")) {
-            option_out_dir = *config->get_as<string>("out");
+        if (config->contains ("out")) {
+            option_out_dir = *config->get_as<string> ("out");
         }
-        if (config->contains("gen-progress")) {
-            option_generate_progress = *config->get_as<bool>("gen-progress");
+        if (config->contains ("gen-progress")) {
+            option_generate_progress = *config->get_as<bool> ("gen-progress");
         }
-        if (config->contains("gen-range")) {
-            option_generate_range = *config->get_as<bool>("gen-range");
+        if (config->contains ("gen-range")) {
+            option_generate_range = *config->get_as<bool> ("gen-range");
         }
-        if (config->contains("journal")) {
-            option_journal_dir = *config->get_as<string>("journal");
+        if (config->contains ("journal")) {
+            option_journal_dir = *config->get_as<string> ("journal");
         }
-        if (config->contains("verbose")) {
-            option_verbose = *config->get_as<bool>("verbose");
+        if (config->contains ("verbose")) {
+            option_verbose = *config->get_as<bool> ("verbose");
         }
     } catch (cpptoml::parse_exception const &e) {
-        cerr << e.what() << endl;
+        cerr << e.what () << endl;
 
         return false;
     }
@@ -203,7 +204,7 @@ static bool load_config(string filename) {
     return true;
 }
 
-static void print_usage() {
+static void print_usage () {
 #ifdef __unix__
     cout << "Usage: mcmap generate [OPTION]... SRC_DIR" << endl;
     cout << "       mcmap server CONFIG" << endl;
@@ -250,7 +251,7 @@ static void print_usage() {
 #endif /* __unix__ */
 }
 
-static void print_version() {
+static void print_version () {
     cout << "mcmap 2.0" << endl;
     cout << "Copyright (C) 2020, Koki Fukuda." << endl;
     cout << "This program includes C++ re-implementation of" << endl
@@ -276,26 +277,26 @@ static option server_command_options[] = {{"daemon", no_argument, 0, 'd'},
                                           {0, 0, 0, 0}};
 #endif /* _GNU_SOURCE */
 
-static int generate_command(int argc, char **argv) {
-    option_jobs = thread::hardware_concurrency();
+static int generate_command (int argc, char **argv) {
+    option_jobs = thread::hardware_concurrency ();
     option_out_dir = ".";
 
     int c;
     for (;;) {
 #ifdef _GNU_SOURCE
-        c = getopt_long(argc, argv, "c:j:no:prU:v", generate_command_options,
-                        nullptr);
+        c = getopt_long (argc, argv, "c:j:no:prU:v", generate_command_options,
+                         nullptr);
 #elif defined(__unix__)
-        c = getopt(argc, argv, "c:j:no:prU:v");
+        c = getopt (argc, argv, "c:j:no:prU:v");
 #else
-        c = getopt_dos(argc, argv, "c:j:no:prU:v");
+        c = getopt_dos (argc, argv, "c:j:no:prU:v");
 #endif /* _GNU_SOURCE */
         if (c == -1) break;
 
         switch (c) {
         case 'V':
-            print_version();
-            exit(0);
+            print_version ();
+            exit (0);
             break;
 
         case 'v':
@@ -303,14 +304,14 @@ static int generate_command(int argc, char **argv) {
             break;
 
         case 'c':
-            if (!load_config(optarg)) {
-                print_usage();
-                exit(1);
+            if (!load_config (optarg)) {
+                print_usage ();
+                exit (1);
             }
             break;
 
         case 'j':
-            option_jobs = stoi(optarg);
+            option_jobs = stoi (optarg);
             break;
 
         case 'n':
@@ -334,33 +335,33 @@ static int generate_command(int argc, char **argv) {
             break;
 
         default:
-            print_usage();
-            exit(1);
+            print_usage ();
+            exit (1);
         }
     }
 
     if (optind >= argc) {
-        print_usage();
+        print_usage ();
 
         return 0;
     }
 
-    init_block_list();
+    init_block_list ();
 
-    generate_all(argv[optind]);
+    generate_all (argv[optind]);
 
     return 0;
 }
 
-static int server_command(int argc, char **argv) {
+static int server_command (int argc, char **argv) {
 #ifdef __unix__
     bool daemon_mode = false;
     int opt;
     for (;;) {
 #ifdef _GNU_SOURCE
-        opt = getopt_long(argc, argv, "dh", server_command_options, nullptr);
+        opt = getopt_long (argc, argv, "dh", server_command_options, nullptr);
 #else
-        opt = getopt(argc, argv, "dh");
+        opt = getopt (argc, argv, "dh");
 #endif /* _GNU_SOURCE */
 
         if (opt == -1) break;
@@ -371,20 +372,20 @@ static int server_command(int argc, char **argv) {
             break;
 
         case 'h':
-            Server::print_protocol_detail();
-            exit(0);
+            Server::print_protocol_detail ();
+            exit (0);
 
         default:
-            print_usage();
-            exit(1);
+            print_usage ();
+            exit (1);
         }
     }
 
     if (argc - optind == 1) {
-        Server::launch_server(argv[optind], daemon_mode);
+        Server::launch_server (argv[optind], daemon_mode);
     } else {
-        print_usage();
-        exit(1);
+        print_usage ();
+        exit (1);
     }
 #else
     cout << "server mode on non *nix system is not supported." << endl;
@@ -395,32 +396,32 @@ static int server_command(int argc, char **argv) {
     return 0;
 }
 
-int main(int argc, char **argv) {
+int main (int argc, char **argv) {
 #ifdef __unix__
     if (argc < 2) {
-        print_usage();
-        exit(1);
+        print_usage ();
+        exit (1);
     }
 
-    if (!strcmp(argv[1], "--help")) {
-        print_usage();
-        exit(0);
-    } else if (!strcmp(argv[1], "--version")) {
-        print_version();
-        exit(0);
-    } else if (!strcmp(argv[1], "generate")) {
-        generate_command(--argc, ++argv);
-    } else if (!strcmp(argv[1], "server")) {
-        server_command(--argc, ++argv);
+    if (!strcmp (argv[1], "--help")) {
+        print_usage ();
+        exit (0);
+    } else if (!strcmp (argv[1], "--version")) {
+        print_version ();
+        exit (0);
+    } else if (!strcmp (argv[1], "generate")) {
+        generate_command (--argc, ++argv);
+    } else if (!strcmp (argv[1], "server")) {
+        server_command (--argc, ++argv);
     } else {
         cout << "unrecognized option: " << argv[1] << endl;
-        print_usage();
-        exit(1);
+        print_usage ();
+        exit (1);
     }
 
 #else
 
-    generate_command(argc, argv);
+    generate_command (argc, argv);
 
 #endif /* __unix__ */
 

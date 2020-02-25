@@ -14,8 +14,8 @@ char *optarg;
 #endif /* __unix__ */
 
 /* getopt interface to parse DOS-style command line options. */
-[[maybe_unused]] static inline int getopt_dos(int argc, char **argv,
-                                              char *optstring) {
+[[maybe_unused]] static inline int getopt_dos (int argc, char **argv,
+                                               char *optstring) {
     if (optind >= argc) return -1;
 
     for (;;) {
@@ -31,14 +31,14 @@ char *optarg;
         }
     }
 
-    if (strlen(argv[optind]) != 2) {
+    if (strlen (argv[optind]) != 2) {
         cerr << "Unrecognized option: " << (argv[optind] + 1) << endl;
 
         return '?';
     }
 
     char opt_char = argv[optind][1];
-    size_t optlen = strlen(optstring);
+    size_t optlen = strlen (optstring);
     for (size_t i = 0; i < optlen; ++i) {
         if (optstring[i] == ':') continue;
 

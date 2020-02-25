@@ -8,10 +8,10 @@
 using namespace std;
 
 namespace Server {
-    void print_protocol_detail();
+    void print_protocol_detail ();
 
-    void launch_server(string config_filename, bool daemon_mode);
-}
+    void launch_server (string config_filename, bool daemon_mode);
+} // namespace Server
 
 #endif /* __unix__ */
 

@@ -6,30 +6,30 @@
 #include "NBT.hh"
 
 namespace Anvil {
-    Chunk::Chunk(NBT::NBTFile *nbt_data)
-        : nbt_file(nbt_data), cache_palette(nullptr),
-          cache_palette_section(-1) {
-        version = NBT::value<int32_t>(
-            nbt_data->get_as<NBT::TagInt, NBT::TAG_INT>("DataVersion"));
+    Chunk::Chunk (NBT::NBTFile *nbt_data)
+        : nbt_file (nbt_data), cache_palette (nullptr),
+          cache_palette_section (-1) {
+        version = NBT::value<int32_t> (
+            nbt_data->get_as<NBT::TagInt, NBT::TAG_INT> ("DataVersion"));
 
-        data = nbt_data->get_as<NBT::TagCompound, NBT::TAG_COMPOUND>("Level");
+        data = nbt_data->get_as<NBT::TagCompound, NBT::TAG_COMPOUND> ("Level");
         if (data == nullptr) {
-            throw runtime_error("Level tag not found in chunk");
+            throw runtime_error ("Level tag not found in chunk");
         }
 
-        last_update = NBT::value<uint64_t>(
-            data->get_as<NBT::TagLong, NBT::TAG_LONG>("LastUpdate"));
+        last_update = NBT::value<uint64_t> (
+            data->get_as<NBT::TagLong, NBT::TAG_LONG> ("LastUpdate"));
 
-        x = NBT::value<int32_t>(
-            data->get_as<NBT::TagInt, NBT::TAG_INT>("xPos"));
+        x = NBT::value<int32_t> (
+            data->get_as<NBT::TagInt, NBT::TAG_INT> ("xPos"));
 
-        z = NBT::value<int32_t>(
-            data->get_as<NBT::TagInt, NBT::TAG_INT>("zPos"));
+        z = NBT::value<int32_t> (
+            data->get_as<NBT::TagInt, NBT::TAG_INT> ("zPos"));
     }
 
-    Chunk::~Chunk() {
+    Chunk::~Chunk () {
         if (cache_palette != nullptr) {
-            for (auto itr = begin(*cache_palette); itr != end(*cache_palette);
+            for (auto itr = begin (*cache_palette); itr != end (*cache_palette);
                  ++itr) {
                 delete *itr;
             }
@@ -43,28 +43,28 @@ namespace Anvil {
         delete nbt_file;
     }
 
-    NBT::TagCompound *Chunk::get_section(unsigned char y) {
+    NBT::TagCompound *Chunk::get_section (unsigned char y) {
         if (y < 0 || 15 < y) {
             return nullptr;
         }
 
         NBT::TagList *section =
-            data->get_as<NBT::TagList, NBT::TAG_LIST>("Sections");
+            data->get_as<NBT::TagList, NBT::TAG_LIST> ("Sections");
         if (section == nullptr) {
-            throw runtime_error("Sections tag not found in Level");
+            throw runtime_error ("Sections tag not found in Level");
         }
 
-        for (auto itr = begin(section->tags); itr != end(section->tags);
+        for (auto itr = begin (section->tags); itr != end (section->tags);
              ++itr) {
             if ((*itr)->tag_type != NBT::TAG_COMPOUND) {
-                throw runtime_error("Sections' payload is not TAG_COMPOUND");
+                throw runtime_error ("Sections' payload is not TAG_COMPOUND");
             }
 
             unsigned char tag_y;
             try {
-                tag_y = NBT::value<unsigned char>(
+                tag_y = NBT::value<unsigned char> (
                     ((NBT::TagCompound *)(*itr))
-                        ->get_as<NBT::TagByte, NBT::TAG_BYTE>("Y"));
+                        ->get_as<NBT::TagByte, NBT::TAG_BYTE> ("Y"));
             } catch (runtime_error const &) {
                 continue;
             }
@@ -75,71 +75,72 @@ namespace Anvil {
         return nullptr;
     }
 
-    vector<string *> *Chunk::get_palette(NBT::TagCompound *section) {
+    vector<string *> *Chunk::get_palette (NBT::TagCompound *section) {
         vector<string *> *palette = new vector<string *>;
 
         NBT::TagList *palette_tag_list =
-            section->get_as<NBT::TagList, NBT::TAG_LIST>("Palette");
+            section->get_as<NBT::TagList, NBT::TAG_LIST> ("Palette");
         if (palette_tag_list == nullptr) {
-            throw runtime_error("Palette not found");
+            throw runtime_error ("Palette not found");
         }
         if (palette_tag_list->payload_type != NBT::TAG_COMPOUND) {
-            throw runtime_error("corrupted data (payload type != TAG_COMPOUND)");
+            throw runtime_error (
+                "corrupted data (payload type != TAG_COMPOUND)");
         }
 
-        for (auto itr = begin(palette_tag_list->tags);
-             itr != end(palette_tag_list->tags); ++itr) {
+        for (auto itr = begin (palette_tag_list->tags);
+             itr != end (palette_tag_list->tags); ++itr) {
             NBT::TagCompound *tag = (NBT::TagCompound *)(*itr);
 
-            string *src_name = NBT::value<string *>(
-                tag->get_as<NBT::TagString, NBT::TAG_STRING>("Name"));
+            string *src_name = NBT::value<string *> (
+                tag->get_as<NBT::TagString, NBT::TAG_STRING> ("Name"));
 
             string *name;
-            if (src_name->find("minecraft:") == 0) {
-                name = new string(src_name->substr(10));
+            if (src_name->find ("minecraft:") == 0) {
+                name = new string (src_name->substr (10));
             } else {
-                name = new string(*src_name);
+                name = new string (*src_name);
             }
-            palette->push_back(name);
+            palette->push_back (name);
         }
 
         return palette;
     }
 
-    string Chunk::get_block(int32_t x, int32_t y, int32_t z) {
+    string Chunk::get_block (int32_t x, int32_t y, int32_t z) {
         if (x < 0 || 15 < x || y < 0 || 255 < y || z < 0 || 15 < z) {
             return "";
         }
 
         unsigned char section_no = y / 16;
-        NBT::TagCompound *section = get_section(section_no);
+        NBT::TagCompound *section = get_section (section_no);
 
         y %= 16;
 
         if (section == nullptr ||
-            section->get_as<NBT::TagLongArray, NBT::TAG_LONG_ARRAY>(
+            section->get_as<NBT::TagLongArray, NBT::TAG_LONG_ARRAY> (
                 "BlockStates") == nullptr) {
             return "air";
         }
         vector<string *> *palette;
         if (cache_palette_section != section_no || cache_palette == nullptr) {
             if (cache_palette != nullptr) {
-                for (auto itr = begin(*cache_palette);
-                     itr != end(*cache_palette); ++itr) {
+                for (auto itr = begin (*cache_palette);
+                     itr != end (*cache_palette); ++itr) {
                     delete *itr;
                 }
                 delete cache_palette;
             }
 
-            cache_palette = get_palette(section);
+            cache_palette = get_palette (section);
             cache_palette_section = section_no;
         }
 
         palette = cache_palette;
 
         int bits = 4;
-        if (palette->size() - 1 > 15) {
-            bits = palette->size() - 1;
+        if (palette->size () - 1 > 15) {
+            bits = palette->size () - 1;
 
             /* calculate next squared number, in squared numbers larger than
                BITS. if BITS is already squared in this step, calculate next
@@ -151,34 +152,34 @@ namespace Anvil {
             bits = bits | (bits >> 16);
             bits += 1;
 
-            bits = log2(bits);
+            bits = log2 (bits);
         }
 
         int index = y * 16 * 16 + z * 16 + x;
-        vector<int64_t> states = NBT::value<vector<int64_t>>(
-            section->get_as<NBT::TagLongArray, NBT::TAG_LONG_ARRAY>(
+        vector<int64_t> states = NBT::value<vector<int64_t>> (
+            section->get_as<NBT::TagLongArray, NBT::TAG_LONG_ARRAY> (
                 "BlockStates"));
         int state = index * bits / 64;
 
-        if ((uint64_t)state >= states.size()) return "air";
+        if ((uint64_t)state >= states.size ()) return "air";
 
         uint64_t data = states[state];
-        if (data < 0) data += pow(2, 64);
+        if (data < 0) data += pow (2, 64);
 
         uint64_t shifted_data = data >> ((bits * index) % 64);
 
         if (64 - ((bits * index) % 64) < bits) {
             data = states[state + 1];
-            if (data < 0) data += pow(2, 64);
+            if (data < 0) data += pow (2, 64);
             int leftover = (bits - ((state + 1) * 64 % bits)) % bits;
             shifted_data =
-                ((data & (int64_t)pow(2, leftover) - 1) << (bits - leftover)) |
+                ((data & (int64_t)pow (2, leftover) - 1) << (bits - leftover)) |
                 shifted_data;
         }
 
-        int64_t palette_id = shifted_data & (int64_t)pow(2, bits) - 1;
+        int64_t palette_id = shifted_data & (int64_t)pow (2, bits) - 1;
 
-        if (palette_id <= 0 || (*palette).size() <= (size_t)palette_id)
+        if (palette_id <= 0 || (*palette).size () <= (size_t)palette_id)
             return "air";
 
         return *(*palette)[palette_id];
