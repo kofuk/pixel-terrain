@@ -206,6 +206,8 @@ static void generate_256(QueuedItem *item) {
                 int prev_x = -1;
                 int prev_y = -1;
                 for (int x = 0; x < 16; ++x) {
+                    clear_pixel(rows, x, z);
+
                     bool air_found = false;
 
                     int max_y = 255;
