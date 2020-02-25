@@ -271,7 +271,11 @@ static void generate_256 (QueuedItem *item) {
 
     png_bytepp rows = nullptr;
 
-    for (int chunk_z = 0; chunk_z < 16; ++chunk_z) {
+    /* minumum range of chunk update is radius of 3, so we can capture
+       all updated chunk with step of 6. but, we set this 4 since
+       4 can divide 16, our image (chunk) width. */
+    for (int chunk_z = 0; chunk_z < 16; chunk_z += 4) {
+        int prev_chunk_x = -1;
         for (int chunk_x = 0; chunk_x < 16; ++chunk_x) {
             Anvil::Chunk *chunk;
 
@@ -297,6 +301,36 @@ static void generate_256 (QueuedItem *item) {
             generate_chunk (chunk, chunk_x, chunk_z, rows);
 
             delete chunk;
+
+            int start_x =
+                chunk_x - 3 > prev_chunk_x ? chunk_x - 3 : prev_chunk_x + 1;
+            int end_x = chunk_x + 4 > 16 ? 16 : chunk_x + 4;
+
+            for (int t_chunk_x = start_x; t_chunk_x < end_x; ++t_chunk_x) {
+                for (int t_chunk_z = chunk_z + 1; t_chunk_z < chunk_z + 4;
+                     ++t_chunk_z) {
+                    try {
+                        chunk = region->get_chunk_if_dirty (
+                            off_x * 16 + t_chunk_x, off_z * 16 + t_chunk_z);
+                    } catch (exception const &e) {
+                        cerr << "Warning: parse error in " +
+                                    item->debug_string ()
+                             << endl;
+                        cerr << e.what () << endl;
+
+                        continue;
+                    }
+
+                    if (chunk == nullptr) {
+                        continue;
+                    }
+
+                    generate_chunk (chunk, t_chunk_x, t_chunk_z, rows);
+
+                    delete chunk;
+                }
+            }
+            prev_chunk_x = chunk_x + 3;
         }
     }
 
