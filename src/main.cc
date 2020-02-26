@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <array>
-#include <bits/getopt_core.h>
 #include <csetjmp>
 #include <cstdio>
 #include <cstdlib>
