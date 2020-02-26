@@ -122,6 +122,7 @@ static void generate_all (string src_dir) {
             }
         } catch (exception const &e) {
             cerr << "failed to read region: " + path.path ().string () << endl;
+            cerr << e.what() << endl;
 
             continue;
         }
