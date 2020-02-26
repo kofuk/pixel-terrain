@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <cerrno>
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
@@ -56,8 +58,7 @@ namespace Anvil {
         ifstream f (filename, ios::binary);
 
         if (!f) {
-            throw invalid_argument (
-                "failed to open specified file for reading");
+            throw invalid_argument (strerror (errno));
         }
 
         vector<unsigned char> dest;
