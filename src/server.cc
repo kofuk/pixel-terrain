@@ -1,3 +1,4 @@
+#include <csignal>
 #ifdef __unix__
 
 #include <algorithm>
@@ -97,7 +98,7 @@ namespace Server {
         }
     }
 
-    static void handle_interrupt (int) {
+    static void terminate_server (int) {
         unlink ("/tmp/mcmap.sock");
         exit (0);
     }
@@ -400,7 +401,7 @@ namespace Server {
             goto fail;
         }
 
-        signal (SIGINT, &handle_interrupt);
+        signal (SIGUSR1, &terminate_server);
 
         for (;;) {
             int fd;
