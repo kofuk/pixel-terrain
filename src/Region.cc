@@ -8,7 +8,7 @@
 
 #include "NBT.hh"
 #include "Region.hh"
-#include "Utils.hh"
+#include "utils.hh"
 #include "worker.hh"
 
 namespace Anvil {

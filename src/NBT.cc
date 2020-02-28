@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 #include "NBT.hh"
-#include "Utils.hh"
+#include "utils.hh"
 
 namespace NBT {
     Tag::Tag (tagtype_t type) : tag_type (type) {}

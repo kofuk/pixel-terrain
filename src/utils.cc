@@ -4,7 +4,7 @@
 
 #include <zlib.h>
 
-#include "Utils.hh"
+#include "utils.hh"
 
 using namespace std;
 

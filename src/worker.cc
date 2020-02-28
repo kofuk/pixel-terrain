@@ -208,15 +208,15 @@ static void generate_256 (QueuedItem *item) {
             }
 
             if (image == nullptr) {
-                if (filesystem::exists(path)) {
+                if (filesystem::exists (path)) {
                     try {
-                        image = new Png(path.string());
+                        image = new Png (path.string ());
 
                     } catch (exception const &) {
-                        image = new Png(256, 256);
+                        image = new Png (256, 256);
                     }
                 } else {
-                    image = new Png(256, 256);
+                    image = new Png (256, 256);
                 }
             }
 
@@ -266,7 +266,7 @@ static void generate_256 (QueuedItem *item) {
         return;
     }
 
-    image->save(path.string());
+    image->save (path.string ());
     delete image;
 
     if (option_verbose) {

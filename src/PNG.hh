@@ -17,14 +17,13 @@ public:
     Png (string filename);
     ~Png ();
 
-
-    int get_width();
-    int get_height();
+    int get_width ();
+    int get_height ();
     unsigned char blend (int x, int y, unsigned char r, unsigned char g,
                          unsigned char b, unsigned char a);
     void clear (int x, int y);
-    bool save(string filename);
-    bool save();
+    bool save (string filename);
+    bool save ();
 };
 
 #endif
