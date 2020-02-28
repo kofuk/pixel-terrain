@@ -1,13 +1,14 @@
 #ifndef BLOCKS_HH
 #define BLOCKS_HH
 
+#include "Trie.hh"
 #include <array>
 #include <string>
 #include <unordered_map>
 
 using namespace std;
 
-extern unordered_map<string, array<unsigned char, 4>> colors;
+extern Trie colors;
 
 void init_block_list ();
 

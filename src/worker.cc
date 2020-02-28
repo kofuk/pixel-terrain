@@ -121,14 +121,14 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                     continue;
                 }
 
-                auto color_itr = colors.find (block);
-                if (color_itr == end (colors)) {
+                array<unsigned char, 4> *color_itr = colors.find (block);
+                if (color_itr == nullptr) {
                     cout << R"(colors[")" << block << R"("] = ???)" << endl;
 
                     new_alpha = image.blend (chunk_x * 16 + x, chunk_z * 16 + z,
                                              0, 0, 0, 255);
                 } else {
-                    array<unsigned char, 4> color = color_itr->second;
+                    array<unsigned char, 4> color = *color_itr;
                     array<int, 4> rcolor = {color[0], color[1], color[2],
                                             color[3]};
 

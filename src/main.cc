@@ -29,6 +29,7 @@
 #include <cpptoml.h>
 
 #include "Region.hh"
+#include "Trie.hh"
 #include "blocks.hh"
 #include "server.hh"
 #include "worker.hh"
