@@ -1,0 +1,2 @@
+colors["zombie_head"] = {105, 135, 86, 150};
+colors["zombie_wall_head"] = {105, 135, 86, 150};

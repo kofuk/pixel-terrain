@@ -1,0 +1,12 @@
+colors["emerald_block"] = {0, 177, 62, 255};
+colors["emerald_ore"] = {72, 165, 120, 255};
+colors["enchanting_table"] = {189, 180, 149, 255};
+colors["end_portal"] = {0, 44, 48, 255};
+colors["end_portal_frame"] = {0, 72, 61, 255};
+colors["end_rod"] = {247, 223, 201, 80};
+colors["end_stone"] = {218, 244, 168, 255};
+colors["end_stone_brick_slab"] = {232, 244, 178, 255};
+colors["end_stone_brick_stairs"] = {232, 244, 178, 255};
+colors["end_stone_brick_wall"] = {214, 214, 149, 230};
+colors["end_stone_bricks"] = {219, 255, 174, 255};
+colors["ender_chest"] = {4, 20, 28, 255};

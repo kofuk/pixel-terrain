@@ -1,0 +1,13 @@
+colors["yellow_banner"] = {126, 130, 129, 80};
+colors["yellow_bed"] = {255, 206, 41, 255};
+colors["yellow_carpet"] = {245, 187, 21, 255};
+colors["yellow_carpet"] = {255, 206, 41, 255};
+colors["yellow_concrete"] = {242, 176, 13, 255};
+colors["yellow_concrete_powder"] = {242, 176, 13, 255};
+colors["yellow_glazed_terracotta"] = {243, 177, 13, 255};
+colors["yellow_shulker_box"] = {252, 200, 31, 255};
+colors["yellow_stained_glass"] = {241, 241, 170, 150};
+colors["yellow_stained_glass_pane"] = {208, 208, 17, 10};
+colors["yellow_terracotta"] = {185, 132, 27, 255};
+colors["yellow_wall_banner"] = {126, 130, 129, 10};
+colors["yellow_wool"] = {245, 187, 21, 255};

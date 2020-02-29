@@ -1,0 +1,9 @@
+colors["hay_block"] = {161, 138, 7, 255};
+colors["heavy_weighted_pressure_plate"] = {230, 230, 230, 255};
+colors["honey_block"] = {225, 169, 75, 200};
+colors["honeycomb_block"] = {196, 95, 0, 255};
+colors["hopper"] = {65, 65, 65, 255};
+colors["horn_coral"] = {209, 179, 65, 200};
+colors["horn_coral_block"] = {209, 179, 65, 255};
+colors["horn_coral_fan"] = {209, 179, 65, 200};
+colors["horn_coral_wall_fan"] = {209, 179, 65, 200};

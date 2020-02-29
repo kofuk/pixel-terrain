@@ -1,0 +1,12 @@
+colors["ice"] = {164, 186, 251, 255};
+colors["infested_chiseled_stone_bricks"] = {99, 99, 99, 255};
+colors["infested_cobblestone"] = {136, 135, 136, 255};
+colors["infested_cracked_stone_bricks"] = {99, 99, 99, 255};
+colors["infested_mossy_stone_bricks"] = {127, 127, 127, 255};
+colors["infested_stone"] = {127, 127, 127, 255};
+colors["infested_stone_bricks"] = {120, 118, 120, 255};
+colors["iron_bars"] = {90, 101, 92, 150};
+colors["iron_block"] = {146, 146, 146, 255};
+colors["iron_door"] = {205, 205, 205, 150};
+colors["iron_ore"] = {169, 139, 124, 255};
+colors["iron_trapdoor"] = {185, 184, 184, 200};

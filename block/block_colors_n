@@ -1,0 +1,10 @@
+colors["nether_brick_fence"] = {21, 11, 13, 150};
+colors["nether_brick_slab"] = {56, 24, 30, 255};
+colors["nether_brick_stairs"] = {56, 24, 30, 255};
+colors["nether_brick_wall"] = {25, 13, 16, 230};
+colors["nether_bricks"] = {56, 24, 30, 255};
+colors["nether_quartz_ore"] = {170, 131, 122, 255};
+colors["nether_wart"] = {134, 0, 1, 230};
+colors["nether_wart_block"] = {123, 0, 0, 255};
+colors["netherrack"] = {102, 0, 25, 255};
+colors["note_block"] = {90, 52, 32, 255};
