@@ -6,6 +6,14 @@
 #include <fstream>
 #include <stdexcept>
 
+#ifdef __unix__
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif /* __unix__ */
+
 #include "NBT.hh"
 #include "Region.hh"
 #include "utils.hh"
@@ -37,7 +45,14 @@ namespace Anvil {
     }
 
     Region::~Region () {
+#ifdef __unix__
+        if (munmap (data, len) == -1) {
+            int err = errno;
+            cerr << "warning: " << strerror(err) << endl;
+        }
+#else
         delete[] data;
+#endif /* __unix__ */
 
         if (journal_changed && !journal_file.empty ()) {
             if (option_verbose) {
@@ -55,6 +70,28 @@ namespace Anvil {
     }
 
     void Region::read_region_file (string filename) {
+#ifdef __unix__
+        struct stat stat_buf;
+        if (stat (filename.c_str (), &stat_buf) == -1) {
+            throw runtime_error (strerror (errno));
+        }
+
+        if ((stat_buf.st_mode & S_IFMT) != S_IFREG) {
+            throw logic_error ("region file is not regular file");
+        }
+        len = stat_buf.st_size;
+
+        int fd = open (filename.c_str (), O_RDONLY);
+        if (fd == -1) {
+            throw runtime_error (strerror (errno));
+        }
+
+        data = (unsigned char *)mmap (0, len, PROT_READ, MAP_PRIVATE, fd, 0);
+        if (data == MAP_FAILED) {
+            throw runtime_error (strerror (errno));
+        }
+        close (fd);
+#else
         ifstream f (filename, ios::binary);
 
         if (!f) {
@@ -75,6 +112,7 @@ namespace Anvil {
         len = dest.size ();
         data = new unsigned char[len];
         std::copy (std::begin (dest), std::end (dest), data);
+#endif
     }
 
     size_t Region::header_offset (int chunk_x, int chunk_z) {
