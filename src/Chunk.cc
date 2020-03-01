@@ -7,8 +7,7 @@
 
 namespace Anvil {
     Chunk::Chunk (NBT::NBTFile *nbt_data)
-        : nbt_file (nbt_data), cache_palette (nullptr),
-          cache_palette_section (-1) {
+        : nbt_file (nbt_data) {
         version = NBT::value<int32_t> (
             nbt_data->get_as<NBT::TagInt, NBT::TAG_INT> ("DataVersion"));
 
@@ -25,22 +24,40 @@ namespace Anvil {
 
         z = NBT::value<int32_t> (
             data->get_as<NBT::TagInt, NBT::TAG_INT> ("zPos"));
+
+        parse_palette();
     }
 
-    Chunk::~Chunk () {
-        if (cache_palette != nullptr) {
-            for (auto itr = begin (*cache_palette); itr != end (*cache_palette);
-                 ++itr) {
-                delete *itr;
-            }
+    Chunk::~Chunk () { delete nbt_file; }
 
-            delete cache_palette;
-
-            cache_palette = nullptr;
-            cache_palette_section = -1;
+    void Chunk::parse_palette () {
+        palettes.fill(nullptr);
+        NBT::TagList *section =
+            data->get_as<NBT::TagList, NBT::TAG_LIST> ("Sections");
+        if (section == nullptr) {
+            throw runtime_error ("Sections tag not found in Level");
         }
 
-        delete nbt_file;
+        for (auto itr = begin (section->tags); itr != end (section->tags);
+             ++itr) {
+            if ((*itr)->tag_type != NBT::TAG_COMPOUND) {
+                throw runtime_error ("Sections' payload is not TAG_COMPOUND");
+            }
+
+            unsigned char tag_y;
+            try {
+                tag_y = NBT::value<unsigned char> (
+                    ((NBT::TagCompound *)(*itr))
+                        ->get_as<NBT::TagByte, NBT::TAG_BYTE> ("Y"));
+            } catch (runtime_error const &) {
+                continue;
+            }
+            if (tag_y < 0 || 15 < tag_y) {
+                continue;
+            }
+
+            palettes[tag_y] = get_palette ((NBT::TagCompound *)(*itr));
+        }
     }
 
     NBT::TagCompound *Chunk::get_section (unsigned char y) {
@@ -75,13 +92,13 @@ namespace Anvil {
         return nullptr;
     }
 
-    vector<string *> *Chunk::get_palette (NBT::TagCompound *section) {
-        vector<string *> *palette = new vector<string *>;
+    vector<string> *Chunk::get_palette (NBT::TagCompound *section) {
+        vector<string> *palette = new vector<string>;
 
         NBT::TagList *palette_tag_list =
             section->get_as<NBT::TagList, NBT::TAG_LIST> ("Palette");
         if (palette_tag_list == nullptr) {
-            throw runtime_error ("Palette not found");
+            return nullptr;
         }
         if (palette_tag_list->payload_type != NBT::TAG_COMPOUND) {
             throw runtime_error (
@@ -95,11 +112,11 @@ namespace Anvil {
             string *src_name = NBT::value<string *> (
                 tag->get_as<NBT::TagString, NBT::TAG_STRING> ("Name"));
 
-            string *name;
+            string name;
             if (src_name->find ("minecraft:") == 0) {
-                name = new string (src_name->substr (10));
+                name = src_name->substr (10);
             } else {
-                name = new string (*src_name);
+                name = *src_name;
             }
             palette->push_back (name);
         }
@@ -117,26 +134,10 @@ namespace Anvil {
 
         y %= 16;
 
-        if (section == nullptr ||
-            section->get_as<NBT::TagLongArray, NBT::TAG_LONG_ARRAY> (
-                "BlockStates") == nullptr) {
+        vector<string> *palette = palettes[section_no];
+        if (palette == nullptr) {
             return "air";
         }
-        vector<string *> *palette;
-        if (cache_palette_section != section_no || cache_palette == nullptr) {
-            if (cache_palette != nullptr) {
-                for (auto itr = begin (*cache_palette);
-                     itr != end (*cache_palette); ++itr) {
-                    delete *itr;
-                }
-                delete cache_palette;
-            }
-
-            cache_palette = get_palette (section);
-            cache_palette_section = section_no;
-        }
-
-        palette = cache_palette;
 
         int bits = 4;
         if (palette->size () - 1 > 15) {
@@ -182,7 +183,7 @@ namespace Anvil {
         if (palette_id <= 0 || (*palette).size () <= (size_t)palette_id)
             return "air";
 
-        return *(*palette)[palette_id];
+        return (*palette)[palette_id];
     }
 
 } // namespace Anvil

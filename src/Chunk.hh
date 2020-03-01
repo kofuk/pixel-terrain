@@ -15,11 +15,11 @@ namespace Anvil {
         NBT::TagCompound *data;
         int32_t x;
         int32_t z;
-        vector<string *> *cache_palette;
-        int32_t cache_palette_section;
+        array<vector<string> *, 16> palettes;
 
+        void parse_palette ();
         NBT::TagCompound *get_section (unsigned char y);
-        vector<string *> *get_palette (NBT::TagCompound *section);
+        vector<string> *get_palette (NBT::TagCompound *section);
 
     public:
         uint64_t last_update;
