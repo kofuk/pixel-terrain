@@ -136,7 +136,7 @@ namespace Anvil {
 
         vector<string> *palette = palettes[section_no];
         if (palette == nullptr) {
-            return "air";
+            return "mcmap:n_a";
         }
 
         int bits = 4;

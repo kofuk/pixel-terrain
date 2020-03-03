@@ -102,6 +102,11 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                     continue;
                 }
 
+                if (block == "mcmap:n_a") {
+                    y -= 15;
+                    continue;
+                }
+
                 if (block == "air" || block == "cave_air" ||
                     block == "void_air") {
                     air_found = true;
