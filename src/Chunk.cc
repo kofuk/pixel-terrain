@@ -42,7 +42,7 @@ namespace Anvil {
             } catch (runtime_error const &) {
                 continue;
             }
-            if (tag_y < 0 || 15 < tag_y) {
+            if (15 < tag_y) {
                 continue;
             }
 
@@ -52,7 +52,7 @@ namespace Anvil {
     }
 
     NBT::TagCompound *Chunk::get_section (unsigned char y) {
-        if (y < 0 || 15 < y) {
+        if (15 < y) {
             return nullptr;
         }
 
@@ -156,22 +156,20 @@ namespace Anvil {
         if (static_cast<uint64_t> (state) >= states.size ()) return "air";
 
         uint64_t data = states[state];
-        if (data < 0) data += pow (2, 64);
 
         uint64_t shifted_data = data >> ((bits * index) % 64);
 
         if (64 - ((bits * index) % 64) < bits) {
             data = states[state + 1];
-            if (data < 0) data += pow (2, 64);
             int leftover = (bits - ((state + 1) * 64 % bits)) % bits;
             shifted_data =
-                ((data & static_cast<int64_t> (pow (2, leftover)) - 1)
+                ((data & (static_cast<int64_t> (pow (2, leftover)) - 1))
                  << (bits - leftover)) |
                 shifted_data;
         }
 
         int64_t palette_id =
-            shifted_data & static_cast<int64_t> (pow (2, bits)) - 1;
+            shifted_data & (static_cast<int64_t> (pow (2, bits)) - 1);
 
         if (palette_id <= 0 ||
             (*palette).size () <= static_cast<size_t> (palette_id))

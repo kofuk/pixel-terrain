@@ -76,19 +76,19 @@ namespace Server {
             try {
                 overworld_dir =
                     *config->get_qualified_as<string> ("overworld.dir");
-            } catch (out_of_range) {
+            } catch (out_of_range const &) {
                 cerr << "warning: overworld.dir not specified" << endl;
             }
 
             try {
                 nether_dir = *config->get_qualified_as<string> ("nether.dir");
-            } catch (out_of_range) {
+            } catch (out_of_range const &) {
                 cerr << "warning: nether.dir not specified" << endl;
             }
 
             try {
                 end_dir = *config->get_qualified_as<string> ("end.dir");
-            } catch (out_of_range) {
+            } catch (out_of_range const &) {
                 cerr << "warning: end.dir not specified" << endl;
             }
         } catch (cpptoml::parse_exception const &e) {
