@@ -125,7 +125,8 @@ namespace NBT {
             }
             parsed = true;
         }
-        return values; }
+        return values;
+    }
 
     TagIntArray::TagIntArray (shared_ptr<unsigned char[]> buf, size_t const len,
                               size_t &off)
@@ -138,11 +139,13 @@ namespace NBT {
     vector<int32_t> TagIntArray::operator* () {
         if (!parsed) {
             for (int32_t i = 0; i < array_len; ++i) {
-                values.push_back (TagInt::get_value (raw_buf, raw_len, raw_off));
+                values.push_back (
+                    TagInt::get_value (raw_buf, raw_len, raw_off));
             }
             parsed = true;
         }
-        return values; }
+        return values;
+    }
 
     TagLongArray::TagLongArray (shared_ptr<unsigned char[]> buf,
                                 size_t const len, size_t &off)
@@ -187,11 +190,49 @@ namespace NBT {
 
     TagList::TagList (shared_ptr<unsigned char[]> buf, size_t const len,
                       size_t &off)
-        : Tag (TAG_LIST, buf, len, off) {
-        parse_buffer (buf, len, off);
+        : Tag (TAG_LIST, buf, len, off), parsed (false) {
+        payload_type = TagByte::get_value (buf, len, off);
+        list_len = TagInt::get_value (buf, len, off);
+
+        if (list_len == 0) {
+            parsed = true;
+            return;
+        }
+
+        if (payload_type == TAG_BYTE_ARRAY || payload_type == TAG_STRING ||
+            payload_type == TAG_LIST || payload_type == TAG_COMPOUND ||
+            payload_type == TAG_INT_ARRAY || payload_type == TAG_LONG_ARRAY) {
+
+            parse_buffer(buf, len, off);
+            parsed = true;
+            return;
+        }
+
+        raw_off = off;
+
+        int size;
+        if (payload_type == TAG_BYTE)
+            size = 1;
+        else if (payload_type == TAG_SHORT)
+            size = 2;
+        else if (payload_type == TAG_INT)
+            size = 4;
+        else if (payload_type == TAG_LONG)
+            size = 8;
+        else if (payload_type == TAG_FLOAT)
+            size = 4;
+        else if (payload_type == TAG_DOUBLE)
+            size = 8;
+        else
+            throw runtime_error ("Unknown type of tag: " +
+                                 to_string (payload_type));
+
+        off += size * list_len;
     }
 
     TagList::~TagList () {
+        if (!parsed) return;
+
         for (auto itr = std::begin (tags); itr != std::end (tags); ++itr) {
             delete *itr;
         }
@@ -199,10 +240,6 @@ namespace NBT {
 
     void TagList::parse_buffer (shared_ptr<unsigned char[]> buf,
                                 size_t const len, size_t &off) {
-        payload_type = TagByte::get_value (buf, len, off);
-
-        int32_t list_len = TagInt::get_value (buf, len, off);
-
         Tag *tag;
         for (int32_t i = 0; i < list_len; ++i) {
             if (payload_type == TAG_BYTE)
@@ -235,6 +272,14 @@ namespace NBT {
 
             tags.push_back (tag);
         }
+    }
+
+    vector<NBT::Tag *> &TagList::operator* () {
+        if (!parsed) {
+            parse_buffer(raw_buf, raw_len, raw_off);
+            parsed = true;
+        }
+        return tags;
     }
 
     TagCompound::TagCompound (shared_ptr<unsigned char[]> buf, size_t const len,

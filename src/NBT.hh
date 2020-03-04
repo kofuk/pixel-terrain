@@ -247,7 +247,6 @@ namespace NBT {
     };
 
     struct TagList : Tag {
-        vector<NBT::Tag *> tags;
         tagtype_t payload_type;
 
         TagList (shared_ptr<unsigned char[]> buf, size_t const len,
@@ -256,6 +255,12 @@ namespace NBT {
 
         void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
                            size_t &off);
+        vector<NBT::Tag *> &operator* ();
+
+    private:
+        bool parsed;
+        int32_t list_len;
+        vector<NBT::Tag *> tags;
     };
 
     template <typename T, class C> T value (C *clazz) {

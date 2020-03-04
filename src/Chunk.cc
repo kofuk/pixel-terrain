@@ -28,7 +28,7 @@ namespace Anvil {
             throw runtime_error ("Sections tag not found in Level");
         }
 
-        for (auto itr = begin (section->tags); itr != end (section->tags);
+        for (auto itr = begin (**section); itr != end (**section);
              ++itr) {
             if ((*itr)->tag_type != NBT::TAG_COMPOUND) {
                 throw runtime_error ("Sections' payload is not TAG_COMPOUND");
@@ -62,7 +62,7 @@ namespace Anvil {
             throw runtime_error ("Sections tag not found in Level");
         }
 
-        for (auto itr = begin (section->tags); itr != end (section->tags);
+        for (auto itr = begin (**section); itr != end (**section);
              ++itr) {
             if ((*itr)->tag_type != NBT::TAG_COMPOUND) {
                 throw runtime_error ("Sections' payload is not TAG_COMPOUND");
@@ -96,8 +96,8 @@ namespace Anvil {
                 "corrupted data (payload type != TAG_COMPOUND)");
         }
 
-        for (auto itr = begin (palette_tag_list->tags);
-             itr != end (palette_tag_list->tags); ++itr) {
+        for (auto itr = begin (**palette_tag_list);
+             itr != end (**palette_tag_list); ++itr) {
             NBT::TagCompound *tag = static_cast<NBT::TagCompound *> (*itr);
 
             string *src_name = NBT::value<string *> (
