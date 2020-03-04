@@ -172,7 +172,9 @@ namespace Anvil {
 
         if (chunk == nullptr) return nullptr;
 
-        return new Chunk (chunk);
+        Chunk *c = new Chunk (chunk);
+        c->parse_palette();
+        return c;
     }
 
     Chunk *Region::get_chunk_if_dirty (int chunk_x, int chunk_z) {
