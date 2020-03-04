@@ -168,19 +168,23 @@ namespace Anvil {
     }
 
     Chunk *Region::get_chunk (int chunk_x, int chunk_z) {
-        NBT::NBTFile *chunk = chunk_data (chunk_x, chunk_z);
+        NBT::NBTFile *nbt = chunk_data (chunk_x, chunk_z);
 
-        if (chunk == nullptr) return nullptr;
+        if (nbt == nullptr) return nullptr;
 
-        Chunk *c = new Chunk (chunk);
-        c->parse_palette();
-        return c;
+        Chunk *chunk = new Chunk (nbt);
+        chunk->parse_palette ();
+        return chunk;
     }
 
     Chunk *Region::get_chunk_if_dirty (int chunk_x, int chunk_z) {
-        Chunk *chunk = get_chunk (chunk_x, chunk_z);
-        if (chunk == nullptr ||
-            last_update[chunk_z * 32 + chunk_x] >= chunk->last_update) {
+        NBT::NBTFile *nbt = chunk_data (chunk_x, chunk_z);
+        if (nbt == nullptr) {
+            return nullptr;
+        }
+
+        Chunk *chunk = new Chunk (nbt);
+        if (last_update[chunk_z * 32 + chunk_x] >= chunk->last_update) {
             delete chunk;
 
             return nullptr;
