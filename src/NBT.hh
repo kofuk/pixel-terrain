@@ -186,8 +186,8 @@ namespace NBT {
 
     /* virtual class to hold common resource to array type */
     struct TagArray : Tag {
-        TagArray (tagtype_t type, shared_ptr<unsigned char[]> buf, size_t const len,
-                      size_t &off);
+        TagArray (tagtype_t type, shared_ptr<unsigned char[]> buf,
+                  size_t const len, size_t &off);
 
     protected:
         bool parsed;
@@ -275,21 +275,33 @@ namespace NBT {
         unordered_map<string, NBT::Tag *> tags;
 
         TagCompound (shared_ptr<unsigned char[]> buf, size_t const len,
-                     size_t &off);
+                     size_t &off, bool toplevel);
         TagCompound ();
         ~TagCompound ();
 
         void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
                            size_t &off);
+        void parse_until (string &tag_name);
 
         template <typename T, tagtype_t TT> T *get_as (string key) {
             auto r = tags.find (key);
-            if (r == end (tags) || r->second->tag_type != TT) {
+            if (r == end (tags)) {
+                if (toplevel) {
+                    parse_until (key);
+                }
+                r = tags.find (key);
+                if (r == end (tags) || r->second->tag_type != TT) {
+                    return nullptr;
+                }
+            } else if (r->second->tag_type != TT) {
                 return nullptr;
             }
 
             return static_cast<T *> (r->second);
         }
+
+    private:
+        bool toplevel;
     };
 
     struct NBTFile : TagCompound {

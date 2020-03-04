@@ -203,7 +203,7 @@ namespace NBT {
             payload_type == TAG_LIST || payload_type == TAG_COMPOUND ||
             payload_type == TAG_INT_ARRAY || payload_type == TAG_LONG_ARRAY) {
 
-            parse_buffer(buf, len, off);
+            parse_buffer (buf, len, off);
             parsed = true;
             return;
         }
@@ -261,7 +261,7 @@ namespace NBT {
             else if (payload_type == TAG_LIST)
                 tag = new TagList (buf, len, off);
             else if (payload_type == TAG_COMPOUND)
-                tag = new TagCompound (buf, len, off);
+                tag = new TagCompound (buf, len, off, false);
             else if (payload_type == TAG_INT_ARRAY)
                 tag = new TagIntArray (buf, len, off);
             else if (payload_type == TAG_LONG_ARRAY)
@@ -276,19 +276,19 @@ namespace NBT {
 
     vector<NBT::Tag *> &TagList::operator* () {
         if (!parsed) {
-            parse_buffer(raw_buf, raw_len, raw_off);
+            parse_buffer (raw_buf, raw_len, raw_off);
             parsed = true;
         }
         return tags;
     }
 
     TagCompound::TagCompound (shared_ptr<unsigned char[]> buf, size_t const len,
-                              size_t &off)
-        : Tag (TAG_COMPOUND, buf, len, off) {
-        parse_buffer (buf, len, off);
+                              size_t &off, bool toplevel)
+        : Tag (TAG_COMPOUND, buf, len, off), toplevel (toplevel) {
+        if (!toplevel) parse_buffer (buf, len, off);
     }
 
-    TagCompound::TagCompound () : Tag (TAG_COMPOUND) {}
+    TagCompound::TagCompound () : Tag (TAG_COMPOUND), toplevel (false) {}
 
     TagCompound::~TagCompound () {
         for (auto itr = std::begin (tags); itr != std::end (tags); ++itr) {
@@ -304,6 +304,7 @@ namespace NBT {
             if (type == TAG_END) break;
 
             string *name = TagString::get_value (buf, len, off);
+            bool next_toplevel = *name == "Level";
 
             Tag *tag;
             if (type == TAG_BYTE)
@@ -325,7 +326,10 @@ namespace NBT {
             else if (type == TAG_LIST)
                 tag = new TagList (buf, len, off);
             else if (type == TAG_COMPOUND)
-                tag = new TagCompound (buf, len, off);
+                /* for performance reason, it assumes that there is only one
+                   Level tag in one chunk and no trailing tag after that.
+                   it is dangerous but works correctly for now. */
+                tag = new TagCompound (buf, len, off, next_toplevel);
             else if (type == TAG_INT_ARRAY)
                 tag = new TagIntArray (buf, len, off);
             else if (type == TAG_LONG_ARRAY)
@@ -338,9 +342,63 @@ namespace NBT {
 
             delete name;
 
-            /* FIXME: Work around for known issue, reaches end of file after
-             * last TagCompound element read. */
-            if (off >= len - 1) {
+            if (off >= len - 1 || next_toplevel) {
+                break;
+            }
+        }
+    }
+
+    void TagCompound::parse_until (string &tag_name) {
+        for (;;) {
+            tagtype_t type = TagByte::get_value (raw_buf, raw_len, raw_off);
+
+            if (type == TAG_END) {
+                toplevel = false;
+                break;
+            }
+
+            string *name = TagString::get_value (raw_buf, raw_len, raw_off);
+
+            Tag *tag;
+            if (type == TAG_BYTE)
+                tag = new TagByte (raw_buf, raw_len, raw_off);
+            else if (type == TAG_SHORT)
+                tag = new TagShort (raw_buf, raw_len, raw_off);
+            else if (type == TAG_INT)
+                tag = new TagInt (raw_buf, raw_len, raw_off);
+            else if (type == TAG_LONG)
+                tag = new TagLong (raw_buf, raw_len, raw_off);
+            else if (type == TAG_FLOAT)
+                tag = new TagFloat (raw_buf, raw_len, raw_off);
+            else if (type == TAG_DOUBLE)
+                tag = new TagDouble (raw_buf, raw_len, raw_off);
+            else if (type == TAG_BYTE_ARRAY)
+                tag = new TagByteArray (raw_buf, raw_len, raw_off);
+            else if (type == TAG_STRING)
+                tag = new TagString (raw_buf, raw_len, raw_off);
+            else if (type == TAG_LIST)
+                tag = new TagList (raw_buf, raw_len, raw_off);
+            else if (type == TAG_COMPOUND)
+                tag = new TagCompound (raw_buf, raw_len, raw_off, false);
+            else if (type == TAG_INT_ARRAY)
+                tag = new TagIntArray (raw_buf, raw_len, raw_off);
+            else if (type == TAG_LONG_ARRAY)
+                tag = new TagLongArray (raw_buf, raw_len, raw_off);
+            else
+                throw runtime_error ("unknown type of tag: " +
+                                     to_string (type));
+
+            tags[*name] = tag;
+
+            if (*name == tag_name) {
+                delete name;
+                break;
+            }
+
+            delete name;
+
+            if (raw_off >= raw_len - 1) {
+                toplevel = false;
                 break;
             }
         }
