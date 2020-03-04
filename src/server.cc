@@ -201,6 +201,14 @@ namespace Server {
             bool air_found = false;
             for (int y = 127; y >= 0; --y) {
                 string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
+                if (block == "mcmap:n_a") {
+                    y -= 15;
+                    if (y == 0) {
+                        send_response (f, 404, 0, nullptr);
+                        break;
+                    }
+                    continue;
+                }
                 if (block == "air" || block == "cave_air" ||
                     block == "void_air") {
                     if (y == 0) {
@@ -234,6 +242,14 @@ namespace Server {
         } else {
             for (int y = 255; y >= 0; --y) {
                 string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
+                if (block == "mcmap:n_a") {
+                    y -= 15;
+                    if (y == 0) {
+                        send_response (f, 404, 0, nullptr);
+                        break;
+                    }
+                    continue;
+                }
                 if (block == "air" || block == "cave_air" ||
                     block == "void_air") {
                     if (y == 0) {
