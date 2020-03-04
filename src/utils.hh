@@ -49,31 +49,34 @@ namespace NBT {
 #endif
         }
 
-        static inline int64_t to_host_byte_order (int64_t src) {
+        [[maybe_unused]] static inline int64_t
+        to_host_byte_order (int64_t src) {
             reorder_8 ((unsigned char *)&src);
 
             return src;
         }
 
-        static inline int32_t to_host_byte_order (int32_t src) {
+        [[maybe_unused]] static inline int32_t
+        to_host_byte_order (int32_t src) {
             reorder_4 ((unsigned char *)&src);
 
             return src;
         }
 
-        static inline int16_t to_host_byte_order (int16_t src) {
+        [[maybe_unused]] static inline int16_t
+        to_host_byte_order (int16_t src) {
             reorder_2 ((unsigned char *)&src);
 
             return src;
         }
 
-        static inline double to_host_byte_order (double src) {
+        [[maybe_unused]] static inline double to_host_byte_order (double src) {
             reorder_8 ((unsigned char *)&src);
 
             return src;
         }
 
-        static inline float to_host_byte_order (float src) {
+        [[maybe_unused]] static inline float to_host_byte_order (float src) {
             reorder_4 ((unsigned char *)&src);
 
             return src;
