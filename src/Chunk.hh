@@ -10,14 +10,10 @@ using namespace std;
 
 namespace Anvil {
     class Chunk {
-        int32_t version;
         NBT::NBTFile *nbt_file;
         NBT::TagCompound *data;
-        int32_t x;
-        int32_t z;
         array<vector<string> *, 16> palettes;
 
-        void parse_palette ();
         NBT::TagCompound *get_section (unsigned char y);
         vector<string> *get_palette (NBT::TagCompound *section);
 
@@ -26,6 +22,8 @@ namespace Anvil {
 
         Chunk (NBT::NBTFile *nbt_data);
         ~Chunk ();
+        void parse_palette ();
+        /* You MUST call parse_palette() beforehand. */
         string get_block (int32_t x, int32_t y, int32_t z);
     };
 } // namespace Anvil

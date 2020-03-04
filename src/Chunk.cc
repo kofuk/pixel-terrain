@@ -8,9 +8,6 @@
 namespace Anvil {
     Chunk::Chunk (NBT::NBTFile *nbt_data)
         : nbt_file (nbt_data) {
-        version = NBT::value<int32_t> (
-            nbt_data->get_as<NBT::TagInt, NBT::TAG_INT> ("DataVersion"));
-
         data = nbt_data->get_as<NBT::TagCompound, NBT::TAG_COMPOUND> ("Level");
         if (data == nullptr) {
             throw runtime_error ("Level tag not found in chunk");
@@ -19,13 +16,7 @@ namespace Anvil {
         last_update = NBT::value<uint64_t> (
             data->get_as<NBT::TagLong, NBT::TAG_LONG> ("LastUpdate"));
 
-        x = NBT::value<int32_t> (
-            data->get_as<NBT::TagInt, NBT::TAG_INT> ("xPos"));
-
-        z = NBT::value<int32_t> (
-            data->get_as<NBT::TagInt, NBT::TAG_INT> ("zPos"));
-
-        parse_palette();
+        palettes.fill(nullptr);
     }
 
     Chunk::~Chunk () { delete nbt_file; }

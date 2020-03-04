@@ -180,8 +180,9 @@ namespace Anvil {
             return nullptr;
         }
 
-        journal_changed = true;
         last_update[chunk_z * 32 + chunk_x] = chunk->last_update;
+        journal_changed = true;
+        chunk->parse_palette();
 
         return chunk;
     }
