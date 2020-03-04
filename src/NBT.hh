@@ -33,21 +33,29 @@ namespace NBT {
         tagtype_t tag_type;
         string name;
 
+        Tag (tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
+             size_t &off);
         Tag (tagtype_t type);
         virtual ~Tag (){};
 
-        virtual void parse_buffer (shared_ptr<unsigned char[]> buf,
-                                   size_t const len, size_t &off) = 0;
+    protected:
+        shared_ptr<unsigned char[]> raw_buf;
+        size_t raw_len;
+        size_t raw_off;
     };
 
-    struct TagByte : Tag {
-        unsigned char value;
+    /* virtual tag type to hold common resource for primitive types */
+    struct TagPrimitive : Tag {
+        TagPrimitive (tagtype_t type, shared_ptr<unsigned char[]> buf,
+                      size_t const len, size_t &off);
 
+    protected:
+        bool parsed;
+    };
+
+    struct TagByte : TagPrimitive {
         TagByte (shared_ptr<unsigned char[]> buf, size_t const len,
                  size_t &off);
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
-
         static inline unsigned char get_value (shared_ptr<unsigned char[]> buf,
                                                size_t const len, size_t &off) {
             unsigned char v = *(buf.get () + off);
@@ -59,16 +67,16 @@ namespace NBT {
 
             return v;
         }
+
+        unsigned char operator* ();
+
+    private:
+        unsigned char value;
     };
 
-    struct TagShort : Tag {
-        int16_t value;
-
+    struct TagShort : TagPrimitive {
         TagShort (shared_ptr<unsigned char[]> buf, size_t const len,
                   size_t &off);
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
-
         static inline int16_t get_value (shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
             int16_t v = Utils::to_host_byte_order (
@@ -81,15 +89,14 @@ namespace NBT {
 
             return v;
         }
+        int16_t operator* ();
+
+    private:
+        int16_t value;
     };
 
-    struct TagInt : Tag {
-        int32_t value;
-
+    struct TagInt : TagPrimitive {
         TagInt (shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
-
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
 
         static inline int32_t get_value (shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
@@ -103,15 +110,15 @@ namespace NBT {
 
             return v;
         }
+        int32_t operator* ();
+
+    private:
+        int32_t value;
     };
 
-    struct TagLong : Tag {
-        uint64_t value;
-
+    struct TagLong : TagPrimitive {
         TagLong (shared_ptr<unsigned char[]> buf, size_t const len,
                  size_t &off);
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
 
         static inline uint64_t get_value (shared_ptr<unsigned char[]> buf,
                                           size_t const len, size_t &off) {
@@ -125,15 +132,16 @@ namespace NBT {
 
             return v;
         }
+
+        uint64_t operator* ();
+
+    private:
+        uint64_t value;
     };
 
-    struct TagFloat : Tag {
-        float value;
-
+    struct TagFloat : TagPrimitive {
         TagFloat (shared_ptr<unsigned char[]> buf, size_t const len,
                   size_t &off);
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
 
         static inline float get_value (shared_ptr<unsigned char[]> buf,
                                        size_t const len, size_t &off) {
@@ -147,15 +155,16 @@ namespace NBT {
 
             return v;
         }
+
+        float operator* ();
+
+    private:
+        float value;
     };
 
-    struct TagDouble : Tag {
-        double value;
-
+    struct TagDouble : TagPrimitive {
         TagDouble (shared_ptr<unsigned char[]> buf, size_t const len,
                    size_t &off);
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
 
         static inline double get_value (shared_ptr<unsigned char[]> buf,
                                         size_t const len, size_t &off) {
@@ -169,53 +178,61 @@ namespace NBT {
 
             return v;
         }
+        double operator* ();
+
+    private:
+        double value;
     };
 
-    struct TagByteArray : Tag {
-        vector<char> values;
+    /* virtual class to hold common resource to array type */
+    struct TagArray : Tag {
+        TagArray (tagtype_t type, shared_ptr<unsigned char[]> buf, size_t const len,
+                      size_t &off);
 
+    protected:
+        bool parsed;
+        int32_t array_len;
+    };
+
+    struct TagByteArray : TagArray {
         TagByteArray (shared_ptr<unsigned char[]> buf, size_t const len,
                       size_t &off);
+        vector<char> operator* ();
 
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
+    private:
+        vector<char> values;
     };
 
-    struct TagIntArray : Tag {
-        vector<int32_t> values;
-
+    struct TagIntArray : TagArray {
         TagIntArray (shared_ptr<unsigned char[]> buf, size_t const len,
                      size_t &off);
+        vector<int32_t> operator* ();
 
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
+    private:
+        vector<int32_t> values;
     };
 
-    struct TagLongArray : Tag {
-        vector<int64_t> value;
-
+    struct TagLongArray : TagArray {
         TagLongArray (shared_ptr<unsigned char[]> buf, size_t const len,
                       size_t &off);
+        vector<int64_t> operator* ();
 
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
+    private:
+        vector<int64_t> value;
     };
 
     struct TagString : Tag {
-        string *value;
-
         TagString (shared_ptr<unsigned char[]> buf, size_t const len,
                    size_t &off);
         ~TagString ();
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
+        string *operator* ();
 
         static inline string *get_value (shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
             int16_t str_len = TagShort::get_value (buf, len, off);
             string *v = new string (reinterpret_cast<char *> (buf.get () + off),
                                     static_cast<size_t> (str_len));
-            off += (size_t)str_len;
+            off += static_cast<size_t> (str_len);
 
             if (off >= len) {
                 throw runtime_error ("off >= len in tagString");
@@ -223,6 +240,10 @@ namespace NBT {
 
             return v;
         }
+
+    private:
+        int16_t str_len;
+        string *value;
     };
 
     struct TagList : Tag {
@@ -242,7 +263,7 @@ namespace NBT {
             throw runtime_error ("no value");
         }
 
-        return clazz->value;
+        return **clazz;
     }
 
     struct TagCompound : Tag {
