@@ -25,6 +25,8 @@ namespace Anvil {
         void parse_palette ();
         /* You MUST call parse_palette() beforehand. */
         string get_block (int32_t x, int32_t y, int32_t z);
+        /* You MUST call parse_palette() beforehand. */
+        int get_max_height ();
     };
 } // namespace Anvil
 

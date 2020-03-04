@@ -77,8 +77,10 @@ string option_journal_dir;
 
 static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                             Png &image) {
-    int max_y = 255;
-    if (option_nether) max_y = 127;
+    int max_y = chunk->get_max_height ();
+    if (option_nether) {
+        if (max_y > 127) max_y = 127;
+    }
 
     for (int z = 0; z < 16; ++z) {
         int prev_x = -1;
@@ -98,17 +100,6 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                          << endl;
                     cerr << e.what () << endl;
 
-                    continue;
-                }
-
-                if (block == "mcmap:n_a") {
-                    y -= 15;
-                    if (y == 0) {
-                        image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0, 0,
-                                     0, 255);
-
-                        break;
-                    }
                     continue;
                 }
 

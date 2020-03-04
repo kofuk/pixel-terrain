@@ -127,7 +127,7 @@ namespace Anvil {
 
         vector<string> *palette = palettes[section_no];
         if (palette == nullptr) {
-            return "mcmap:n_a";
+            return "air";
         }
 
         int bits = 4;
@@ -178,6 +178,15 @@ namespace Anvil {
             return "air";
 
         return (*palette)[palette_id];
+    }
+
+    int Chunk::get_max_height () {
+        for (int y = 15; y >= 0; --y) {
+            if (palettes[y] != nullptr) {
+                return (y + 1) * 16 - 1;
+            }
+        }
+        return 0;
     }
 
 } // namespace Anvil
