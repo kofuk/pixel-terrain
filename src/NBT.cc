@@ -8,78 +8,83 @@
 namespace NBT {
     Tag::Tag (tagtype_t type) : tag_type (type) {}
 
-    TagByte::TagByte (unsigned char const *buf, size_t const len, size_t &off)
+    TagByte::TagByte (shared_ptr<unsigned char[]> buf, size_t const len,
+                      size_t &off)
         : Tag (TAG_BYTE) {
         parse_buffer (buf, len, off);
     }
 
-    void TagByte::parse_buffer (unsigned char const *buf, size_t const len,
-                                size_t &off) {
+    void TagByte::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                size_t const len, size_t &off) {
         value = get_value (buf, len, off);
     }
 
-    TagShort::TagShort (unsigned char const *buf, size_t const len, size_t &off)
+    TagShort::TagShort (shared_ptr<unsigned char[]> buf, size_t const len,
+                        size_t &off)
         : Tag (TAG_SHORT) {
         parse_buffer (buf, len, off);
     }
 
-    void TagShort::parse_buffer (unsigned char const *buf, size_t const len,
-                                 size_t &off) {
+    void TagShort::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                 size_t const len, size_t &off) {
         value = get_value (buf, len, off);
     }
 
-    TagInt::TagInt (unsigned char const *buf, size_t const len, size_t &off)
+    TagInt::TagInt (shared_ptr<unsigned char[]> buf, size_t const len,
+                    size_t &off)
         : Tag (TAG_INT) {
         parse_buffer (buf, len, off);
     }
 
-    void TagInt::parse_buffer (unsigned char const *buf, size_t const len,
-                               size_t &off) {
+    void TagInt::parse_buffer (shared_ptr<unsigned char[]> buf,
+                               size_t const len, size_t &off) {
         value = get_value (buf, len, off);
     }
 
-    TagLong::TagLong (unsigned char const *buf, size_t const len, size_t &off)
+    TagLong::TagLong (shared_ptr<unsigned char[]> buf, size_t const len,
+                      size_t &off)
         : Tag (TAG_LONG) {
         parse_buffer (buf, len, off);
     }
 
-    void TagLong::parse_buffer (unsigned char const *buf, size_t const len,
-                                size_t &off) {
+    void TagLong::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                size_t const len, size_t &off) {
         value = get_value (buf, len, off);
     }
 
-    TagFloat::TagFloat (unsigned char const *buf, size_t const len, size_t &off)
+    TagFloat::TagFloat (shared_ptr<unsigned char[]> buf, size_t const len,
+                        size_t &off)
         : Tag (TAG_FLOAT) {
         parse_buffer (buf, len, off);
     }
 
-    void TagFloat::parse_buffer (unsigned char const *buf, size_t const len,
-                                 size_t &off) {
+    void TagFloat::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                 size_t const len, size_t &off) {
         value = get_value (buf, len, off);
     }
 
-    TagDouble::TagDouble (unsigned char const *buf, size_t const len,
+    TagDouble::TagDouble (shared_ptr<unsigned char[]> buf, size_t const len,
                           size_t &off)
         : Tag (TAG_DOUBLE) {
         parse_buffer (buf, len, off);
     }
 
-    void TagDouble::parse_buffer (unsigned char const *buf, size_t const len,
-                                  size_t &off) {
+    void TagDouble::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                  size_t const len, size_t &off) {
         value = get_value (buf, len, off);
     }
 
-    TagByteArray::TagByteArray (unsigned char const *buf, size_t const len,
-                                size_t &off)
+    TagByteArray::TagByteArray (shared_ptr<unsigned char[]> buf,
+                                size_t const len, size_t &off)
         : Tag (TAG_BYTE_ARRAY) {
         parse_buffer (buf, len, off);
     }
 
-    void TagByteArray::parse_buffer (unsigned char const *buf, size_t const len,
-                                     size_t &off) {
+    void TagByteArray::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                     size_t const len, size_t &off) {
         int32_t arr_len = TagInt::get_value (buf, len, off);
         for (int32_t i = 0; i < arr_len; ++i) {
-            values.push_back (*(buf + off));
+            values.push_back (*(buf.get () + off));
 
             ++off;
             if (off >= len) {
@@ -88,35 +93,35 @@ namespace NBT {
         }
     }
 
-    TagIntArray::TagIntArray (unsigned char const *buf, size_t const len,
+    TagIntArray::TagIntArray (shared_ptr<unsigned char[]> buf, size_t const len,
                               size_t &off)
         : Tag (TAG_INT_ARRAY) {
         parse_buffer (buf, len, off);
     }
 
-    void TagIntArray::parse_buffer (unsigned char const *buf, size_t const len,
-                                    size_t &off) {
+    void TagIntArray::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                    size_t const len, size_t &off) {
         int32_t arr_len = TagInt::get_value (buf, len, off);
         for (int32_t i = 0; i < arr_len; ++i) {
             values.push_back (TagInt::get_value (buf, len, off));
         }
     }
 
-    TagLongArray::TagLongArray (unsigned char const *buf, size_t const len,
-                                size_t &off)
+    TagLongArray::TagLongArray (shared_ptr<unsigned char[]> buf,
+                                size_t const len, size_t &off)
         : Tag (TAG_LONG_ARRAY) {
         parse_buffer (buf, len, off);
     }
 
-    void TagLongArray::parse_buffer (unsigned char const *buf, size_t const len,
-                                     size_t &off) {
+    void TagLongArray::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                     size_t const len, size_t &off) {
         int32_t arr_len = TagInt::get_value (buf, len, off);
         for (int32_t i = 0; i < arr_len; ++i) {
             value.push_back (TagLong::get_value (buf, len, off));
         }
     }
 
-    TagString::TagString (unsigned char const *buf, size_t const len,
+    TagString::TagString (shared_ptr<unsigned char[]> buf, size_t const len,
                           size_t &off)
         : Tag (TAG_STRING) {
         parse_buffer (buf, len, off);
@@ -124,12 +129,13 @@ namespace NBT {
 
     TagString::~TagString () { delete value; }
 
-    void TagString::parse_buffer (unsigned char const *buf, size_t const len,
-                                  size_t &off) {
+    void TagString::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                  size_t const len, size_t &off) {
         value = get_value (buf, len, off);
     }
 
-    TagList::TagList (unsigned char const *buf, size_t const len, size_t &off)
+    TagList::TagList (shared_ptr<unsigned char[]> buf, size_t const len,
+                      size_t &off)
         : Tag (TAG_LIST) {
         parse_buffer (buf, len, off);
     }
@@ -140,8 +146,8 @@ namespace NBT {
         }
     }
 
-    void TagList::parse_buffer (unsigned char const *buf, size_t const len,
-                                size_t &off) {
+    void TagList::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                size_t const len, size_t &off) {
         payload_type = TagByte::get_value (buf, len, off);
 
         int32_t list_len = TagInt::get_value (buf, len, off);
@@ -180,7 +186,7 @@ namespace NBT {
         }
     }
 
-    TagCompound::TagCompound (unsigned char const *buf, size_t const len,
+    TagCompound::TagCompound (shared_ptr<unsigned char[]> buf, size_t const len,
                               size_t &off)
         : Tag (TAG_COMPOUND) {
         parse_buffer (buf, len, off);
@@ -194,8 +200,8 @@ namespace NBT {
         }
     }
 
-    void TagCompound::parse_buffer (unsigned char const *buf, size_t const len,
-                                    size_t &off) {
+    void TagCompound::parse_buffer (shared_ptr<unsigned char[]> buf,
+                                    size_t const len, size_t &off) {
         for (;;) {
             tagtype_t type = TagByte::get_value (buf, len, off);
 

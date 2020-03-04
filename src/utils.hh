@@ -80,11 +80,8 @@ namespace NBT {
         }
 
         struct DecompressedData {
-            unsigned char const *data;
+            shared_ptr<unsigned char[]> data;
             size_t len;
-
-            DecompressedData ();
-            ~DecompressedData ();
         };
 
         DecompressedData *zlib_decompress (unsigned char *data,

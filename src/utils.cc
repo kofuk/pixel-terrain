@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
@@ -10,14 +11,6 @@ using namespace std;
 
 namespace NBT {
     namespace Utils {
-        DecompressedData::DecompressedData () : data (nullptr) {}
-
-        DecompressedData::~DecompressedData () {
-            if (data != nullptr) {
-                delete[] data;
-            }
-        }
-
         DecompressedData *zlib_decompress (unsigned char *data,
                                            size_t const len) {
             int z_ret;
@@ -65,7 +58,7 @@ namespace NBT {
             DecompressedData *dd = new DecompressedData;
             unsigned char *dd_out = new unsigned char[all_out.size ()];
             copy (begin (all_out), end (all_out), dd_out);
-            dd->data = dd_out;
+            dd->data = move (shared_ptr<unsigned char[]> (dd_out));
             dd->len = all_out.size ();
 
             return dd;

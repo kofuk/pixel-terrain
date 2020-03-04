@@ -48,7 +48,7 @@ namespace Anvil {
 #ifdef __unix__
         if (munmap (data, len) == -1) {
             int err = errno;
-            cerr << "warning: " << strerror(err) << endl;
+            cerr << "warning: " << strerror (err) << endl;
         }
 #else
         delete[] data;
@@ -182,7 +182,7 @@ namespace Anvil {
 
         last_update[chunk_z * 32 + chunk_x] = chunk->last_update;
         journal_changed = true;
-        chunk->parse_palette();
+        chunk->parse_palette ();
 
         return chunk;
     }
