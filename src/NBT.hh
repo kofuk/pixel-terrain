@@ -71,8 +71,8 @@ namespace NBT {
 
         static inline int16_t get_value (shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
-            int16_t v =
-                Utils::to_host_byte_order (*(int16_t *)(buf.get () + off));
+            int16_t v = Utils::to_host_byte_order (
+                *reinterpret_cast<int16_t *> (buf.get () + off));
 
             off += 2;
             if (off >= len) {
@@ -93,8 +93,8 @@ namespace NBT {
 
         static inline int32_t get_value (shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
-            int32_t v =
-                Utils::to_host_byte_order (*(int32_t *)(buf.get () + off));
+            int32_t v = Utils::to_host_byte_order (
+                *reinterpret_cast<int32_t *> (buf.get () + off));
 
             off += 4;
             if (off >= len) {
@@ -115,8 +115,8 @@ namespace NBT {
 
         static inline uint64_t get_value (shared_ptr<unsigned char[]> buf,
                                           size_t const len, size_t &off) {
-            uint64_t v =
-                Utils::to_host_byte_order (*(int64_t *)(buf.get () + off));
+            uint64_t v = Utils::to_host_byte_order (
+                *reinterpret_cast<int64_t *> (buf.get () + off));
 
             off += 8;
             if (off >= len) {
@@ -137,7 +137,8 @@ namespace NBT {
 
         static inline float get_value (shared_ptr<unsigned char[]> buf,
                                        size_t const len, size_t &off) {
-            float v = Utils::to_host_byte_order (*(float *)(buf.get () + off));
+            float v = Utils::to_host_byte_order (
+                *reinterpret_cast<float *> (buf.get () + off));
 
             off += 4;
             if (off >= len) {
@@ -158,8 +159,8 @@ namespace NBT {
 
         static inline double get_value (shared_ptr<unsigned char[]> buf,
                                         size_t const len, size_t &off) {
-            double v =
-                Utils::to_host_byte_order (*(double *)(buf.get () + off));
+            double v = Utils::to_host_byte_order (
+                *reinterpret_cast<double *> (buf.get () + off));
 
             off += 8;
             if (off >= len) {
@@ -212,7 +213,8 @@ namespace NBT {
         static inline string *get_value (shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
             int16_t str_len = TagShort::get_value (buf, len, off);
-            string *v = new string ((char *)buf.get () + off, (size_t)str_len);
+            string *v = new string (reinterpret_cast<char *> (buf.get () + off),
+                                    static_cast<size_t> (str_len));
             off += (size_t)str_len;
 
             if (off >= len) {
@@ -260,7 +262,7 @@ namespace NBT {
                 return nullptr;
             }
 
-            return (T *)r->second;
+            return static_cast<T *> (r->second);
         }
     };
 

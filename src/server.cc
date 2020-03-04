@@ -1,7 +1,7 @@
-#include <csignal>
 #ifdef __unix__
 
 #include <algorithm>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -404,7 +404,8 @@ namespace Server {
         sa.sun_family = AF_UNIX;
         strcpy (sa.sun_path, "/tmp/mcmap.sock");
 
-        if (bind (ssock, (sockaddr *)&sa, sizeof (sockaddr_un)) == -1) {
+        if (bind (ssock, reinterpret_cast<sockaddr *> (&sa),
+                  sizeof (sockaddr_un)) == -1) {
             goto fail;
         }
 
@@ -421,7 +422,8 @@ namespace Server {
 
         for (;;) {
             int fd;
-            if ((fd = accept (ssock, (sockaddr *)&sa_peer, &addr_len)) > 0) {
+            if ((fd = accept (ssock, reinterpret_cast<sockaddr *> (&sa_peer),
+                              &addr_len)) > 0) {
                 pid_t pid;
                 if ((pid = fork ()) == 0) {
                     close (ssock);

@@ -37,7 +37,7 @@ namespace Anvil {
             unsigned char tag_y;
             try {
                 tag_y = NBT::value<unsigned char> (
-                    ((NBT::TagCompound *)(*itr))
+                    (static_cast<NBT::TagCompound *> (*itr))
                         ->get_as<NBT::TagByte, NBT::TAG_BYTE> ("Y"));
             } catch (runtime_error const &) {
                 continue;
@@ -46,7 +46,8 @@ namespace Anvil {
                 continue;
             }
 
-            palettes[tag_y] = get_palette ((NBT::TagCompound *)(*itr));
+            palettes[tag_y] =
+                get_palette (static_cast<NBT::TagCompound *> (*itr));
         }
     }
 
@@ -70,13 +71,13 @@ namespace Anvil {
             unsigned char tag_y;
             try {
                 tag_y = NBT::value<unsigned char> (
-                    ((NBT::TagCompound *)(*itr))
+                    (static_cast<NBT::TagCompound *> (*itr))
                         ->get_as<NBT::TagByte, NBT::TAG_BYTE> ("Y"));
             } catch (runtime_error const &) {
                 continue;
             }
 
-            if (tag_y == y) return (NBT::TagCompound *)(*itr);
+            if (tag_y == y) return static_cast<NBT::TagCompound *> (*itr);
         }
 
         return nullptr;
@@ -97,7 +98,7 @@ namespace Anvil {
 
         for (auto itr = begin (palette_tag_list->tags);
              itr != end (palette_tag_list->tags); ++itr) {
-            NBT::TagCompound *tag = (NBT::TagCompound *)(*itr);
+            NBT::TagCompound *tag = static_cast<NBT::TagCompound *> (*itr);
 
             string *src_name = NBT::value<string *> (
                 tag->get_as<NBT::TagString, NBT::TAG_STRING> ("Name"));
@@ -152,7 +153,7 @@ namespace Anvil {
                 "BlockStates"));
         int state = index * bits / 64;
 
-        if ((uint64_t)state >= states.size ()) return "air";
+        if (static_cast<uint64_t> (state) >= states.size ()) return "air";
 
         uint64_t data = states[state];
         if (data < 0) data += pow (2, 64);
@@ -164,13 +165,16 @@ namespace Anvil {
             if (data < 0) data += pow (2, 64);
             int leftover = (bits - ((state + 1) * 64 % bits)) % bits;
             shifted_data =
-                ((data & (int64_t)pow (2, leftover) - 1) << (bits - leftover)) |
+                ((data & static_cast<int64_t> (pow (2, leftover)) - 1)
+                 << (bits - leftover)) |
                 shifted_data;
         }
 
-        int64_t palette_id = shifted_data & (int64_t)pow (2, bits) - 1;
+        int64_t palette_id =
+            shifted_data & static_cast<int64_t> (pow (2, bits)) - 1;
 
-        if (palette_id <= 0 || (*palette).size () <= (size_t)palette_id)
+        if (palette_id <= 0 ||
+            (*palette).size () <= static_cast<size_t> (palette_id))
             return "air";
 
         return (*palette)[palette_id];

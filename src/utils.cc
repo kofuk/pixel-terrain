@@ -58,7 +58,7 @@ namespace NBT {
             DecompressedData *dd = new DecompressedData;
             unsigned char *dd_out = new unsigned char[all_out.size ()];
             copy (begin (all_out), end (all_out), dd_out);
-            dd->data = move (shared_ptr<unsigned char[]> (dd_out));
+            dd->data = shared_ptr<unsigned char[]> (dd_out);
             dd->len = all_out.size ();
 
             return dd;

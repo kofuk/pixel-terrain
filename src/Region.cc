@@ -41,7 +41,8 @@ namespace Anvil {
             return;
         }
 
-        journal.read ((char *)last_update, sizeof (uint64_t) * 1024);
+        journal.read (reinterpret_cast<char *> (last_update),
+                      sizeof (uint64_t) * 1024);
     }
 
     Region::~Region () {
@@ -65,7 +66,8 @@ namespace Anvil {
                 return;
             }
 
-            out.write ((char *)last_update, sizeof (uint64_t) * 1024);
+            out.write (reinterpret_cast<char *> (last_update),
+                       sizeof (uint64_t) * 1024);
         }
     }
 
@@ -86,7 +88,8 @@ namespace Anvil {
             throw runtime_error (strerror (errno));
         }
 
-        data = (unsigned char *)mmap (0, len, PROT_READ, MAP_PRIVATE, fd, 0);
+        data = reinterpret_cast<unsigned char *> (
+            mmap (0, len, PROT_READ, MAP_PRIVATE, fd, 0));
         if (data == MAP_FAILED) {
             throw runtime_error (strerror (errno));
         }
@@ -127,7 +130,8 @@ namespace Anvil {
         unsigned char buf[] = {0, data[b_off], data[b_off + 1],
                                data[b_off + 2]};
 
-        return NBT::Utils::to_host_byte_order (*(int32_t *)buf);
+        return NBT::Utils::to_host_byte_order (
+            *reinterpret_cast<int32_t *> (buf));
     }
 
     size_t Region::chunk_location_sectors (int chunk_x, int chunk_z) {

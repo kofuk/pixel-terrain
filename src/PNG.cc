@@ -60,8 +60,8 @@ Png::Png (string filename) {
     png_read_image (png, rows);
     delete[] rows;
 
-    this->width = (int)width;
-    this->height = (int)height;
+    this->width = static_cast<int> (width);
+    this->height = static_cast<int> (height);
 
     png_destroy_read_struct (&png, &png_info, nullptr);
 }

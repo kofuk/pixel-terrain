@@ -339,7 +339,7 @@ void queue_item (QueuedItem *item) {
         {
             unique_lock<mutex> queue_lock (queue_mutex);
 
-            if (offs_queue.size () < (size_t)option_jobs * 2) {
+            if (offs_queue.size () < static_cast<size_t> (option_jobs) * 2) {
                 offs_queue.push (item);
 
                 queued_cond.notify_all ();
