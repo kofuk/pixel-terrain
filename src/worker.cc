@@ -9,6 +9,7 @@
 #include <thread>
 #include <utility>
 #include <vector>
+#include <memory>
 
 #include "PNG.hh"
 #include "Region.hh"
@@ -22,30 +23,8 @@ RegionContainer::RegionContainer (Anvil::Region *region, int rx, int rz)
 
 RegionContainer::~RegionContainer () { delete region; }
 
-void RegionContainer::set_ref_count (int ref_count) {
-    unique_lock<mutex> lock (ref_count_mutex);
-    this->ref_count = ref_count;
-}
-
-bool RegionContainer::decrease_ref () {
-    {
-        unique_lock<mutex> lock (ref_count_mutex);
-        --ref_count;
-
-        if (ref_count > 0) return false;
-    }
-
-    if (option_verbose) {
-        cout << "discarding " + to_string (rx) + ", " + to_string (rz) << endl;
-    }
-
-    delete this;
-
-    return true;
-}
-
-QueuedItem::QueuedItem (RegionContainer *region, int off_x, int off_z)
-    : region (region), off_x (off_x), off_z (off_z) {}
+QueuedItem::QueuedItem (shared_ptr<RegionContainer> region, int off_x, int off_z)
+    : region (move(region)), off_x (off_x), off_z (off_z) {}
 
 string QueuedItem::debug_string () {
     if (region == nullptr) {
@@ -313,9 +292,6 @@ static void run_worker_loop () {
         }
 
         generate_256 (item);
-
-        item->region->decrease_ref ();
-        delete item;
     }
 }
 

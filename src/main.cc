@@ -126,13 +126,11 @@ static void generate_all (string src_dir) {
             continue;
         }
 
-        RegionContainer *rc = new RegionContainer (r, x, z);
-        rc->set_ref_count (4);
+        shared_ptr<RegionContainer> rc(new RegionContainer (r, x, z));
 
         for (int off_x = 0; off_x < 2; ++off_x) {
             for (int off_z = 0; off_z < 2; ++off_z) {
-                QueuedItem *item = new QueuedItem (rc, off_x, off_z);
-                queue_item (item);
+                queue_item (new QueuedItem (rc, off_x, off_z));
             }
         }
 
