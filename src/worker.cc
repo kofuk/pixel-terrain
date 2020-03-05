@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <condition_variable>
+#include <cstdint>
 #include <exception>
 #include <filesystem>
 #include <iterator>
@@ -55,6 +56,18 @@ bool option_generate_progress;
 bool option_generate_range;
 string option_journal_dir;
 
+static constexpr int32_t PS_IS_TRANSPARENT = 1;
+
+static int32_t get_pixel_state (array<int32_t, 256 * 256> &pixel_state, int x,
+                                int y) {
+    return pixel_state[y * 256 + x];
+}
+
+static void add_pixel_state (array<int32_t, 256 * 256> &pixel_state, int x,
+                             int y, int32_t flags) {
+    pixel_state[y * 256 + x] |= flags;
+}
+
 static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                             Png &image) {
     int max_y = chunk->get_max_height ();
@@ -62,6 +75,8 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
         if (max_y > 127) max_y = 127;
     }
 
+    array<int32_t, 256 * 256> pixel_state;
+    pixel_state.fill (0);
     for (int z = 0; z < 16; ++z) {
         int prev_x = -1;
         int prev_y = -1;
@@ -133,9 +148,21 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                     } else if (prev_y < y) {
                         image.increase_brightness (chunk_x * 16 + x,
                                                    chunk_z * 16 + z, 30);
+                        if (x == 1 &&
+                            !(get_pixel_state (pixel_state, x - 1, z) &
+                              PS_IS_TRANSPARENT)) {
+                            image.increase_brightness (chunk_x * 16 + x - 1,
+                                                       chunk_z * 16 + z, 30);
+                        }
                     } else {
                         image.increase_brightness (chunk_x * 16 + x,
                                                    chunk_z * 16 + z, -30);
+                        if (x == 1 &&
+                            !(get_pixel_state (pixel_state, x - 1, z) &
+                              PS_IS_TRANSPARENT)) {
+                            image.increase_brightness (chunk_x * 16 + x - 1,
+                                                       chunk_z * 16 + z, -30);
+                        }
                     }
 
                     if (cur_top_y == -1) {
@@ -144,7 +171,9 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
 
                     if (new_alpha == 255 && cur_top_y != y) {
                         image.increase_brightness (chunk_x * 16 + x,
-                                                   chunk_z * 16 + z, (y - cur_top_y) * 2);
+                                                   chunk_z * 16 + z,
+                                                   (y - cur_top_y) * 2);
+                        add_pixel_state (pixel_state, x, z, PS_IS_TRANSPARENT);
                     }
                 }
 
