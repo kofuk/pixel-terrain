@@ -1,5 +1,7 @@
 # Minecraft Image Generator
 
+![Sample Image](images/sample.png)
+
 This generates map image from your Minecraft save data.
 
 This software contains C++ re-implementation of [matcool/anvil-parser](https://github.com/matcool/anvil-parser)
