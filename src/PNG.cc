@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cerrno>
+#include <cmath>
 #include <csetjmp>
 #include <cstring>
 #include <stdexcept>
@@ -89,6 +90,19 @@ unsigned char Png::blend (int x, int y, unsigned char r, unsigned char g,
     data[base_off + 3] = new_a;
 
     return new_a;
+}
+
+void Png::increase_brightness (int x, int y, int num) {
+    int base_off = (y * width + x) * 4;
+    if (num > 0) {
+        for (int i = 0; i < 3; ++i) {
+            data[base_off + i] = min(data[base_off + i] + num, 255);
+        }
+    } else {
+        for (int i = 0; i < 3; ++i) {
+            data[base_off + i] = max(data[base_off + i] + num, 0);
+        }
+    }
 }
 
 int Png::get_width () { return width; }

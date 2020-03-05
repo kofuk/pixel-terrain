@@ -21,6 +21,7 @@ public:
     int get_height ();
     unsigned char blend (int x, int y, unsigned char r, unsigned char g,
                          unsigned char b, unsigned char a);
+    void increase_brightness (int x, int y, int num);
     void clear (int x, int y);
     bool save (string filename);
     bool save ();

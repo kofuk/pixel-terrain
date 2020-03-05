@@ -3,13 +3,13 @@
 #include <exception>
 #include <filesystem>
 #include <iterator>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
 #include <utility>
 #include <vector>
-#include <memory>
 
 #include "PNG.hh"
 #include "Region.hh"
@@ -23,8 +23,9 @@ RegionContainer::RegionContainer (Anvil::Region *region, int rx, int rz)
 
 RegionContainer::~RegionContainer () { delete region; }
 
-QueuedItem::QueuedItem (shared_ptr<RegionContainer> region, int off_x, int off_z)
-    : region (move(region)), off_x (off_x), off_z (off_z) {}
+QueuedItem::QueuedItem (shared_ptr<RegionContainer> region, int off_x,
+                        int off_z)
+    : region (move (region)), off_x (off_x), off_z (off_z) {}
 
 string QueuedItem::debug_string () {
     if (region == nullptr) {
@@ -64,9 +65,12 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
     for (int z = 0; z < 16; ++z) {
         int prev_x = -1;
         int prev_y = -1;
+
         for (int x = 0; x < 16; ++x) {
             image.clear (chunk_x * 16 + x, chunk_z * 16 + z);
             bool air_found = false;
+            int cur_top_y = -1;
+            string prev_block;
 
             for (int y = max_y; y >= 0; --y) {
                 unsigned char new_alpha;
@@ -101,6 +105,16 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                     continue;
                 }
 
+                if (block == prev_block) {
+                    if (y == 0) {
+                        image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0, 0,
+                                     0, 255);
+                    }
+                    continue;
+                }
+
+                prev_block = block;
+
                 auto color_itr = colors.find (block);
                 if (color_itr == end (colors)) {
                     cout << R"(colors[")" << block << R"("] = ???)" << endl;
@@ -109,29 +123,29 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                                              0, 0, 0, 255);
                 } else {
                     array<unsigned char, 4> color = color_itr->second;
-                    array<int, 4> rcolor = {color[0], color[1], color[2],
-                                            color[3]};
 
-                    int plus;
+                    new_alpha =
+                        image.blend (chunk_x * 16 + x, chunk_z * 16 + z,
+                                     color[0], color[1], color[2], color[3]);
+
                     if (prev_y < 0 || prev_y == y) {
-                        plus = 0;
+                        /* do nothing */
                     } else if (prev_y < y) {
-                        plus = -30;
+                        image.increase_brightness (chunk_x * 16 + x,
+                                                   chunk_z * 16 + z, 30);
                     } else {
-                        plus = 30;
+                        image.increase_brightness (chunk_x * 16 + x,
+                                                   chunk_z * 16 + z, -30);
                     }
 
-                    for (int i = 0; i < 3; ++i) {
-                        rcolor[i] += plus;
-                        if (rcolor[i] > 255)
-                            rcolor[i] = 255;
-                        else if (rcolor[i] < 0)
-                            rcolor[i] = 0;
+                    if (cur_top_y == -1) {
+                        cur_top_y = y;
                     }
 
-                    new_alpha = image.blend (chunk_x * 16 + x, chunk_z * 16 + z,
-                                             rcolor[0], rcolor[1], rcolor[2],
-                                             rcolor[3]);
+                    if (new_alpha == 255 && cur_top_y != y) {
+                        image.increase_brightness (chunk_x * 16 + x,
+                                                   chunk_z * 16 + z, (y - cur_top_y) * 2);
+                    }
                 }
 
                 if (prev_x != x && new_alpha > 130) {
