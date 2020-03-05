@@ -116,9 +116,9 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                     if (prev_y < 0 || prev_y == y) {
                         plus = 0;
                     } else if (prev_y < y) {
-                        plus = 30;
-                    } else {
                         plus = -30;
+                    } else {
+                        plus = 30;
                     }
 
                     for (int i = 0; i < 3; ++i) {
