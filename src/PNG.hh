@@ -1,6 +1,7 @@
 #ifndef PNG_HH
 #define PNG_HH
 
+#include <cstdint>
 #include <pngconf.h>
 #include <string>
 
@@ -19,8 +20,7 @@ public:
 
     int get_width ();
     int get_height ();
-    unsigned char blend (int x, int y, unsigned char r, unsigned char g,
-                         unsigned char b, unsigned char a);
+    unsigned char blend (int x, int y, uint32_t color);
     void increase_brightness (int x, int y, int num);
     void clear (int x, int y);
     bool save (string filename);

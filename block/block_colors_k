@@ -1,2 +1,2 @@
-colors["kelp"] = {49, 140, 92, 150};
-colors["kelp_plant"] = {49, 140, 92, 150};
+colors["kelp"] = 0x318c5c96;
+colors["kelp_plant"] = 0x318c5c96;

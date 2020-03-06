@@ -1,4 +1,4 @@
-colors["quartz_block"] = {238, 234, 230, 255};
-colors["quartz_pillar"] = {238, 234, 230, 255};
-colors["quartz_slab"] = {238, 230, 222, 255};
-colors["quartz_stairs"] = {238, 230, 222, 255};
+colors["quartz_block"] = 0xeeeae6ff;
+colors["quartz_pillar"] = 0xeeeae6ff;
+colors["quartz_slab"] = 0xeee6deff;
+colors["quartz_stairs"] = 0xeee6deff;

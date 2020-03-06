@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <filesystem>
 
 #include "PNG.hh"
@@ -54,16 +55,14 @@ namespace generator {
                         block == "void_air") {
                         air_found = true;
                         if (y == 0) {
-                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0,
-                                         0, 0, 255);
+                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0x000000ff);
                         }
                         continue;
                     }
 
                     if (option_nether && !air_found) {
                         if (y == 0) {
-                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0,
-                                         0, 0, 255);
+                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0x000000ff);
                         }
 
                         continue;
@@ -71,8 +70,7 @@ namespace generator {
 
                     if (block == prev_block) {
                         if (y == 0) {
-                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0,
-                                         0, 0, 255);
+                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0x000000ff);
                         }
                         continue;
                     }
@@ -84,13 +82,12 @@ namespace generator {
                         logger::i (R"(colors[")" + block + R"("] = ???)");
 
                         new_alpha = image.blend (
-                            chunk_x * 16 + x, chunk_z * 16 + z, 0, 0, 0, 255);
+                            chunk_x * 16 + x, chunk_z * 16 + z, 0x000000ff);
                     } else {
-                        array<unsigned char, 4> color = color_itr->second;
+                        uint32_t color = color_itr->second;
 
                         new_alpha = image.blend (chunk_x * 16 + x,
-                                                 chunk_z * 16 + z, color[0],
-                                                 color[1], color[2], color[3]);
+                                                 chunk_z * 16 + z, color);
 
                         if (prev_y < 0 || prev_y == y) {
                             /* do nothing */

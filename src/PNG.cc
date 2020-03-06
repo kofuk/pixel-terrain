@@ -69,13 +69,17 @@ Png::Png (string filename) {
 
 Png::~Png () { delete[] data; }
 
-unsigned char Png::blend (int x, int y, unsigned char r, unsigned char g,
-                          unsigned char b, unsigned char a) {
+unsigned char Png::blend (int x, int y, uint32_t color) {
     int base_off = (y * width + x) * 4;
 
-    if (a == 0) {
+    if ((color & 0xff) == 0) {
         return data[base_off + 3];
     }
+
+    unsigned char r = (color >> 24) & 0xff;
+    unsigned char g = (color >> 16) & 0xff;
+    unsigned char b = (color >> 8) & 0xff;
+    unsigned char a = color & 0xff;
 
     unsigned char old_r = data[base_off];
     unsigned char old_g = data[base_off + 1];
