@@ -35,6 +35,7 @@ extern bool option_generate_progress;
 extern bool option_generate_range;
 extern string option_journal_dir;
 
+QueuedItem *fetch_item ();
 void queue_item (QueuedItem *item);
 void start_worker ();
 void wait_for_worker ();
