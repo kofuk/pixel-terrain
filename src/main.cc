@@ -30,6 +30,7 @@
 
 #include "Region.hh"
 #include "blocks.hh"
+#include "logger.hh"
 #include "server.hh"
 #include "worker.hh"
 
@@ -59,7 +60,8 @@ static void generate_all (string src_dir) {
         try {
             filesystem::create_directories (option_journal_dir);
         } catch (filesystem::filesystem_error const &e) {
-            cerr << "cannot create journal directory: " << e.what () << endl;
+            Logger::e (string ("cannot create journal directory: ") +
+                       e.what ());
 
             exit (1);
         }
@@ -120,13 +122,13 @@ static void generate_all (string src_dir) {
                                        option_journal_dir);
             }
         } catch (exception const &e) {
-            cerr << "failed to read region: " + path.path ().string () << endl;
-            cerr << e.what () << endl;
+            Logger::e ("failed to read region: " + path.path ().string ());
+            Logger::e (e.what ());
 
             continue;
         }
 
-        shared_ptr<RegionContainer> rc(new RegionContainer (r, x, z));
+        shared_ptr<RegionContainer> rc (new RegionContainer (r, x, z));
 
         for (int off_x = 0; off_x < 2; ++off_x) {
             for (int off_z = 0; off_z < 2; ++off_z) {

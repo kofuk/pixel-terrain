@@ -15,6 +15,7 @@
 #include "PNG.hh"
 #include "Region.hh"
 #include "blocks.hh"
+#include "logger.hh"
 #include "worker.hh"
 
 using namespace std;
@@ -93,10 +94,9 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
                 try {
                     block = chunk->get_block (x, y, z);
                 } catch (exception const &e) {
-                    cerr << "Warning: error occurred while obtaining "
-                            "block"
-                         << endl;
-                    cerr << e.what () << endl;
+                    Logger::e ("Warning: error occurred while obtaining "
+                               "block");
+                    Logger::e (e.what ());
 
                     continue;
                 }
@@ -132,7 +132,7 @@ static void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
 
                 auto color_itr = colors.find (block);
                 if (color_itr == end (colors)) {
-                    cout << R"(colors[")" << block << R"("] = ???)" << endl;
+                    Logger::i (R"(colors[")" + block + R"("] = ???)");
 
                     new_alpha = image.blend (chunk_x * 16 + x, chunk_z * 16 + z,
                                              0, 0, 0, 255);
@@ -198,7 +198,7 @@ static void generate_256 (QueuedItem *item) {
     int off_z = item->off_z;
 
     if (option_verbose) {
-        cerr << "generating " + item->debug_string () + " ..." << endl;
+        Logger::d ("generating " + item->debug_string () + " ...");
     }
 
     filesystem::path path = option_out_dir;
@@ -219,10 +219,8 @@ static void generate_256 (QueuedItem *item) {
                 chunk = region->get_chunk_if_dirty (off_x * 16 + chunk_x,
                                                     off_z * 16 + chunk_z);
             } catch (exception const &e) {
-                cerr << "Warning: parse error in " + item->debug_string ()
-                     << endl;
-                cerr << e.what () << endl;
-
+                Logger::e ("Warning: parse error in " + item->debug_string ());
+                Logger::e (e.what ());
                 continue;
             }
 
@@ -258,11 +256,9 @@ static void generate_256 (QueuedItem *item) {
                         chunk = region->get_chunk_if_dirty (
                             off_x * 16 + t_chunk_x, off_z * 16 + t_chunk_z);
                     } catch (exception const &e) {
-                        cerr << "Warning: parse error in " +
-                                    item->debug_string ()
-                             << endl;
-                        cerr << e.what () << endl;
-
+                        Logger::e ("Warning: parse error in " +
+                                   item->debug_string ());
+                        Logger::e (e.what ());
                         continue;
                     }
 
@@ -281,9 +277,8 @@ static void generate_256 (QueuedItem *item) {
 
     if (image == nullptr) {
         if (option_verbose) {
-            cerr << "exiting without generating; any chunk changed in " +
-                        item->debug_string ()
-                 << endl;
+            Logger::d ("exiting without generating; any chunk changed in " +
+                       item->debug_string ());
         }
 
         return;
@@ -293,7 +288,7 @@ static void generate_256 (QueuedItem *item) {
     delete image;
 
     if (option_verbose) {
-        cerr << "generated " + item->debug_string () + "." << endl;
+        Logger::d ("generated " + item->debug_string ());
     }
 }
 
@@ -326,7 +321,7 @@ static void run_worker_loop () {
 
         if (item->region == nullptr) {
             if (option_verbose) {
-                cout << "shutting down worker" << endl;
+                Logger::d ("shutting down worker");
             }
 
             delete item;
@@ -340,7 +335,7 @@ static void run_worker_loop () {
 
 void queue_item (QueuedItem *item) {
     if (option_verbose) {
-        cout << "trying to queue " + item->debug_string () << endl;
+        Logger::d ("trying to queue " + item->debug_string ());
     }
 
     unique_lock<mutex> lock (queue_cap_cond_mutex);
@@ -355,9 +350,8 @@ void queue_item (QueuedItem *item) {
                 queued_cond.notify_all ();
 
                 if (option_verbose) {
-                    cout << "item " + item->debug_string () +
-                                " successfully queued."
-                         << endl;
+                    Logger::d ("item " + item->debug_string () +
+                               " successfully queued");
                 }
                 return;
             }
@@ -369,11 +363,7 @@ void queue_item (QueuedItem *item) {
 
 void start_worker () {
     if (option_verbose) {
-        cout << "starting worker thread(s) ...";
-        if (option_nether) {
-            cout << "(nether mode)";
-        }
-        cout << endl;
+        Logger::d ("starting worker thread(s) ...");
     }
 
     try {
@@ -381,7 +371,7 @@ void start_worker () {
             threads.push_back (new thread (&run_worker_loop));
         }
     } catch (system_error const &e) {
-        cerr << "Cannot create thread: " << e.what () << endl;
+        Logger::e (string("Cannot create thread: ") + e.what ());
 
         for (thread *t : threads) {
             t->join ();
