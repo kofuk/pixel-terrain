@@ -28,7 +28,7 @@
 
 using namespace std;
 
-namespace Server {
+namespace server {
     void print_protocol_detail () {
         cout << "Help for block info server's protocol and config" << endl
              << endl;
@@ -190,8 +190,8 @@ namespace Server {
             return;
         }
 
-        Anvil::Region *r = new Anvil::Region (region_file.string ());
-        Anvil::Chunk *chunk = r->get_chunk (chunk_x, chunk_z);
+        anvil::Region *r = new anvil::Region (region_file.string ());
+        anvil::Chunk *chunk = r->get_chunk (chunk_x, chunk_z);
         if (chunk == nullptr) {
             send_response (f, 404, 0, nullptr);
 
@@ -431,6 +431,6 @@ namespace Server {
         perror ("server");
         close (ssock);
     }
-} // namespace Server
+} // namespace server
 
 #endif /* __unix__ */

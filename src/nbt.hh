@@ -12,7 +12,7 @@
 
 using namespace std;
 
-namespace NBT {
+namespace nbt {
     using tagtype_t = unsigned char;
 
     static constexpr tagtype_t TAG_END = 0;
@@ -79,7 +79,7 @@ namespace NBT {
                   size_t &off);
         static inline int16_t get_value (shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
-            int16_t v = Utils::to_host_byte_order (
+            int16_t v = utils::to_host_byte_order (
                 *reinterpret_cast<int16_t *> (buf.get () + off));
 
             off += 2;
@@ -100,7 +100,7 @@ namespace NBT {
 
         static inline int32_t get_value (shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
-            int32_t v = Utils::to_host_byte_order (
+            int32_t v = utils::to_host_byte_order (
                 *reinterpret_cast<int32_t *> (buf.get () + off));
 
             off += 4;
@@ -122,7 +122,7 @@ namespace NBT {
 
         static inline uint64_t get_value (shared_ptr<unsigned char[]> buf,
                                           size_t const len, size_t &off) {
-            uint64_t v = Utils::to_host_byte_order (
+            uint64_t v = utils::to_host_byte_order (
                 *reinterpret_cast<int64_t *> (buf.get () + off));
 
             off += 8;
@@ -145,7 +145,7 @@ namespace NBT {
 
         static inline float get_value (shared_ptr<unsigned char[]> buf,
                                        size_t const len, size_t &off) {
-            float v = Utils::to_host_byte_order (
+            float v = utils::to_host_byte_order (
                 *reinterpret_cast<float *> (buf.get () + off));
 
             off += 4;
@@ -168,7 +168,7 @@ namespace NBT {
 
         static inline double get_value (shared_ptr<unsigned char[]> buf,
                                         size_t const len, size_t &off) {
-            double v = Utils::to_host_byte_order (
+            double v = utils::to_host_byte_order (
                 *reinterpret_cast<double *> (buf.get () + off));
 
             off += 8;
@@ -255,12 +255,12 @@ namespace NBT {
 
         void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
                            size_t &off);
-        vector<NBT::Tag *> &operator* ();
+        vector<nbt::Tag *> &operator* ();
 
     private:
         bool parsed;
         int32_t list_len;
-        vector<NBT::Tag *> tags;
+        vector<nbt::Tag *> tags;
     };
 
     template <typename T, class C> T value (C *clazz) {
@@ -272,7 +272,7 @@ namespace NBT {
     }
 
     struct TagCompound : Tag {
-        unordered_map<string, NBT::Tag *> tags;
+        unordered_map<string, nbt::Tag *> tags;
 
         TagCompound (shared_ptr<unsigned char[]> buf, size_t const len,
                      size_t &off, bool toplevel);
@@ -305,13 +305,13 @@ namespace NBT {
     };
 
     struct NBTFile : TagCompound {
-        Utils::DecompressedData *data;
+        utils::DecompressedData *data;
 
-        NBTFile (Utils::DecompressedData *data);
+        NBTFile (utils::DecompressedData *data);
         ~NBTFile ();
 
         void parse_file ();
     };
-} // namespace NBT
+} // namespace nbt
 
 #endif

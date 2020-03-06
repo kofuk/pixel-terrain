@@ -4,23 +4,23 @@
 #include <cstdint>
 #include <vector>
 
-#include "NBT.hh"
+#include "nbt.hh"
 
 using namespace std;
 
-namespace Anvil {
+namespace anvil {
     class Chunk {
-        NBT::NBTFile *nbt_file;
-        NBT::TagCompound *data;
+        nbt::NBTFile *nbt_file;
+        nbt::TagCompound *data;
         array<vector<string> *, 16> palettes;
 
-        NBT::TagCompound *get_section (unsigned char y);
-        vector<string> *get_palette (NBT::TagCompound *section);
+        nbt::TagCompound *get_section (unsigned char y);
+        vector<string> *get_palette (nbt::TagCompound *section);
 
     public:
         uint64_t last_update;
 
-        Chunk (NBT::NBTFile *nbt_data);
+        Chunk (nbt::NBTFile *nbt_data);
         ~Chunk ();
         void parse_palette ();
         /* You MUST call parse_palette() beforehand. */
@@ -28,6 +28,6 @@ namespace Anvil {
         /* You MUST call parse_palette() beforehand. */
         int get_max_height ();
     };
-} // namespace Anvil
+} // namespace anvil
 
 #endif

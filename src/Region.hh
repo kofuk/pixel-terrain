@@ -4,9 +4,9 @@
 #include <string>
 
 #include "Chunk.hh"
-#include "NBT.hh"
+#include "nbt.hh"
 
-namespace Anvil {
+namespace anvil {
     class Region {
         unsigned char *data;
         size_t len;
@@ -19,7 +19,7 @@ namespace Anvil {
         size_t header_offset (int chunk_x, int chunk_z);
         size_t chunk_location_off (int chunk_x, int chunk_z);
         size_t chunk_location_sectors (int chunk_x, int chunk_z);
-        NBT::NBTFile *chunk_data (int chunk_x, int chunk_z);
+        nbt::NBTFile *chunk_data (int chunk_x, int chunk_z);
 
     public:
         /* Construct new region object from given buffer of *.mca file content
@@ -30,6 +30,6 @@ namespace Anvil {
         Chunk *get_chunk (int chunk_x, int chunk_z);
         Chunk *get_chunk_if_dirty (int chunk_x, int chunk_z);
     };
-} // namespace Anvil
+} // namespace anvil
 
 #endif

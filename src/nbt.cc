@@ -2,10 +2,10 @@
 #include <iterator>
 #include <stdexcept>
 
-#include "NBT.hh"
+#include "nbt.hh"
 #include "utils.hh"
 
-namespace NBT {
+namespace nbt {
     Tag::Tag (tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
               size_t &off)
         : tag_type (type), raw_buf (move (buf)), raw_len (len), raw_off (off) {}
@@ -274,7 +274,7 @@ namespace NBT {
         }
     }
 
-    vector<NBT::Tag *> &TagList::operator* () {
+    vector<nbt::Tag *> &TagList::operator* () {
         if (!parsed) {
             parse_buffer (raw_buf, raw_len, raw_off);
             parsed = true;
@@ -404,7 +404,7 @@ namespace NBT {
         }
     }
 
-    NBTFile::NBTFile (Utils::DecompressedData *data)
+    NBTFile::NBTFile (utils::DecompressedData *data)
         : TagCompound (), data (data) {
         parse_file ();
     }
@@ -423,4 +423,4 @@ namespace NBT {
         name = *TagString::get_value (data->data, data->len, off);
         parse_buffer (data->data, data->len, off);
     }
-} // namespace NBT
+} // namespace nbt

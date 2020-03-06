@@ -60,7 +60,7 @@ static void generate_all (string src_dir) {
         try {
             filesystem::create_directories (option_journal_dir);
         } catch (filesystem::filesystem_error const &e) {
-            Logger::e (string ("cannot create journal directory: ") +
+            logger::e (string ("cannot create journal directory: ") +
                        e.what ());
 
             exit (1);
@@ -113,17 +113,17 @@ static void generate_all (string src_dir) {
             if (z > max_z) max_z = z;
         }
 
-        Anvil::Region *r;
+        anvil::Region *r;
         try {
             if (option_journal_dir.empty ()) {
-                r = new Anvil::Region (path.path ().string ());
+                r = new anvil::Region (path.path ().string ());
             } else {
-                r = new Anvil::Region (path.path ().string (),
+                r = new anvil::Region (path.path ().string (),
                                        option_journal_dir);
             }
         } catch (exception const &e) {
-            Logger::e ("failed to read region: " + path.path ().string ());
-            Logger::e (e.what ());
+            logger::e ("failed to read region: " + path.path ().string ());
+            logger::e (e.what ());
 
             continue;
         }
@@ -372,7 +372,7 @@ static int server_command (int argc, char **argv) {
             break;
 
         case 'h':
-            Server::print_protocol_detail ();
+            server::print_protocol_detail ();
             exit (0);
 
         default:
@@ -382,7 +382,7 @@ static int server_command (int argc, char **argv) {
     }
 
     if (argc - optind == 1) {
-        Server::launch_server (argv[optind], daemon_mode);
+        server::launch_server (argv[optind], daemon_mode);
     } else {
         print_usage ();
         exit (1);

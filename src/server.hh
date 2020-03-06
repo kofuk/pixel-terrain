@@ -7,11 +7,11 @@
 
 using namespace std;
 
-namespace Server {
+namespace server {
     void print_protocol_detail ();
 
     void launch_server (string config_filename, bool daemon_mode);
-} // namespace Server
+} // namespace server
 
 #endif /* __unix__ */
 

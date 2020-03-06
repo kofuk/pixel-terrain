@@ -5,21 +5,21 @@
 #include "generator.hh"
 #include "logger.hh"
 
-namespace Generator {
+namespace generator {
     static constexpr int32_t PS_IS_TRANSPARENT = 1;
 
-    static inline int32_t get_pixel_state (array<int32_t, 256 * 256> &pixel_state,
-                                    int x, int y) {
+    static inline int32_t
+    get_pixel_state (array<int32_t, 256 * 256> &pixel_state, int x, int y) {
         return pixel_state[y * 256 + x];
     }
 
-    static inline void add_pixel_state (array<int32_t, 256 * 256> &pixel_state, int x,
-                                 int y, int32_t flags) {
+    static inline void add_pixel_state (array<int32_t, 256 * 256> &pixel_state,
+                                        int x, int y, int32_t flags) {
         pixel_state[y * 256 + x] |= flags;
     }
 
-    static inline void generate_chunk (Anvil::Chunk *chunk, int chunk_x, int chunk_z,
-                                Png &image) {
+    static inline void generate_chunk (anvil::Chunk *chunk, int chunk_x,
+                                       int chunk_z, Png &image) {
         int max_y = chunk->get_max_height ();
         if (option_nether) {
             if (max_y > 127) max_y = 127;
@@ -43,9 +43,9 @@ namespace Generator {
                     try {
                         block = chunk->get_block (x, y, z);
                     } catch (exception const &e) {
-                        Logger::e ("Warning: error occurred while obtaining "
+                        logger::e ("Warning: error occurred while obtaining "
                                    "block");
-                        Logger::e (e.what ());
+                        logger::e (e.what ());
 
                         continue;
                     }
@@ -81,7 +81,7 @@ namespace Generator {
 
                     auto color_itr = colors.find (block);
                     if (color_itr == end (colors)) {
-                        Logger::i (R"(colors[")" + block + R"("] = ???)");
+                        logger::i (R"(colors[")" + block + R"("] = ???)");
 
                         new_alpha = image.blend (
                             chunk_x * 16 + x, chunk_z * 16 + z, 0, 0, 0, 255);
@@ -142,14 +142,14 @@ namespace Generator {
     }
 
     void generate_256 (QueuedItem *item) {
-        Anvil::Region *region = item->region->region;
+        anvil::Region *region = item->region->region;
         int region_x = item->region->rx;
         int region_z = item->region->rz;
         int off_x = item->off_x;
         int off_z = item->off_z;
 
         if (option_verbose) {
-            Logger::d ("generating " + item->debug_string () + " ...");
+            logger::d ("generating " + item->debug_string () + " ...");
         }
 
         filesystem::path path = option_out_dir;
@@ -164,15 +164,15 @@ namespace Generator {
         for (int chunk_z = 0; chunk_z < 16; chunk_z += 4) {
             int prev_chunk_x = -1;
             for (int chunk_x = 0; chunk_x < 16; ++chunk_x) {
-                Anvil::Chunk *chunk;
+                anvil::Chunk *chunk;
 
                 try {
                     chunk = region->get_chunk_if_dirty (off_x * 16 + chunk_x,
                                                         off_z * 16 + chunk_z);
                 } catch (exception const &e) {
-                    Logger::e ("Warning: parse error in " +
+                    logger::e ("Warning: parse error in " +
                                item->debug_string ());
-                    Logger::e (e.what ());
+                    logger::e (e.what ());
                     continue;
                 }
 
@@ -208,9 +208,9 @@ namespace Generator {
                             chunk = region->get_chunk_if_dirty (
                                 off_x * 16 + t_chunk_x, off_z * 16 + t_chunk_z);
                         } catch (exception const &e) {
-                            Logger::e ("Warning: parse error in " +
+                            logger::e ("Warning: parse error in " +
                                        item->debug_string ());
-                            Logger::e (e.what ());
+                            logger::e (e.what ());
                             continue;
                         }
 
@@ -229,7 +229,7 @@ namespace Generator {
 
         if (image == nullptr) {
             if (option_verbose) {
-                Logger::d ("exiting without generating; any chunk changed in " +
+                logger::d ("exiting without generating; any chunk changed in " +
                            item->debug_string ());
             }
 
@@ -240,8 +240,8 @@ namespace Generator {
         delete image;
 
         if (option_verbose) {
-            Logger::d ("generated " + item->debug_string ());
+            logger::d ("generated " + item->debug_string ());
         }
     }
 
-} // namespace Generator
+} // namespace generator

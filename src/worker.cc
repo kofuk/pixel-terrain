@@ -20,7 +20,7 @@
 
 using namespace std;
 
-RegionContainer::RegionContainer (Anvil::Region *region, int rx, int rz)
+RegionContainer::RegionContainer (anvil::Region *region, int rx, int rz)
     : region (region), rx (rx), rz (rz) {}
 
 RegionContainer::~RegionContainer () { delete region; }
@@ -86,7 +86,7 @@ static void run_worker_loop () {
 
         if (item->region == nullptr) {
             if (option_verbose) {
-                Logger::d ("shutting down worker");
+                logger::d ("shutting down worker");
             }
 
             delete item;
@@ -94,13 +94,13 @@ static void run_worker_loop () {
             break;
         }
 
-        Generator::generate_256 (item);
+        generator::generate_256 (item);
     }
 }
 
 void queue_item (QueuedItem *item) {
     if (option_verbose) {
-        Logger::d ("trying to queue " + item->debug_string ());
+        logger::d ("trying to queue " + item->debug_string ());
     }
 
     unique_lock<mutex> lock (queue_cap_cond_mutex);
@@ -115,7 +115,7 @@ void queue_item (QueuedItem *item) {
                 queued_cond.notify_all ();
 
                 if (option_verbose) {
-                    Logger::d ("item " + item->debug_string () +
+                    logger::d ("item " + item->debug_string () +
                                " successfully queued");
                 }
                 return;
@@ -128,7 +128,7 @@ void queue_item (QueuedItem *item) {
 
 void start_worker () {
     if (option_verbose) {
-        Logger::d ("starting worker thread(s) ...");
+        logger::d ("starting worker thread(s) ...");
     }
 
     try {
@@ -136,7 +136,7 @@ void start_worker () {
             threads.push_back (new thread (&run_worker_loop));
         }
     } catch (system_error const &e) {
-        Logger::e (string("Cannot create thread: ") + e.what ());
+        logger::e (string ("Cannot create thread: ") + e.what ());
 
         for (thread *t : threads) {
             t->join ();

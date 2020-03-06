@@ -3,9 +3,9 @@
 
 #include "worker.hh"
 
-namespace Generator {
+namespace generator {
     /* generates 256x256 image */
     void generate_256 (QueuedItem *item);
-}
+} // namespace generator
 
 #endif

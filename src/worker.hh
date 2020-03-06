@@ -9,11 +9,11 @@
 using namespace std;
 
 struct RegionContainer {
-    Anvil::Region *region;
+    anvil::Region *region;
     int rx;
     int rz;
 
-    RegionContainer (Anvil::Region *region, int rx, int rz);
+    RegionContainer (anvil::Region *region, int rx, int rz);
     ~RegionContainer ();
 };
 

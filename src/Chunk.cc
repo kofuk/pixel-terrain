@@ -3,17 +3,17 @@
 #include <stdexcept>
 
 #include "Chunk.hh"
-#include "NBT.hh"
+#include "nbt.hh"
 
-namespace Anvil {
-    Chunk::Chunk (NBT::NBTFile *nbt_data) : nbt_file (nbt_data) {
-        data = nbt_data->get_as<NBT::TagCompound, NBT::TAG_COMPOUND> ("Level");
+namespace anvil {
+    Chunk::Chunk (nbt::NBTFile *nbt_data) : nbt_file (nbt_data) {
+        data = nbt_data->get_as<nbt::TagCompound, nbt::TAG_COMPOUND> ("Level");
         if (data == nullptr) {
             throw runtime_error ("Level tag not found in chunk");
         }
 
-        last_update = NBT::value<uint64_t> (
-            data->get_as<NBT::TagLong, NBT::TAG_LONG> ("LastUpdate"));
+        last_update = nbt::value<uint64_t> (
+            data->get_as<nbt::TagLong, nbt::TAG_LONG> ("LastUpdate"));
 
         palettes.fill (nullptr);
     }
@@ -22,23 +22,22 @@ namespace Anvil {
 
     void Chunk::parse_palette () {
         palettes.fill (nullptr);
-        NBT::TagList *section =
-            data->get_as<NBT::TagList, NBT::TAG_LIST> ("Sections");
+        nbt::TagList *section =
+            data->get_as<nbt::TagList, nbt::TAG_LIST> ("Sections");
         if (section == nullptr) {
             throw runtime_error ("Sections tag not found in Level");
         }
 
-        for (auto itr = begin (**section); itr != end (**section);
-             ++itr) {
-            if ((*itr)->tag_type != NBT::TAG_COMPOUND) {
+        for (auto itr = begin (**section); itr != end (**section); ++itr) {
+            if ((*itr)->tag_type != nbt::TAG_COMPOUND) {
                 throw runtime_error ("Sections' payload is not TAG_COMPOUND");
             }
 
             unsigned char tag_y;
             try {
-                tag_y = NBT::value<unsigned char> (
-                    (static_cast<NBT::TagCompound *> (*itr))
-                        ->get_as<NBT::TagByte, NBT::TAG_BYTE> ("Y"));
+                tag_y = nbt::value<unsigned char> (
+                    (static_cast<nbt::TagCompound *> (*itr))
+                        ->get_as<nbt::TagByte, nbt::TAG_BYTE> ("Y"));
             } catch (runtime_error const &) {
                 continue;
             }
@@ -47,61 +46,60 @@ namespace Anvil {
             }
 
             palettes[tag_y] =
-                get_palette (static_cast<NBT::TagCompound *> (*itr));
+                get_palette (static_cast<nbt::TagCompound *> (*itr));
         }
     }
 
-    NBT::TagCompound *Chunk::get_section (unsigned char y) {
+    nbt::TagCompound *Chunk::get_section (unsigned char y) {
         if (15 < y) {
             return nullptr;
         }
 
-        NBT::TagList *section =
-            data->get_as<NBT::TagList, NBT::TAG_LIST> ("Sections");
+        nbt::TagList *section =
+            data->get_as<nbt::TagList, nbt::TAG_LIST> ("Sections");
         if (section == nullptr) {
             throw runtime_error ("Sections tag not found in Level");
         }
 
-        for (auto itr = begin (**section); itr != end (**section);
-             ++itr) {
-            if ((*itr)->tag_type != NBT::TAG_COMPOUND) {
+        for (auto itr = begin (**section); itr != end (**section); ++itr) {
+            if ((*itr)->tag_type != nbt::TAG_COMPOUND) {
                 throw runtime_error ("Sections' payload is not TAG_COMPOUND");
             }
 
             unsigned char tag_y;
             try {
-                tag_y = NBT::value<unsigned char> (
-                    (static_cast<NBT::TagCompound *> (*itr))
-                        ->get_as<NBT::TagByte, NBT::TAG_BYTE> ("Y"));
+                tag_y = nbt::value<unsigned char> (
+                    (static_cast<nbt::TagCompound *> (*itr))
+                        ->get_as<nbt::TagByte, nbt::TAG_BYTE> ("Y"));
             } catch (runtime_error const &) {
                 continue;
             }
 
-            if (tag_y == y) return static_cast<NBT::TagCompound *> (*itr);
+            if (tag_y == y) return static_cast<nbt::TagCompound *> (*itr);
         }
 
         return nullptr;
     }
 
-    vector<string> *Chunk::get_palette (NBT::TagCompound *section) {
+    vector<string> *Chunk::get_palette (nbt::TagCompound *section) {
         vector<string> *palette = new vector<string>;
 
-        NBT::TagList *palette_tag_list =
-            section->get_as<NBT::TagList, NBT::TAG_LIST> ("Palette");
+        nbt::TagList *palette_tag_list =
+            section->get_as<nbt::TagList, nbt::TAG_LIST> ("Palette");
         if (palette_tag_list == nullptr) {
             return nullptr;
         }
-        if (palette_tag_list->payload_type != NBT::TAG_COMPOUND) {
+        if (palette_tag_list->payload_type != nbt::TAG_COMPOUND) {
             throw runtime_error (
                 "corrupted data (payload type != TAG_COMPOUND)");
         }
 
         for (auto itr = begin (**palette_tag_list);
              itr != end (**palette_tag_list); ++itr) {
-            NBT::TagCompound *tag = static_cast<NBT::TagCompound *> (*itr);
+            nbt::TagCompound *tag = static_cast<nbt::TagCompound *> (*itr);
 
-            string *src_name = NBT::value<string *> (
-                tag->get_as<NBT::TagString, NBT::TAG_STRING> ("Name"));
+            string *src_name = nbt::value<string *> (
+                tag->get_as<nbt::TagString, nbt::TAG_STRING> ("Name"));
 
             string name;
             if (src_name->find ("minecraft:") == 0) {
@@ -121,7 +119,7 @@ namespace Anvil {
         }
 
         unsigned char section_no = y / 16;
-        NBT::TagCompound *section = get_section (section_no);
+        nbt::TagCompound *section = get_section (section_no);
 
         y %= 16;
 
@@ -148,8 +146,8 @@ namespace Anvil {
         }
 
         int index = y * 16 * 16 + z * 16 + x;
-        vector<int64_t> states = NBT::value<vector<int64_t>> (
-            section->get_as<NBT::TagLongArray, NBT::TAG_LONG_ARRAY> (
+        vector<int64_t> states = nbt::value<vector<int64_t>> (
+            section->get_as<nbt::TagLongArray, nbt::TAG_LONG_ARRAY> (
                 "BlockStates"));
         int state = index * bits / 64;
 
@@ -187,4 +185,4 @@ namespace Anvil {
         return 0;
     }
 
-} // namespace Anvil
+} // namespace anvil

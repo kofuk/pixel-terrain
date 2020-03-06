@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace NBT::Utils {
+namespace nbt::utils {
     static inline void swap_chars (unsigned char *a, unsigned char *b) {
         *a ^= *b;
         *b ^= *a;
@@ -84,6 +84,6 @@ namespace NBT::Utils {
     };
 
     DecompressedData *zlib_decompress (unsigned char *data, size_t const len);
-} // namespace NBT::Utils
+} // namespace nbt::utils
 
 #endif

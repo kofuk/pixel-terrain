@@ -5,21 +5,21 @@
 
 using namespace std;
 
-namespace Logger {
+namespace logger {
     static mutex m;
 
     void d (string message) {
-        unique_lock<mutex> lock(m);
+        unique_lock<mutex> lock (m);
         cerr << message << endl;
     }
 
     void e (string message) {
-        unique_lock<mutex> lock(m);
+        unique_lock<mutex> lock (m);
         cerr << message << endl;
     }
 
     void i (string message) {
-        unique_lock<mutex> lock(m);
+        unique_lock<mutex> lock (m);
         cout << message << endl;
     }
-} // namespace Logger
+} // namespace logger

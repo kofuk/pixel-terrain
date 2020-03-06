@@ -5,10 +5,10 @@
 
 using namespace std;
 
-namespace Logger {
+namespace logger {
     void d (string message);
     void e (string message);
     void i (string message);
-} // namespace Logger
+} // namespace logger
 
 #endif

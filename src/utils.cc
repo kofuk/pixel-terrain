@@ -9,59 +9,54 @@
 
 using namespace std;
 
-namespace NBT {
-    namespace Utils {
-        DecompressedData *zlib_decompress (unsigned char *data,
-                                           size_t const len) {
-            int z_ret;
-            z_stream strm;
-            strm.zalloc = Z_NULL;
-            strm.zfree = Z_NULL;
-            strm.opaque = Z_NULL;
-            strm.avail_in = 0;
-            strm.next_in = Z_NULL;
-            unsigned char out[1024];
+namespace nbt::utils {
+    DecompressedData *zlib_decompress (unsigned char *data, size_t const len) {
+        int z_ret;
+        z_stream strm;
+        strm.zalloc = Z_NULL;
+        strm.zfree = Z_NULL;
+        strm.opaque = Z_NULL;
+        strm.avail_in = 0;
+        strm.next_in = Z_NULL;
+        unsigned char out[1024];
 
-            z_ret = inflateInit (&strm);
-            if (z_ret != Z_OK) return nullptr;
+        z_ret = inflateInit (&strm);
+        if (z_ret != Z_OK) return nullptr;
 
-            vector<unsigned char> all_out;
-            all_out.reserve (len * 2);
+        vector<unsigned char> all_out;
+        all_out.reserve (len * 2);
 
-            strm.avail_in = len;
-            strm.next_in = data;
+        strm.avail_in = len;
+        strm.next_in = data;
 
-            do {
-                strm.avail_out = 1024;
-                strm.next_out = out;
+        do {
+            strm.avail_out = 1024;
+            strm.next_out = out;
 
-                z_ret = inflate (&strm, Z_NO_FLUSH);
+            z_ret = inflate (&strm, Z_NO_FLUSH);
 
-                if (z_ret == Z_STREAM_ERROR || z_ret == Z_NEED_DICT ||
-                    z_ret == Z_DATA_ERROR || z_ret == Z_MEM_ERROR) {
-                    inflateEnd (&strm);
+            if (z_ret == Z_STREAM_ERROR || z_ret == Z_NEED_DICT ||
+                z_ret == Z_DATA_ERROR || z_ret == Z_MEM_ERROR) {
+                inflateEnd (&strm);
 
-                    return nullptr;
-                }
-
-                all_out.insert (end (all_out), out,
-                                out + 1024 - strm.avail_out);
-            } while (strm.avail_out == 0);
-
-            if (z_ret != Z_STREAM_END) {
-                throw out_of_range (
-                    "buffer exausted before stream end of zlib");
+                return nullptr;
             }
 
-            inflateEnd (&strm);
+            all_out.insert (end (all_out), out, out + 1024 - strm.avail_out);
+        } while (strm.avail_out == 0);
 
-            DecompressedData *dd = new DecompressedData;
-            unsigned char *dd_out = new unsigned char[all_out.size ()];
-            copy (begin (all_out), end (all_out), dd_out);
-            dd->data = shared_ptr<unsigned char[]> (dd_out);
-            dd->len = all_out.size ();
-
-            return dd;
+        if (z_ret != Z_STREAM_END) {
+            throw out_of_range ("buffer exausted before stream end of zlib");
         }
-    } // namespace Utils
-} // namespace NBT
+
+        inflateEnd (&strm);
+
+        DecompressedData *dd = new DecompressedData;
+        unsigned char *dd_out = new unsigned char[all_out.size ()];
+        copy (begin (all_out), end (all_out), dd_out);
+        dd->data = shared_ptr<unsigned char[]> (dd_out);
+        dd->len = all_out.size ();
+
+        return dd;
+    }
+} // namespace nbt::utils

@@ -14,12 +14,12 @@
 #include <unistd.h>
 #endif /* __unix__ */
 
-#include "NBT.hh"
 #include "Region.hh"
+#include "nbt.hh"
 #include "utils.hh"
 #include "worker.hh"
 
-namespace Anvil {
+namespace anvil {
     Region::Region (string file_name) : journal_changed (false) {
         read_region_file (file_name);
     }
@@ -130,7 +130,7 @@ namespace Anvil {
         unsigned char buf[] = {0, data[b_off], data[b_off + 1],
                                data[b_off + 2]};
 
-        return NBT::Utils::to_host_byte_order (
+        return nbt::utils::to_host_byte_order (
             *reinterpret_cast<int32_t *> (buf));
     }
 
@@ -142,7 +142,7 @@ namespace Anvil {
         return data[b_off + 3];
     }
 
-    NBT::NBTFile *Region::chunk_data (int chunk_x, int chunk_z) {
+    nbt::NBTFile *Region::chunk_data (int chunk_x, int chunk_z) {
         size_t location_off = chunk_location_off (chunk_x, chunk_z);
         size_t location_sec = chunk_location_sectors (chunk_x, chunk_z);
         if (location_off == 0 && location_sec == 0) {
@@ -154,21 +154,21 @@ namespace Anvil {
         if (location_off + 4 >= len) return nullptr;
 
         int32_t length =
-            NBT::Utils::to_host_byte_order (*(int32_t *)(data + location_off));
+            nbt::utils::to_host_byte_order (*(int32_t *)(data + location_off));
 
         if (location_off + 5 + length - 1 > len) return nullptr;
 
         int compression = data[location_off + 4];
         if (compression == 1) return nullptr;
 
-        NBT::Utils::DecompressedData *decompressed =
-            NBT::Utils::zlib_decompress (data + location_off + 5, length - 1);
+        nbt::utils::DecompressedData *decompressed =
+            nbt::utils::zlib_decompress (data + location_off + 5, length - 1);
 
-        return new NBT::NBTFile (decompressed);
+        return new nbt::NBTFile (decompressed);
     }
 
     Chunk *Region::get_chunk (int chunk_x, int chunk_z) {
-        NBT::NBTFile *nbt = chunk_data (chunk_x, chunk_z);
+        nbt::NBTFile *nbt = chunk_data (chunk_x, chunk_z);
 
         if (nbt == nullptr) return nullptr;
 
@@ -178,7 +178,7 @@ namespace Anvil {
     }
 
     Chunk *Region::get_chunk_if_dirty (int chunk_x, int chunk_z) {
-        NBT::NBTFile *nbt = chunk_data (chunk_x, chunk_z);
+        nbt::NBTFile *nbt = chunk_data (chunk_x, chunk_z);
         if (nbt == nullptr) {
             return nullptr;
         }
@@ -196,4 +196,4 @@ namespace Anvil {
 
         return chunk;
     }
-} // namespace Anvil
+} // namespace anvil
