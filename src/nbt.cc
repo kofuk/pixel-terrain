@@ -6,6 +6,75 @@
 #include "utils.hh"
 
 namespace nbt {
+    static Tag *tag_byte_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                  size_t &off) {
+        return new TagByte (buf, len, off);
+    }
+
+    static Tag *tag_short_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                   size_t &off) {
+        return new TagShort (buf, len, off);
+    }
+
+    static Tag *tag_int_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                 size_t &off) {
+        return new TagInt (buf, len, off);
+    }
+
+    static Tag *tag_long_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                  size_t &off) {
+        return new TagLong (buf, len, off);
+    }
+
+    static Tag *tag_float_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                   size_t &off) {
+        return new TagFloat (buf, len, off);
+    }
+
+    static Tag *tag_double_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                    size_t &off) {
+        return new TagDouble (buf, len, off);
+    }
+
+    static Tag *tag_byte_array_factory (shared_ptr<unsigned char[]> buf,
+                                        size_t len, size_t &off) {
+        return new TagByteArray (buf, len, off);
+    }
+
+    static Tag *tag_string_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                    size_t &off) {
+        return new TagString (buf, len, off);
+    }
+
+    static Tag *tag_list_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                  size_t &off) {
+        return new TagList (buf, len, off);
+    }
+
+    static Tag *tag_compound_factory (shared_ptr<unsigned char[]> buf,
+                                      size_t len, size_t &off) {
+        return new TagCompound (buf, len, off, false);
+    }
+
+    static Tag *tag_int_array_factory (shared_ptr<unsigned char[]> buf,
+                                       size_t len, size_t &off) {
+        return new TagIntArray (buf, len, off);
+    }
+
+    static Tag *tag_long_array_factory (shared_ptr<unsigned char[]> buf,
+                                        size_t len, size_t &off) {
+        return new TagLongArray (buf, len, off);
+    }
+
+    static function<Tag *(shared_ptr<unsigned char[]> buf, size_t len,
+                          size_t &off)>
+        tag_factories[] = {&tag_byte_factory,       &tag_short_factory,
+                           &tag_int_factory,        &tag_long_factory,
+                           &tag_float_factory,      &tag_double_factory,
+                           &tag_byte_array_factory, &tag_string_factory,
+                           &tag_list_factory,       &tag_compound_factory,
+                           &tag_int_array_factory,  &tag_long_array_factory};
+
     Tag::Tag (tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
               size_t &off)
         : tag_type (type), raw_buf (move (buf)), raw_len (len), raw_off (off) {}
@@ -242,33 +311,12 @@ namespace nbt {
                                 size_t const len, size_t &off) {
         Tag *tag;
         for (int32_t i = 0; i < list_len; ++i) {
-            if (payload_type == TAG_BYTE)
-                tag = new TagByte (buf, len, off);
-            else if (payload_type == TAG_SHORT)
-                tag = new TagShort (buf, len, off);
-            else if (payload_type == TAG_INT)
-                tag = new TagInt (buf, len, off);
-            else if (payload_type == TAG_LONG)
-                tag = new TagLong (buf, len, off);
-            else if (payload_type == TAG_FLOAT)
-                tag = new TagFloat (buf, len, off);
-            else if (payload_type == TAG_DOUBLE)
-                tag = new TagDouble (buf, len, off);
-            else if (payload_type == TAG_BYTE_ARRAY)
-                tag = new TagByteArray (buf, len, off);
-            else if (payload_type == TAG_STRING)
-                tag = new TagString (buf, len, off);
-            else if (payload_type == TAG_LIST)
-                tag = new TagList (buf, len, off);
-            else if (payload_type == TAG_COMPOUND)
-                tag = new TagCompound (buf, len, off, false);
-            else if (payload_type == TAG_INT_ARRAY)
-                tag = new TagIntArray (buf, len, off);
-            else if (payload_type == TAG_LONG_ARRAY)
-                tag = new TagLongArray (buf, len, off);
-            else
+            if (payload_type > 12) {
                 throw runtime_error ("Unknown type of tag: " +
                                      to_string (payload_type));
+            }
+
+            tag = (tag_factories[payload_type - 1]) (buf, len, off);
 
             tags.push_back (tag);
         }
@@ -304,39 +352,21 @@ namespace nbt {
             if (type == TAG_END) break;
 
             string *name = TagString::get_value (buf, len, off);
-            bool next_toplevel = *name == "Level";
-
             Tag *tag;
-            if (type == TAG_BYTE)
-                tag = new TagByte (buf, len, off);
-            else if (type == TAG_SHORT)
-                tag = new TagShort (buf, len, off);
-            else if (type == TAG_INT)
-                tag = new TagInt (buf, len, off);
-            else if (type == TAG_LONG)
-                tag = new TagLong (buf, len, off);
-            else if (type == TAG_FLOAT)
-                tag = new TagFloat (buf, len, off);
-            else if (type == TAG_DOUBLE)
-                tag = new TagDouble (buf, len, off);
-            else if (type == TAG_BYTE_ARRAY)
-                tag = new TagByteArray (buf, len, off);
-            else if (type == TAG_STRING)
-                tag = new TagString (buf, len, off);
-            else if (type == TAG_LIST)
-                tag = new TagList (buf, len, off);
-            else if (type == TAG_COMPOUND)
+            bool next_toplevel = *name == "Level";
+            if (next_toplevel) {
                 /* for performance reason, it assumes that there is only one
                    Level tag in one chunk and no trailing tag after that.
                    it is dangerous but works correctly for now. */
-                tag = new TagCompound (buf, len, off, next_toplevel);
-            else if (type == TAG_INT_ARRAY)
-                tag = new TagIntArray (buf, len, off);
-            else if (type == TAG_LONG_ARRAY)
-                tag = new TagLongArray (buf, len, off);
-            else
-                throw runtime_error ("unknown type of tag: " +
-                                     to_string (type));
+                tag = new TagCompound (buf, len, off, true);
+            } else {
+                if (type > 12) {
+                    throw runtime_error ("unknown type of tag: " +
+                                         to_string (type));
+                }
+
+                tag = (tag_factories[type - 1]) (buf, len, off);
+            }
 
             tags[*name] = tag;
 
@@ -359,34 +389,12 @@ namespace nbt {
 
             string *name = TagString::get_value (raw_buf, raw_len, raw_off);
 
-            Tag *tag;
-            if (type == TAG_BYTE)
-                tag = new TagByte (raw_buf, raw_len, raw_off);
-            else if (type == TAG_SHORT)
-                tag = new TagShort (raw_buf, raw_len, raw_off);
-            else if (type == TAG_INT)
-                tag = new TagInt (raw_buf, raw_len, raw_off);
-            else if (type == TAG_LONG)
-                tag = new TagLong (raw_buf, raw_len, raw_off);
-            else if (type == TAG_FLOAT)
-                tag = new TagFloat (raw_buf, raw_len, raw_off);
-            else if (type == TAG_DOUBLE)
-                tag = new TagDouble (raw_buf, raw_len, raw_off);
-            else if (type == TAG_BYTE_ARRAY)
-                tag = new TagByteArray (raw_buf, raw_len, raw_off);
-            else if (type == TAG_STRING)
-                tag = new TagString (raw_buf, raw_len, raw_off);
-            else if (type == TAG_LIST)
-                tag = new TagList (raw_buf, raw_len, raw_off);
-            else if (type == TAG_COMPOUND)
-                tag = new TagCompound (raw_buf, raw_len, raw_off, false);
-            else if (type == TAG_INT_ARRAY)
-                tag = new TagIntArray (raw_buf, raw_len, raw_off);
-            else if (type == TAG_LONG_ARRAY)
-                tag = new TagLongArray (raw_buf, raw_len, raw_off);
-            else
+            if (type > 12) {
                 throw runtime_error ("unknown type of tag: " +
                                      to_string (type));
+            }
+
+            Tag *tag = (tag_factories[type - 1]) (raw_buf, raw_len, raw_off);
 
             tags[*name] = tag;
 
