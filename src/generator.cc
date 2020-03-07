@@ -156,13 +156,13 @@ namespace generator {
 
                 if (upper.opaque_height < cur.opaque_height) {
                     cur.bg_color = increase_brightness (cur.bg_color, 10);
-                    if (x == 1) {
+                    if (z == 1) {
                         upper.bg_color =
                             increase_brightness (upper.bg_color, 10);
                     }
                 } else if (cur.opaque_height < upper.opaque_height) {
                     cur.bg_color = increase_brightness (cur.bg_color, -10);
-                    if (x == 1) {
+                    if (z == 1) {
                         upper.bg_color =
                             increase_brightness (upper.bg_color, -10);
                     }

@@ -16,14 +16,14 @@ namespace generator {
         uint_fast8_t b_b = (bg >> 8) & 0xff;
         uint_fast8_t b_a = bg & 0xff;
 
-        uint8_t f_r = (fg >> 24) & 0xff;
+        uint_fast8_t f_r = (fg >> 24) & 0xff;
         uint_fast8_t f_g = (fg >> 16) & 0xff;
         uint_fast8_t f_b = (fg >> 8) & 0xff;
         uint_fast8_t f_a = fg & 0xff;
 
         uint_fast8_t new_a = (b_a + f_a) - b_a * f_a / 255;
 
-        uint_fast8_t r = ((f_r * b_a + b_r * (255 - f_a) * b_a / 255) / new_a);
+        uint_fast8_t r = ((f_r * f_a + b_r * (255 - f_a) * b_a / 255) / new_a);
         uint_fast8_t g = ((f_g * f_a + b_g * (255 - f_a) * b_a / 255) / new_a);
         uint_fast8_t b = ((f_b * f_a + b_b * (255 - f_a) * b_a / 255) / new_a);
 
