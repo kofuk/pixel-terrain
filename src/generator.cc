@@ -1,45 +1,57 @@
+#include <array>
 #include <cstdint>
 #include <filesystem>
+#include <memory>
 
 #include "PNG.hh"
 #include "blocks.hh"
+#include "color.hh"
 #include "generator.hh"
 #include "logger.hh"
 
 namespace generator {
+    struct PixelState {
+        uint_fast32_t flags;
+        uint_fast8_t top_height;
+        uint_fast8_t mid_height;
+        uint_fast8_t opaque_height;
+        uint_fast32_t fg_color;
+        uint_fast32_t mid_color;
+        uint_fast32_t bg_color;
+
+        PixelState ()
+            : flags (0), top_height (0), mid_height (0), opaque_height (0),
+              fg_color (0x00000000), mid_color (0x00000000),
+              bg_color (0x00000000) {}
+        void add_flags (int_fast32_t flags) { this->flags |= flags; }
+        bool get_flag (int_fast32_t field) { return this->flags & field; }
+    };
+
     static constexpr int32_t PS_IS_TRANSPARENT = 1;
 
-    static inline int32_t
-    get_pixel_state (array<int32_t, 256 * 256> &pixel_state, int x, int y) {
-        return pixel_state[y * 256 + x];
+    static inline PixelState &
+    get_pixel_state (shared_ptr<array<PixelState, 256 * 256>> pixel_state,
+                     int x, int y) {
+        return (*pixel_state)[y * 256 + x];
     }
 
-    static inline void add_pixel_state (array<int32_t, 256 * 256> &pixel_state,
-                                        int x, int y, int32_t flags) {
-        pixel_state[y * 256 + x] |= flags;
-    }
-
-    static inline void generate_chunk (anvil::Chunk *chunk, int chunk_x,
-                                       int chunk_z, Png &image) {
+    static shared_ptr<array<PixelState, 256 * 256>>
+    scan_chunk (anvil::Chunk *chunk) {
         int max_y = chunk->get_max_height ();
         if (option_nether) {
             if (max_y > 127) max_y = 127;
         }
 
-        array<int32_t, 256 * 256> pixel_state;
-        pixel_state.fill (0);
+        shared_ptr<array<PixelState, 256 * 256>> pixel_states (
+            new array<PixelState, 256 * 256>);
         for (int z = 0; z < 16; ++z) {
-            int prev_x = -1;
-            int prev_y = -1;
-
             for (int x = 0; x < 16; ++x) {
-                image.clear (chunk_x * 16 + x, chunk_z * 16 + z);
                 bool air_found = false;
-                int cur_top_y = -1;
                 string prev_block;
 
+                PixelState &pixel_state = get_pixel_state (pixel_states, x, z);
+
                 for (int y = max_y; y >= 0; --y) {
-                    unsigned char new_alpha;
                     string block;
                     try {
                         block = chunk->get_block (x, y, z);
@@ -54,24 +66,11 @@ namespace generator {
                     if (block == "air" || block == "cave_air" ||
                         block == "void_air") {
                         air_found = true;
-                        if (y == 0) {
-                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0x000000ff);
-                        }
-                        continue;
-                    }
-
-                    if (option_nether && !air_found) {
-                        if (y == 0) {
-                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0x000000ff);
-                        }
-
+                        prev_block = block;
                         continue;
                     }
 
                     if (block == prev_block) {
-                        if (y == 0) {
-                            image.blend (chunk_x * 16 + x, chunk_z * 16 + z, 0x000000ff);
-                        }
                         continue;
                     }
 
@@ -80,62 +79,120 @@ namespace generator {
                     auto color_itr = colors.find (block);
                     if (color_itr == end (colors)) {
                         logger::i (R"(colors[")" + block + R"("] = ???)");
-
-                        new_alpha = image.blend (
-                            chunk_x * 16 + x, chunk_z * 16 + z, 0x000000ff);
                     } else {
-                        uint32_t color = color_itr->second;
+                        uint_fast32_t color = color_itr->second;
 
-                        new_alpha = image.blend (chunk_x * 16 + x,
-                                                 chunk_z * 16 + z, color);
-
-                        if (prev_y < 0 || prev_y == y) {
-                            /* do nothing */
-                        } else if (prev_y < y) {
-                            image.increase_brightness (chunk_x * 16 + x,
-                                                       chunk_z * 16 + z, 30);
-                            if (x == 1 &&
-                                !(get_pixel_state (pixel_state, x - 1, z) &
-                                  PS_IS_TRANSPARENT)) {
-                                image.increase_brightness (
-                                    chunk_x * 16 + x - 1, chunk_z * 16 + z, 30);
+                        if (pixel_state.fg_color == 0x00000000) {
+                            pixel_state.fg_color = color;
+                            pixel_state.top_height = y;
+                            if ((color & 0xff) == 0xff) {
+                                pixel_state.mid_color = color;
+                                pixel_state.mid_height = y;
+                                pixel_state.bg_color = color;
+                                pixel_state.opaque_height = y;
+                                break;
+                            } else {
+                                pixel_state.add_flags (PS_IS_TRANSPARENT);
+                            }
+                        } else if (pixel_state.mid_color == 0x00000000) {
+                            pixel_state.mid_color = color;
+                            pixel_state.mid_height = y;
+                            if ((color & 0xff) == 0xff) {
+                                pixel_state.bg_color = color;
+                                pixel_state.opaque_height = y;
+                                break;
                             }
                         } else {
-                            image.increase_brightness (chunk_x * 16 + x,
-                                                       chunk_z * 16 + z, -30);
-                            if (x == 1 &&
-                                !(get_pixel_state (pixel_state, x - 1, z) &
-                                  PS_IS_TRANSPARENT)) {
-                                image.increase_brightness (chunk_x * 16 + x - 1,
-                                                           chunk_z * 16 + z,
-                                                           -30);
+                            pixel_state.bg_color =
+                                blend_color (pixel_state.bg_color, color);
+                            if ((pixel_state.bg_color & 0xff) == 0xff) {
+                                pixel_state.opaque_height = y;
+                                break;
                             }
                         }
-
-                        if (cur_top_y == -1) {
-                            cur_top_y = y;
-                        }
-
-                        if (new_alpha == 255 && cur_top_y != y) {
-                            image.increase_brightness (chunk_x * 16 + x,
-                                                       chunk_z * 16 + z,
-                                                       (y - cur_top_y) * 2);
-                            add_pixel_state (pixel_state, x, z,
-                                             PS_IS_TRANSPARENT);
-                        }
                     }
-
-                    if (prev_x != x && new_alpha > 130) {
-                        prev_x = x;
-                        prev_y = y;
-                    }
-
-                    if (new_alpha < 255) continue;
-
-                    break;
+                }
+                pixel_state.bg_color |= 0xff;
+                if (pixel_state.top_height == pixel_state.opaque_height) {
+                    pixel_state.fg_color = 0x00000000;
+                    pixel_state.mid_color = 0x00000000;
+                } else if (pixel_state.mid_height ==
+                           pixel_state.opaque_height) {
+                    pixel_state.mid_color = 0x00000000;
                 }
             }
         }
+
+        return pixel_states;
+    }
+
+    static void
+    generate_image (int chunk_x, int chunk_z,
+                    shared_ptr<array<PixelState, 256 * 256>> pixel_states,
+                    Png &image) {
+        for (int z = 0; z < 16; ++z) {
+            for (int x = 1; x < 16; ++x) {
+                PixelState &left = get_pixel_state (pixel_states, x - 1, z);
+                PixelState &cur = get_pixel_state (pixel_states, x, z);
+                if (left.opaque_height < cur.opaque_height) {
+                    cur.bg_color = increase_brightness (cur.bg_color, 30);
+                    if (x == 1) {
+                        left.bg_color = increase_brightness (left.bg_color, 30);
+                    }
+                } else if (cur.opaque_height < left.opaque_height) {
+                    cur.bg_color = increase_brightness (cur.bg_color, -30);
+                    if (x == 1) {
+                        left.bg_color =
+                            increase_brightness (left.bg_color, -30);
+                    }
+                }
+            }
+        }
+
+        for (int z = 1; z < 16; ++z) {
+            for (int x = 0; x < 16; ++x) {
+                PixelState &cur = get_pixel_state (pixel_states, x, z);
+                PixelState &upper = get_pixel_state (pixel_states, x, z - 1);
+
+                if (upper.opaque_height < cur.opaque_height) {
+                    cur.bg_color = increase_brightness (cur.bg_color, 10);
+                    if (x == 1) {
+                        upper.bg_color =
+                            increase_brightness (upper.bg_color, 10);
+                    }
+                } else if (cur.opaque_height < upper.opaque_height) {
+                    cur.bg_color = increase_brightness (cur.bg_color, -10);
+                    if (x == 1) {
+                        upper.bg_color =
+                            increase_brightness (upper.bg_color, -10);
+                    }
+                }
+            }
+        }
+
+        for (int z = 0; z < 16; ++z) {
+            for (int x = 0; x < 16; ++x) {
+                PixelState &pixel_state = get_pixel_state (pixel_states, x, z);
+
+                uint_fast32_t bg_color = increase_brightness (
+                    pixel_state.mid_color,
+                    (pixel_state.mid_height - pixel_state.top_height) * 3);
+                uint_fast32_t color =
+                    blend_color (pixel_state.fg_color, bg_color);
+                bg_color = increase_brightness (
+                    pixel_state.bg_color,
+                    (pixel_state.opaque_height - pixel_state.top_height) * 3);
+                color = blend_color (color, bg_color);
+                image.set_pixel (chunk_x * 16 + x, chunk_z * 16 + z, color);
+            }
+        }
+    }
+
+    static void generate_chunk (anvil::Chunk *chunk, int chunk_x, int chunk_z,
+                                Png &image) {
+        shared_ptr<array<PixelState, 256 * 256>> pixel_states =
+            scan_chunk (chunk);
+        generate_image (chunk_x, chunk_z, pixel_states, image);
     }
 
     void generate_256 (QueuedItem *item) {

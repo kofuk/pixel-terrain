@@ -2,6 +2,7 @@
 #include <cerrno>
 #include <cmath>
 #include <csetjmp>
+#include <cstdint>
 #include <cstring>
 #include <stdexcept>
 
@@ -69,44 +70,23 @@ Png::Png (string filename) {
 
 Png::~Png () { delete[] data; }
 
-unsigned char Png::blend (int x, int y, uint32_t color) {
+void Png::set_pixel (int x, int y, uint_fast32_t color) {
     int base_off = (y * width + x) * 4;
-
-    if ((color & 0xff) == 0) {
-        return data[base_off + 3];
-    }
-
-    unsigned char r = (color >> 24) & 0xff;
-    unsigned char g = (color >> 16) & 0xff;
-    unsigned char b = (color >> 8) & 0xff;
-    unsigned char a = color & 0xff;
-
-    unsigned char old_r = data[base_off];
-    unsigned char old_g = data[base_off + 1];
-    unsigned char old_b = data[base_off + 2];
-    unsigned char old_a = data[base_off + 3];
-
-    unsigned char new_a = (a + old_a) - a * old_a / 255;
-
-    data[base_off] = (old_r * old_a + r * (255 - old_a) * a / 255) / new_a;
-    data[base_off + 1] = (old_g * old_a + g * (255 - old_a) * a / 255) / new_a;
-    data[base_off + 2] = (old_b * old_a + b * (255 - old_a) * a / 255) / new_a;
-    data[base_off + 3] = new_a;
-
-    return new_a;
+    data[base_off] = (color >> 24) & 0xff;
+    data[++base_off] = (color >> 16) & 0xff;
+    data[++base_off] = (color >> 8) & 0xff;
+    data[++base_off] = color & 0xff;
 }
 
-void Png::increase_brightness (int x, int y, int num) {
+uint_fast32_t Png::get_pixel (int x, int y) {
     int base_off = (y * width + x) * 4;
-    if (num > 0) {
-        for (int i = 0; i < 3; ++i) {
-            data[base_off + i] = min (data[base_off + i] + num, 255);
-        }
-    } else {
-        for (int i = 0; i < 3; ++i) {
-            data[base_off + i] = max (data[base_off + i] + num, 0);
-        }
-    }
+    uint_fast8_t r = data[base_off];
+    uint_fast8_t g = data[++base_off];
+    uint_fast8_t b = data[++base_off];
+    uint_fast8_t a = data[++base_off];
+
+    return ((r & 0xff) << 24) | ((g & 0xff) << 16) | ((b & 0xff) << 8) |
+           (a & 0xff);
 }
 
 int Png::get_width () { return width; }

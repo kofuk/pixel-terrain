@@ -20,8 +20,8 @@ public:
 
     int get_width ();
     int get_height ();
-    unsigned char blend (int x, int y, uint32_t color);
-    void increase_brightness (int x, int y, int num);
+    void set_pixel (int x, int y, uint_fast32_t color);
+    uint_fast32_t get_pixel (int x, int y);
     void clear (int x, int y);
     bool save (string filename);
     bool save ();
