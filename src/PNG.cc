@@ -3,6 +3,7 @@
 #include <cmath>
 #include <csetjmp>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <stdexcept>
 
@@ -66,6 +67,8 @@ Png::Png (string filename) {
     this->height = static_cast<int> (height);
 
     png_destroy_read_struct (&png, &png_info, nullptr);
+
+    fclose(in);
 }
 
 Png::~Png () { delete[] data; }
