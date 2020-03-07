@@ -20,5 +20,6 @@ colors["andesite"] = 0x828281ff;
 colors["andesite_slab"] = 0x747474ff;
 colors["andesite_stairs"] = 0x747474ff;
 colors["andesite_wall"] = 0x747474e6;
+colors["anvil"] = 0x303030ee;
 colors["attached_pumpkin_stem"] = 0x938d1e64;
 colors["azure_bluet"] = 0xf7f7f764;
