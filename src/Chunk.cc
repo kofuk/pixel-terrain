@@ -5,6 +5,9 @@
 #include "Chunk.hh"
 #include "nbt.hh"
 
+
+#include "logger.hh"
+
 namespace anvil {
     Chunk::Chunk (nbt::NBTFile *nbt_data) : nbt_file (nbt_data) {
         data = nbt_data->get_as<nbt::TagCompound, nbt::TAG_COMPOUND> ("Level");
@@ -20,7 +23,7 @@ namespace anvil {
 
     Chunk::~Chunk () { delete nbt_file; }
 
-    void Chunk::parse_palette () {
+    void Chunk::parse_fields () {
         palettes.fill (nullptr);
         nbt::TagList *section =
             data->get_as<nbt::TagList, nbt::TAG_LIST> ("Sections");
@@ -47,6 +50,12 @@ namespace anvil {
 
             palettes[tag_y] =
                 get_palette (static_cast<nbt::TagCompound *> (*itr));
+        }
+
+        nbt::TagIntArray *biomes_tag =
+            data->get_as<nbt::TagIntArray, nbt::TAG_INT_ARRAY> ("Biomes");
+        if (biomes_tag != nullptr) {
+            biomes = **biomes_tag;
         }
     }
 
@@ -111,6 +120,15 @@ namespace anvil {
         }
 
         return palette;
+    }
+
+    int32_t Chunk::get_biome (int32_t x, int32_t y, int32_t z) {
+        if (biomes.size () == 256) {
+            return biomes[(z / 2) * 16 + (x / 2)];
+        } else if (biomes.size() == 1024) {
+            return biomes[(y / 64) * 256 + (z / 4) * 4 + (x / 4)];
+        }
+        return 0;
     }
 
     string Chunk::get_block (int32_t x, int32_t y, int32_t z) {

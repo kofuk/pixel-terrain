@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <string>
 
 #include "PNG.hh"
 #include "blocks.hh"
@@ -18,11 +19,12 @@ namespace generator {
         uint_fast32_t fg_color;
         uint_fast32_t mid_color;
         uint_fast32_t bg_color;
+        int32_t top_biome;
 
         PixelState ()
             : flags (0), top_height (0), mid_height (0), opaque_height (0),
               fg_color (0x00000000), mid_color (0x00000000),
-              bg_color (0x00000000) {}
+              bg_color (0x00000000), top_biome(0) {}
         void add_flags (int_fast32_t flags) { this->flags |= flags; }
         bool get_flag (int_fast32_t field) { return this->flags & field; }
     };
@@ -85,6 +87,7 @@ namespace generator {
                         if (pixel_state.fg_color == 0x00000000) {
                             pixel_state.fg_color = color;
                             pixel_state.top_height = y;
+                            pixel_state.top_biome = chunk->get_biome(x, y, z);
                             if ((color & 0xff) == 0xff) {
                                 pixel_state.mid_color = color;
                                 pixel_state.mid_height = y;
@@ -183,6 +186,10 @@ namespace generator {
                     pixel_state.bg_color,
                     (pixel_state.opaque_height - pixel_state.top_height) * 3);
                 color = blend_color (color, bg_color);
+                int32_t biome = pixel_state.top_biome;
+                if (biome == 6 || biome == 134) {
+                    color = blend_color(color, 0x665956ff, 0.5);
+                }
                 image.set_pixel (chunk_x * 16 + x, chunk_z * 16 + z, color);
             }
         }

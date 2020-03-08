@@ -144,7 +144,7 @@ namespace anvil {
         if (nbt == nullptr) return nullptr;
 
         Chunk *chunk = new Chunk (nbt);
-        chunk->parse_palette ();
+        chunk->parse_fields ();
         return chunk;
     }
 
@@ -163,7 +163,7 @@ namespace anvil {
 
         last_update[chunk_z * 32 + chunk_x] = chunk->last_update;
         journal_changed = true;
-        chunk->parse_palette ();
+        chunk->parse_fields ();
 
         return chunk;
     }
