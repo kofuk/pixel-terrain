@@ -1,5 +1,3 @@
-#ifdef __unix__
-
 #include <algorithm>
 #include <csignal>
 #include <cstdio>
@@ -388,5 +386,3 @@ namespace server {
         close (ssock);
     }
 } // namespace server
-
-#endif /* __unix__ */

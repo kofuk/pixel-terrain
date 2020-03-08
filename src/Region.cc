@@ -6,13 +6,11 @@
 #include <fstream>
 #include <stdexcept>
 
-#ifdef __unix__
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#endif /* __unix__ */
 
 #include "Region.hh"
 #include "nbt.hh"
@@ -46,14 +44,10 @@ namespace anvil {
     }
 
     Region::~Region () {
-#ifdef __unix__
         if (munmap (data, len) == -1) {
             int err = errno;
             cerr << "warning: " << strerror (err) << endl;
         }
-#else
-        delete[] data;
-#endif /* __unix__ */
 
         if (journal_changed && !journal_file.empty ()) {
             if (option_verbose) {
@@ -72,7 +66,6 @@ namespace anvil {
     }
 
     void Region::read_region_file (string filename) {
-#ifdef __unix__
         struct stat stat_buf;
         if (stat (filename.c_str (), &stat_buf) == -1) {
             throw runtime_error (strerror (errno));
@@ -94,28 +87,6 @@ namespace anvil {
             throw runtime_error (strerror (errno));
         }
         close (fd);
-#else
-        ifstream f (filename, ios::binary);
-
-        if (!f) {
-            throw invalid_argument (strerror (errno));
-        }
-
-        vector<unsigned char> dest;
-
-        char buf[2048];
-        do {
-            f.read (buf, sizeof (buf));
-            dest.insert (std::end (dest), buf, buf + f.gcount ());
-        } while (!f.fail ());
-
-        if (!f.eof ())
-            throw logic_error ("an error occurred while reading file");
-
-        len = dest.size ();
-        data = new unsigned char[len];
-        std::copy (std::begin (dest), std::end (dest), data);
-#endif
     }
 
     size_t Region::header_offset (int chunk_x, int chunk_z) {

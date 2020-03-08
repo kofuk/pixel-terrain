@@ -1,8 +1,6 @@
 #ifndef SERVER_HH
 #define SERVER_HH
 
-#ifdef __unix__
-
 #include <string>
 
 using namespace std;
@@ -12,7 +10,5 @@ namespace server {
 
     void launch_server (bool daemon_mode);
 } // namespace server
-
-#endif /* __unix__ */
 
 #endif

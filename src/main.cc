@@ -15,16 +15,8 @@
 #include <string>
 #include <thread>
 
-#ifdef __unix__
 #include <unistd.h>
-
-#ifdef _GNU_SOURCE
 #include <getopt.h>
-#endif /* _GNU_SOURCE */
-
-#else
-#include "getopt_dos.hh"
-#endif /* __unix__ */
 
 #include "Region.hh"
 #include "blocks.hh"
@@ -169,7 +161,6 @@ static void generate_all (string src_dir) {
 }
 
 static void print_usage () {
-#ifdef __unix__
     cout << "Usage: mcmap generate [OPTION]... SRC_DIR" << endl;
     cout << "       mcmap server CONFIG" << endl;
     cout << "Modes:" << endl;
@@ -197,21 +188,6 @@ static void print_usage () {
     cout << " --help    display protocol and config detail and exit" << endl
          << endl;
     cout << "Note: long options is supported only on GNU system" << endl;
-#else
-    cout << "Usage: mcmap [OPTION]... SRC_DIR" << endl << endl;
-    cout
-        << " /j N    generate N images concurrently. (default: processor count)"
-        << endl;
-    cout << " /n      Use nether image generation algorythm (experimental)."
-         << endl;
-    cout << " /o DIR  specify output directory. (default: current directory)"
-         << endl;
-    cout << " /p      output progress to gen_progress.txt" << endl;
-    cout << " /r      output chunk range to chunk_range.json" << endl;
-    cout << " /v      output verbose log" << endl;
-    cout << " /h      display this help and exit." << endl;
-    cout << " /V      display version information and exit" << endl;
-#endif /* __unix__ */
 }
 
 static void print_version () {
@@ -223,7 +199,6 @@ static void print_version () {
          << "for more information and the source code." << endl;
 }
 
-#ifdef _GNU_SOURCE
 static option generate_command_options[] = {
     {"jobs", required_argument, 0, 'j'},
     {"journal", required_argument, 0, 'U'},
@@ -237,7 +212,6 @@ static option generate_command_options[] = {
 static option server_command_options[] = {{"daemon", no_argument, 0, 'd'},
                                           {"help", no_argument, 0, 'h'},
                                           {0, 0, 0, 0}};
-#endif /* _GNU_SOURCE */
 
 static int generate_command (int argc, char **argv) {
     option_jobs = thread::hardware_concurrency ();
@@ -245,14 +219,8 @@ static int generate_command (int argc, char **argv) {
 
     int c;
     for (;;) {
-#ifdef _GNU_SOURCE
         c = getopt_long (argc, argv, "j:no:prU:v", generate_command_options,
                          nullptr);
-#elif defined(__unix__)
-        c = getopt (argc, argv, "c:j:no:prU:v");
-#else
-        c = getopt_dos (argc, argv, "c:j:no:prU:v");
-#endif /* _GNU_SOURCE */
         if (c == -1) break;
 
         switch (c) {
@@ -309,15 +277,10 @@ static int generate_command (int argc, char **argv) {
 }
 
 static int server_command (int argc, char **argv) {
-#ifdef __unix__
     bool daemon_mode = false;
     int opt;
     for (;;) {
-#ifdef _GNU_SOURCE
         opt = getopt_long (argc, argv, "dh", server_command_options, nullptr);
-#else
-        opt = getopt (argc, argv, "dh");
-#endif /* _GNU_SOURCE */
 
         if (opt == -1) break;
 
@@ -342,17 +305,11 @@ static int server_command (int argc, char **argv) {
         print_usage ();
         exit (1);
     }
-#else
-    cout << "server mode on non *nix system is not supported." << endl;
-
-    return 1;
-#endif /* __unix__ */
 
     return 0;
 }
 
 int main (int argc, char **argv) {
-#ifdef __unix__
     if (argc < 2) {
         print_usage ();
         exit (1);
@@ -373,12 +330,6 @@ int main (int argc, char **argv) {
         print_usage ();
         exit (1);
     }
-
-#else
-
-    generate_command (argc, argv);
-
-#endif /* __unix__ */
 
     return 0;
 }
