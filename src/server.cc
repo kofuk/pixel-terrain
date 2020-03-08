@@ -50,9 +50,9 @@ namespace server {
         cout << "  500  Internal Server Error. Serverside error" << endl;
     }
 
-    static string overworld_dir;
-    static string nether_dir;
-    static string end_dir;
+    string overworld_dir;
+    string nether_dir;
+    string end_dir;
 
     static void terminate_server (int) {
         unlink ("/tmp/mcmap.sock");

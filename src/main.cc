@@ -15,8 +15,8 @@
 #include <string>
 #include <thread>
 
-#include <unistd.h>
 #include <getopt.h>
+#include <unistd.h>
 
 #include "Region.hh"
 #include "blocks.hh"
@@ -209,9 +209,13 @@ static option generate_command_options[] = {
     {"verbose", no_argument, 0, 'v'},
     {0, 0, 0, 0}};
 
-static option server_command_options[] = {{"daemon", no_argument, 0, 'd'},
-                                          {"help", no_argument, 0, 'h'},
-                                          {0, 0, 0, 0}};
+static option server_command_options[] = {
+    {"daemon", no_argument, 0, 'd'},
+    {"overworld", required_argument, 0, 'o'},
+    {"nether", required_argument, 0, 'n'},
+    {"end", required_argument, 0, 'e'},
+    {"help", no_argument, 0, 'h'},
+    {0, 0, 0, 0}};
 
 static int generate_command (int argc, char **argv) {
     option_jobs = thread::hardware_concurrency ();
@@ -280,7 +284,8 @@ static int server_command (int argc, char **argv) {
     bool daemon_mode = false;
     int opt;
     for (;;) {
-        opt = getopt_long (argc, argv, "dh", server_command_options, nullptr);
+        opt = getopt_long (argc, argv, "dho:n:e:", server_command_options,
+                           nullptr);
 
         if (opt == -1) break;
 
@@ -292,6 +297,18 @@ static int server_command (int argc, char **argv) {
         case 'h':
             server::print_protocol_detail ();
             exit (0);
+
+        case 'o':
+            server::overworld_dir = optarg;
+            break;
+
+        case 'n':
+            server::nether_dir = optarg;
+            break;
+
+        case 'e':
+            server::end_dir = optarg;
+            break;
 
         default:
             print_usage ();

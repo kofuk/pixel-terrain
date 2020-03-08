@@ -6,6 +6,10 @@
 using namespace std;
 
 namespace server {
+    extern string overworld_dir;
+    extern string nether_dir;
+    extern string end_dir;
+
     void print_protocol_detail ();
 
     void launch_server (bool daemon_mode);
