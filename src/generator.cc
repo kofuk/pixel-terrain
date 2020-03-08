@@ -151,6 +151,11 @@ namespace generator {
                     int32_t biome = pixel_state.top_biome;
                     if (biome == 6 || biome == 134) {
                         *color = blend_color (*color, 0x665956ff, 0.5);
+                    } else if (biome == 21 || biome == 149 || biome == 23 ||
+                               biome == 151) {
+                        *color = blend_color (*color, 0x83bd7eff, 0.5);
+                    } else if (biome == 35 || biome == 163) {
+                        *color = blend_color (*color, 0xa8ab33ff, 0.5);
                     }
                 }
             }
