@@ -24,12 +24,13 @@ namespace generator {
         PixelState ()
             : flags (0), top_height (0), mid_height (0), opaque_height (0),
               fg_color (0x00000000), mid_color (0x00000000),
-              bg_color (0x00000000), top_biome(0) {}
+              bg_color (0x00000000), top_biome (0) {}
         void add_flags (int_fast32_t flags) { this->flags |= flags; }
         bool get_flag (int_fast32_t field) { return this->flags & field; }
     };
 
     static constexpr int32_t PS_IS_TRANSPARENT = 1;
+    static constexpr int32_t PS_BIOME_OVERRIDDEN = 1 << 1;
 
     static inline PixelState &
     get_pixel_state (shared_ptr<array<PixelState, 256 * 256>> pixel_state,
@@ -87,7 +88,10 @@ namespace generator {
                         if (pixel_state.fg_color == 0x00000000) {
                             pixel_state.fg_color = color;
                             pixel_state.top_height = y;
-                            pixel_state.top_biome = chunk->get_biome(x, y, z);
+                            pixel_state.top_biome = chunk->get_biome (x, y, z);
+                            if (is_biome_overridden (block)) {
+                                pixel_state.add_flags (PS_BIOME_OVERRIDDEN);
+                            }
                             if ((color & 0xff) == 0xff) {
                                 pixel_state.mid_color = color;
                                 pixel_state.mid_height = y;
@@ -133,6 +137,25 @@ namespace generator {
     generate_image (int chunk_x, int chunk_z,
                     shared_ptr<array<PixelState, 256 * 256>> pixel_states,
                     Png &image) {
+        /* process biome color overrides */
+        for (int z = 0; z < 16; ++z) {
+            for (int x = 0; x < 16; ++x) {
+                PixelState &pixel_state = get_pixel_state (pixel_states, x, z);
+                if (pixel_state.get_flag (PS_BIOME_OVERRIDDEN)) {
+                    uint_fast32_t *color;
+                    if (pixel_state.fg_color != 0x00000000) {
+                        color = &(pixel_state.fg_color);
+                    } else {
+                        color = &(pixel_state.bg_color);
+                    }
+                    int32_t biome = pixel_state.top_biome;
+                    if (biome == 6 || biome == 134) {
+                        *color = blend_color (*color, 0x665956ff, 0.5);
+                    }
+                }
+            }
+        }
+
         for (int z = 0; z < 16; ++z) {
             for (int x = 1; x < 16; ++x) {
                 PixelState &left = get_pixel_state (pixel_states, x - 1, z);
@@ -186,10 +209,6 @@ namespace generator {
                     pixel_state.bg_color,
                     (pixel_state.opaque_height - pixel_state.top_height) * 3);
                 color = blend_color (color, bg_color);
-                int32_t biome = pixel_state.top_biome;
-                if (biome == 6 || biome == 134) {
-                    color = blend_color(color, 0x665956ff, 0.5);
-                }
                 image.set_pixel (chunk_x * 16 + x, chunk_z * 16 + z, color);
             }
         }
