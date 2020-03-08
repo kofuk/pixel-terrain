@@ -26,8 +26,6 @@
 #include "getopt_dos.hh"
 #endif /* __unix__ */
 
-#include <cpptoml.h>
-
 #include "Region.hh"
 #include "blocks.hh"
 #include "logger.hh"
@@ -170,40 +168,6 @@ static void generate_all (string src_dir) {
     }
 }
 
-static bool load_config (string filename) {
-    try {
-        shared_ptr<cpptoml::table> config = cpptoml::parse_file (filename);
-
-        if (config->contains ("jobs")) {
-            option_jobs = *config->get_as<int> ("jobs");
-        }
-        if (config->contains ("nether")) {
-            option_nether = *config->get_as<bool> ("nether");
-        }
-        if (config->contains ("out")) {
-            option_out_dir = *config->get_as<string> ("out");
-        }
-        if (config->contains ("gen-progress")) {
-            option_generate_progress = *config->get_as<bool> ("gen-progress");
-        }
-        if (config->contains ("gen-range")) {
-            option_generate_range = *config->get_as<bool> ("gen-range");
-        }
-        if (config->contains ("journal")) {
-            option_journal_dir = *config->get_as<string> ("journal");
-        }
-        if (config->contains ("verbose")) {
-            option_verbose = *config->get_as<bool> ("verbose");
-        }
-    } catch (cpptoml::parse_exception const &e) {
-        cerr << e.what () << endl;
-
-        return false;
-    }
-
-    return true;
-}
-
 static void print_usage () {
 #ifdef __unix__
     cout << "Usage: mcmap generate [OPTION]... SRC_DIR" << endl;
@@ -215,7 +179,6 @@ static void print_usage () {
     cout << " --help     display this help and exit" << endl;
     cout << " --version  display version information and exit" << endl << endl;
     cout << "GENERATE mode options:" << endl;
-    cout << " -c, --config FILE read config file." << endl;
     cout << " -j N, --jobs=N    generate N images concurrently. (default: "
             "processor count)"
          << endl;
@@ -262,7 +225,6 @@ static void print_version () {
 
 #ifdef _GNU_SOURCE
 static option generate_command_options[] = {
-    {"config", required_argument, 0, 'c'},
     {"jobs", required_argument, 0, 'j'},
     {"journal", required_argument, 0, 'U'},
     {"nether", no_argument, 0, 'n'},
@@ -284,7 +246,7 @@ static int generate_command (int argc, char **argv) {
     int c;
     for (;;) {
 #ifdef _GNU_SOURCE
-        c = getopt_long (argc, argv, "c:j:no:prU:v", generate_command_options,
+        c = getopt_long (argc, argv, "j:no:prU:v", generate_command_options,
                          nullptr);
 #elif defined(__unix__)
         c = getopt (argc, argv, "c:j:no:prU:v");
@@ -301,13 +263,6 @@ static int generate_command (int argc, char **argv) {
 
         case 'v':
             option_verbose = true;
-            break;
-
-        case 'c':
-            if (!load_config (optarg)) {
-                print_usage ();
-                exit (1);
-            }
             break;
 
         case 'j':
@@ -381,8 +336,8 @@ static int server_command (int argc, char **argv) {
         }
     }
 
-    if (argc - optind == 1) {
-        server::launch_server (argv[optind], daemon_mode);
+    if (argc - optind == 0) {
+        server::launch_server (daemon_mode);
     } else {
         print_usage ();
         exit (1);

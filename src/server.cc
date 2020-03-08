@@ -21,8 +21,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <cpptoml.h>
-
 #include "Region.hh"
 #include "server.hh"
 
@@ -51,52 +49,12 @@ namespace server {
         cout << "  400  Bad Request. Probably request parse error" << endl;
         cout << "  404  Out of Range. No chunk existing on specified corrdinate"
              << endl;
-        cout << "  500  Internal Server Error. Serverside error" << endl
-             << endl;
-
-        cout << "CONFIG:" << endl;
-        cout << " [overworld]" << endl;
-        cout << " dir = /path/to/overworld/save/data" << endl;
-        cout << " [nether]" << endl;
-        cout << " dir = /path/to/nether/save/data" << endl;
-        cout << " [end]" << endl;
-        cout << " dir = /path/to/end/save/data" << endl;
-        cout << " ..." << endl;
+        cout << "  500  Internal Server Error. Serverside error" << endl;
     }
 
     static string overworld_dir;
     static string nether_dir;
     static string end_dir;
-
-    static void parse_config (string config_filename) {
-        try {
-            shared_ptr<cpptoml::table> config =
-                cpptoml::parse_file (config_filename);
-
-            try {
-                overworld_dir =
-                    *config->get_qualified_as<string> ("overworld.dir");
-            } catch (out_of_range const &) {
-                cerr << "warning: overworld.dir not specified" << endl;
-            }
-
-            try {
-                nether_dir = *config->get_qualified_as<string> ("nether.dir");
-            } catch (out_of_range const &) {
-                cerr << "warning: nether.dir not specified" << endl;
-            }
-
-            try {
-                end_dir = *config->get_qualified_as<string> ("end.dir");
-            } catch (out_of_range const &) {
-                cerr << "warning: end.dir not specified" << endl;
-            }
-        } catch (cpptoml::parse_exception const &e) {
-            cerr << e.what () << endl;
-
-            exit (1);
-        }
-    }
 
     static void terminate_server (int) {
         unlink ("/tmp/mcmap.sock");
@@ -359,9 +317,7 @@ namespace server {
         fclose (f);
     }
 
-    void launch_server (string config_filename, bool daemon_mode) {
-        parse_config (config_filename);
-
+    void launch_server (bool daemon_mode) {
         if (daemon_mode) {
             if (daemon (0, 0) == -1) {
                 cerr << "cannot run in daemon mode" << endl;
