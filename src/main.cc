@@ -184,10 +184,11 @@ static void print_usage () {
     cout << " -U --journal DIR  read journal from DIR" << endl;
     cout << " -v --verbose      output verbose log" << endl << endl;
     cout << "SERVER mode options:" << endl;
-    cout << " --daemon  run server process in background" << endl;
-    cout << " --help    display protocol and config detail and exit" << endl
-         << endl;
-    cout << "Note: long options is supported only on GNU system" << endl;
+    cout << " --daemon         run server process in background" << endl;
+    cout << " --overworld DIR  specify directory for overworld" << endl;
+    cout << " --nether DIR     specify directory for nether" << endl;
+    cout << " --end DIR        specify directory for end" << endl;
+    cout << " --help    display protocol and config detail and exit" << endl;
 }
 
 static void print_version () {
@@ -326,6 +327,18 @@ static int server_command (int argc, char **argv) {
     return 0;
 }
 
+static void handle_commands (int argc, char **argv) {
+    if (!strcmp (argv[0], "generate")) {
+        generate_command (argc, argv);
+    } else if (!strcmp (argv[0], "server")) {
+        server_command (argc, argv);
+    } else {
+        cout << "unrecognized option: " << argv[0] << endl;
+        print_usage ();
+        exit (1);
+    }
+}
+
 int main (int argc, char **argv) {
     if (argc < 2) {
         print_usage ();
@@ -338,14 +351,8 @@ int main (int argc, char **argv) {
     } else if (!strcmp (argv[1], "--version")) {
         print_version ();
         exit (0);
-    } else if (!strcmp (argv[1], "generate")) {
-        generate_command (--argc, ++argv);
-    } else if (!strcmp (argv[1], "server")) {
-        server_command (--argc, ++argv);
     } else {
-        cout << "unrecognized option: " << argv[1] << endl;
-        print_usage ();
-        exit (1);
+        handle_commands (--argc, ++argv);
     }
 
     return 0;
