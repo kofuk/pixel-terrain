@@ -12,6 +12,7 @@ colors["red_nether_brick_slab"] = 0x560e10ff;
 colors["red_nether_brick_stairs"] = 0x560e10ff;
 colors["red_nether_brick_wall"] = 0x340103e6;
 colors["red_nether_bricks"] = 0x2e0001ff;
+colors["red_sand"] = 0xd2752bff;
 colors["red_sandstone"] = 0xd2752bff;
 colors["red_sandstone_slab"] = 0xd2752bff;
 colors["red_sandstone_stairs"] = 0xd2752bff;
