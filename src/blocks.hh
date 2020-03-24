@@ -3,12 +3,12 @@
 
 #include <array>
 #include <cstdint>
-#include <string>
+#include <string_view>
 #include <unordered_map>
 
 using namespace std;
 
-extern unordered_map<string, uint32_t> colors;
+extern unordered_map<string_view, uint32_t> colors;
 
 void init_block_list ();
 bool is_biome_overridden (string const &block);

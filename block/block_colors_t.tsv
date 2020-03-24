@@ -1,0 +1,13 @@
+block_id	r	g	b	a
+tall_grass	48	6b	3e	64
+tall_seagrass	34	96	9b	c8
+terracotta	9b	60	45	ff
+tnt	ca	00	00	ff
+torch	ff	e8	0a	64
+tripwire	d4	d4	d4	0a
+tripwire_hook	8c	8c	8d	64
+tube_coral	3c	85	e5	c8
+tube_coral_block	3c	85	e5	ff
+tube_coral_fan	3c	85	e5	c8
+tube_coral_wall_fan	3c	85	e5	c8
+turtle_egg	f2	f0	d5	ff

@@ -14,4 +14,5 @@ find_package(Threads)
 find_package(PkgConfig)
 pkg_check_modules(LIBPNG REQUIRED libpng)
 
+add_subdirectory(block)
 add_subdirectory(src)

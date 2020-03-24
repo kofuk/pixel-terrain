@@ -1,5 +1,7 @@
 add_executable(mcmap Chunk.cc PNG.cc Region.cc blocks.cc color.cc generator.cc logger.cc main.cc nbt.cc server.cc utils.cc worker.cc)
-target_include_directories(mcmap PRIVATE ${ZLIB_INCLUDE_DIRS} ${LIBPNG_INCLUE_DIRS})
+add_dependencies(mcmap block_colors_data)
+target_include_directories(mcmap PRIVATE SYSTEM ${ZLIB_INCLUDE_DIRS} ${LIBPNG_INCLUE_DIRS})
+target_include_directories(mcmap PRIVATE ${CMAKE_BINARY_DIR})
 target_link_libraries(mcmap ${ZLIB_LIBRARIES} ${LIBPNG_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if(${CMAKE_CXX_COMPILER} STREQUAL "clang++")

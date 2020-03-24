@@ -1,11 +1,29 @@
 #include <cstdint>
+#include <cstring>
 
 #include "blocks.hh"
 
-unordered_map<string, uint32_t> colors;
+#include "block/block_colors_data.hh"
+
+using namespace std;
+
+unordered_map<string_view, uint32_t> colors;
 
 void init_block_list () {
-#include "../block/require_all.hh"
+    size_t off = 0;
+    for (;;) {
+        size_t len =
+            strlen (reinterpret_cast<char *> (block_colors_data) + off);
+        if (len == 0) {
+            break;
+        }
+        string_view block_name (
+            reinterpret_cast<char *> (block_colors_data) + off, len);
+        off += len + 1;
+        colors[block_name] =
+            *reinterpret_cast<uint32_t *> (block_colors_data + off);
+        off += 4;
+    }
 }
 
 bool is_biome_overridden (string const &block) {
