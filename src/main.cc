@@ -23,6 +23,7 @@
 #include "logger.hh"
 #include "server.hh"
 #include "worker.hh"
+#include "pretty_printer.hh"
 
 using namespace std;
 
@@ -50,6 +51,10 @@ static void generate_all (string src_dir) {
     }
 
     start_worker ();
+
+    filesystem::directory_iterator dirents(src_dir);
+    int nfiles = distance(begin (dirents), end (dirents));
+    pretty_printer::set_total(nfiles);
 
     int min_x = numeric_limits<int>::max ();
     int min_z = numeric_limits<int>::max ();
@@ -108,6 +113,8 @@ static void generate_all (string src_dir) {
                 queue_item (new QueuedItem (rc, off_x, off_z));
             }
         }
+
+        pretty_printer::increment_progress_bar();
     }
 
     for (int i = 0; i < option_jobs; ++i) {
