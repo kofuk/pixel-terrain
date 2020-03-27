@@ -26,14 +26,6 @@
 
 using namespace std;
 
-static void write_progress_file (int progress) {
-    filesystem::path out_path (option_out_dir);
-    out_path /= "gen_progress.txt";
-
-    ofstream out (out_path.string ());
-    out << progress << endl;
-}
-
 static void write_range_file (int start_x, int start_z, int end_x, int end_z) {
     filesystem::path out_path (option_out_dir);
     out_path /= "chunk_range.json";
@@ -59,13 +51,6 @@ static void generate_all (string src_dir) {
 
     start_worker ();
 
-    filesystem::directory_iterator dir =
-        filesystem::directory_iterator (src_dir);
-
-    int progress = -1;
-    int nfile = distance (begin (dir), end (dir));
-    int n_processed = 0;
-
     int min_x = numeric_limits<int>::max ();
     int min_z = numeric_limits<int>::max ();
     int max_x = numeric_limits<int>::min ();
@@ -73,8 +58,6 @@ static void generate_all (string src_dir) {
 
     for (filesystem::directory_entry const &path :
          filesystem::directory_iterator (src_dir)) {
-        ++n_processed;
-
         if (path.is_directory ()) continue;
 
         string name = path.path ().filename ().string ();
@@ -125,14 +108,6 @@ static void generate_all (string src_dir) {
                 queue_item (new QueuedItem (rc, off_x, off_z));
             }
         }
-
-        if (option_generate_progress) {
-            int cur_progress = n_processed * 100 / nfile;
-            if (cur_progress != progress) {
-                progress = cur_progress;
-                write_progress_file (progress);
-            }
-        }
     }
 
     for (int i = 0; i < option_jobs; ++i) {
@@ -141,12 +116,6 @@ static void generate_all (string src_dir) {
     }
 
     wait_for_worker ();
-
-    if (option_generate_progress) {
-        filesystem::path progress_file (option_out_dir);
-        progress_file /= "gen_progress.txt";
-        filesystem::remove (progress_file);
-    }
 
     if (option_generate_range) {
         /* max_* is exclusive */
@@ -179,7 +148,6 @@ static void print_usage () {
     cout << " -o --out DIR      specify output directory. (default: current "
             "directory)"
          << endl;
-    cout << " -p --gen-progess  output progress to gen_progess.txt" << endl;
     cout << " -r --gen-range    output chunk range to chunk_range.json" << endl;
     cout << " -U --journal DIR  read journal from DIR" << endl;
     cout << " -v --verbose      output verbose log" << endl << endl;
@@ -205,7 +173,6 @@ static option generate_command_options[] = {
     {"journal", required_argument, 0, 'U'},
     {"nether", no_argument, 0, 'n'},
     {"out", required_argument, 0, 'o'},
-    {"gen-progress", no_argument, 0, 'p'},
     {"gen-range", no_argument, 0, 'r'},
     {"verbose", no_argument, 0, 'v'},
     {0, 0, 0, 0}};
@@ -224,7 +191,7 @@ static int generate_command (int argc, char **argv) {
 
     int c;
     for (;;) {
-        c = getopt_long (argc, argv, "j:no:prU:v", generate_command_options,
+        c = getopt_long (argc, argv, "j:no:rU:v", generate_command_options,
                          nullptr);
         if (c == -1) break;
 
@@ -248,10 +215,6 @@ static int generate_command (int argc, char **argv) {
 
         case 'o':
             option_out_dir = optarg;
-            break;
-
-        case 'p':
-            option_generate_progress = true;
             break;
 
         case 'r':

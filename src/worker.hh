@@ -31,7 +31,6 @@ extern string option_out_dir;
 extern bool option_verbose;
 extern int option_jobs;
 extern bool option_nether;
-extern bool option_generate_progress;
 extern bool option_generate_range;
 extern string option_journal_dir;
 
