@@ -45,7 +45,7 @@ public:
 
             mmapped = true;
             data_len = statbuf.st_size;
-            data = mem;
+            data = reinterpret_cast<T *> (mem);
         } else {
             ifstream strm (filename);
             if (!strm) {
@@ -58,7 +58,7 @@ public:
                 if (strm.gcount () != sizeof (T)) {
                     throw logic_error (strerror (errno));
                 }
-                content.push_back (*static_cast<T *> (tmp));
+                content.push_back (*reinterpret_cast<T *> (tmp));
             } while (!strm.fail ());
 
             data = new T[content.size ()];
@@ -107,7 +107,7 @@ public:
 
     size_t size () { return data_len; }
 
-    T const *get_raw_data () const { return data; }
+    T *get_raw_data () { return data; }
 };
 
 #endif

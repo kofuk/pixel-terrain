@@ -10,11 +10,9 @@
 
 namespace anvil {
     class Region {
-        unsigned char *data;
+        unique_ptr<File<unsigned char>> data;
         size_t len;
         unique_ptr<File<uint64_t>> last_update;
-
-        void read_region_file (string filename);
 
         size_t header_offset (int chunk_x, int chunk_z);
         size_t chunk_location_off (int chunk_x, int chunk_z);
@@ -26,7 +24,6 @@ namespace anvil {
          */
         Region (string file_name);
         Region (string file_name, string journal_dir);
-        ~Region ();
         Chunk *get_chunk (int chunk_x, int chunk_z);
         Chunk *get_chunk_if_dirty (int chunk_x, int chunk_z);
     };

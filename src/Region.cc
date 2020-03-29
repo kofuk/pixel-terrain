@@ -20,47 +20,22 @@
 #include "worker.hh"
 
 namespace anvil {
-    Region::Region (string file_name) { read_region_file (file_name); }
+    Region::Region (string file_name) {
+        data = unique_ptr<File<unsigned char>> (
+            new File<unsigned char> (file_name));
+        len = data->size ();
+    }
 
     Region::Region (string filename, string journal_dir) {
-        read_region_file (filename);
+        data = unique_ptr<File<unsigned char>> (
+            new File<unsigned char> (filename));
+        len = data->size ();
 
         filesystem::path journal_path (journal_dir);
         journal_path /=
             filesystem::path (filename).filename ().string () + ".journal";
         last_update = unique_ptr<File<uint64_t>> (
             new File<uint64_t> (journal_path, 1024));
-    }
-
-    Region::~Region () {
-        if (munmap (data, len) == -1) {
-            int err = errno;
-            cerr << "warning: " << strerror (err) << endl;
-        }
-    }
-
-    void Region::read_region_file (string filename) {
-        struct stat stat_buf;
-        if (stat (filename.c_str (), &stat_buf) == -1) {
-            throw runtime_error (strerror (errno));
-        }
-
-        if ((stat_buf.st_mode & S_IFMT) != S_IFREG) {
-            throw logic_error ("region file is not regular file");
-        }
-        len = stat_buf.st_size;
-
-        int fd = open (filename.c_str (), O_RDONLY);
-        if (fd == -1) {
-            throw runtime_error (strerror (errno));
-        }
-
-        data = reinterpret_cast<unsigned char *> (
-            mmap (0, len, PROT_READ, MAP_PRIVATE, fd, 0));
-        if (data == MAP_FAILED) {
-            throw runtime_error (strerror (errno));
-        }
-        close (fd);
     }
 
     size_t Region::header_offset (int chunk_x, int chunk_z) {
@@ -72,8 +47,8 @@ namespace anvil {
 
         if (b_off + 2 >= len) return 0;
 
-        unsigned char buf[] = {0, data[b_off], data[b_off + 1],
-                               data[b_off + 2]};
+        unsigned char buf[] = {0, (*data)[b_off], (*data)[b_off + 1],
+                               (*data)[b_off + 2]};
 
         return nbt::utils::to_host_byte_order (
             *reinterpret_cast<int32_t *> (buf));
@@ -84,7 +59,7 @@ namespace anvil {
 
         if (b_off + 3 >= len) return 0;
 
-        return data[b_off + 3];
+        return (*data)[b_off + 3];
     }
 
     nbt::NBTFile *Region::chunk_data (int chunk_x, int chunk_z) {
@@ -99,15 +74,17 @@ namespace anvil {
         if (location_off + 4 >= len) return nullptr;
 
         int32_t length =
-            nbt::utils::to_host_byte_order (*(int32_t *)(data + location_off));
+            nbt::utils::to_host_byte_order (*reinterpret_cast<int32_t *> (
+                data->get_raw_data () + location_off));
 
         if (location_off + 5 + length - 1 > len) return nullptr;
 
-        int compression = data[location_off + 4];
+        int compression = (*data)[location_off + 4];
         if (compression == 1) return nullptr;
 
         nbt::utils::DecompressedData *decompressed =
-            nbt::utils::zlib_decompress (data + location_off + 5, length - 1);
+            nbt::utils::zlib_decompress (
+                data->get_raw_data () + location_off + 5, length - 1);
 
         return new nbt::NBTFile (decompressed);
     }
