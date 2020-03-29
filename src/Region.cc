@@ -4,6 +4,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <stdexcept>
 
 #include <fcntl.h>
@@ -12,56 +13,29 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "File.hh"
 #include "Region.hh"
 #include "nbt.hh"
 #include "utils.hh"
 #include "worker.hh"
 
 namespace anvil {
-    Region::Region (string file_name) : journal_changed (false) {
-        read_region_file (file_name);
-    }
+    Region::Region (string file_name) { read_region_file (file_name); }
 
-    Region::Region (string filename, string journal_dir)
-        : journal_changed (false) {
+    Region::Region (string filename, string journal_dir) {
         read_region_file (filename);
 
         filesystem::path journal_path (journal_dir);
         journal_path /=
             filesystem::path (filename).filename ().string () + ".journal";
-
-        this->journal_file = journal_path.string ();
-
-        ifstream journal (journal_path.string ());
-        if (!journal) {
-            fill (begin (last_update), end (last_update), 0);
-
-            return;
-        }
-
-        journal.read (reinterpret_cast<char *> (last_update),
-                      sizeof (uint64_t) * 1024);
+        last_update = unique_ptr<File<uint64_t>> (
+            new File<uint64_t> (journal_path, 1024));
     }
 
     Region::~Region () {
         if (munmap (data, len) == -1) {
             int err = errno;
             cerr << "warning: " << strerror (err) << endl;
-        }
-
-        if (journal_changed && !journal_file.empty ()) {
-            if (option_verbose) {
-                cout << "writing journal" << endl;
-            }
-
-            ofstream out (journal_file);
-
-            if (!out) {
-                return;
-            }
-
-            out.write (reinterpret_cast<char *> (last_update),
-                       sizeof (uint64_t) * 1024);
         }
     }
 
@@ -155,14 +129,14 @@ namespace anvil {
         }
 
         Chunk *chunk = new Chunk (nbt);
-        if (last_update[chunk_z * 32 + chunk_x] >= chunk->last_update) {
-            delete chunk;
+        if (last_update.get () != nullptr) {
+            if ((*last_update)[chunk_z * 32 + chunk_x] >= chunk->last_update) {
+                delete chunk;
+                return nullptr;
+            }
 
-            return nullptr;
+            (*last_update)[chunk_z * 32 + chunk_x] = chunk->last_update;
         }
-
-        last_update[chunk_z * 32 + chunk_x] = chunk->last_update;
-        journal_changed = true;
         chunk->parse_fields ();
 
         return chunk;

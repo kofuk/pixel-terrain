@@ -1,18 +1,18 @@
 #ifndef REGION_HH
 #define REGION_HH
 
+#include <memory>
 #include <string>
 
 #include "Chunk.hh"
+#include "File.hh"
 #include "nbt.hh"
 
 namespace anvil {
     class Region {
         unsigned char *data;
         size_t len;
-        string journal_file;
-        bool journal_changed;
-        uint64_t last_update[1024];
+        unique_ptr<File<uint64_t>> last_update;
 
         void read_region_file (string filename);
 
