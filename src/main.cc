@@ -29,7 +29,7 @@ using namespace std;
 
 static void write_range_file (int start_x, int start_z, int end_x, int end_z) {
     filesystem::path out_path (option_out_dir);
-    out_path /= "chunk_range.json";
+    out_path /= "chunk_range.json"s;
 
     ofstream out (out_path.string ());
     if (!out) return;
@@ -43,7 +43,7 @@ static void generate_all (string src_dir) {
         try {
             filesystem::create_directories (option_journal_dir);
         } catch (filesystem::filesystem_error const &e) {
-            logger::e (string ("cannot create journal directory: ") +
+            logger::e ("cannot create journal directory: "s +
                        e.what ());
 
             exit (1);
@@ -100,7 +100,7 @@ static void generate_all (string src_dir) {
                                        option_journal_dir);
             }
         } catch (exception const &e) {
-            logger::e ("failed to read region: " + path.path ().string ());
+            logger::e ("failed to read region: "s + path.path ().string ());
             logger::e (e.what ());
 
             continue;

@@ -59,15 +59,15 @@ namespace generator {
                     try {
                         block = chunk->get_block (x, y, z);
                     } catch (exception const &e) {
-                        logger::e ("Warning: error occurred while obtaining "
-                                   "block");
+                        logger::e (
+                            "Warning: error occurred while obtaining block"s);
                         logger::e (e.what ());
 
                         continue;
                     }
 
-                    if (block == "air" || block == "cave_air" ||
-                        block == "void_air") {
+                    if (block == "air"sv || block == "cave_air"sv ||
+                        block == "void_air"sv) {
                         air_found = true;
                         prev_block = block;
                         continue;
@@ -81,7 +81,7 @@ namespace generator {
 
                     auto color_itr = colors.find (block);
                     if (color_itr == end (colors)) {
-                        logger::i (R"(colors[")" + block + R"("] = ???)");
+                        logger::i (R"(colors[")"s + block + R"("] = ???)"s);
                     } else {
                         uint_fast32_t color = color_itr->second;
 
@@ -234,12 +234,12 @@ namespace generator {
         int off_z = item->off_z;
 
         if (option_verbose) {
-            logger::d ("generating " + item->debug_string () + " ...");
+            logger::d ("generating "s + item->debug_string () + " ..."s);
         }
 
         filesystem::path path = option_out_dir;
         path /= (to_string (region_x * 2 + off_x) + ',' +
-                 to_string (region_z * 2 + off_z) + ".png");
+                 to_string (region_z * 2 + off_z) + ".png"s);
 
         Png *image = nullptr;
 
@@ -255,7 +255,7 @@ namespace generator {
                     chunk = region->get_chunk_if_dirty (off_x * 16 + chunk_x,
                                                         off_z * 16 + chunk_z);
                 } catch (exception const &e) {
-                    logger::e ("Warning: parse error in " +
+                    logger::e ("Warning: parse error in "s +
                                item->debug_string ());
                     logger::e (e.what ());
                     continue;
@@ -293,7 +293,7 @@ namespace generator {
                             chunk = region->get_chunk_if_dirty (
                                 off_x * 16 + t_chunk_x, off_z * 16 + t_chunk_z);
                         } catch (exception const &e) {
-                            logger::e ("Warning: parse error in " +
+                            logger::e ("Warning: parse error in "s +
                                        item->debug_string ());
                             logger::e (e.what ());
                             continue;
@@ -314,7 +314,7 @@ namespace generator {
 
         if (image == nullptr) {
             if (option_verbose) {
-                logger::d ("exiting without generating; any chunk changed in " +
+                logger::d ("exiting without generating; any chunk changed in "s +
                            item->debug_string ());
             }
 
@@ -325,7 +325,7 @@ namespace generator {
         delete image;
 
         if (option_verbose) {
-            logger::d ("generated " + item->debug_string ());
+            logger::d ("generated "s + item->debug_string ());
         }
     }
 

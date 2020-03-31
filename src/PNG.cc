@@ -26,7 +26,7 @@ Png::Png (string filename) {
     unsigned char sig[8];
     fread (sig, 1, 8, in);
     if (!png_check_sig (sig, 8)) {
-        throw runtime_error ("corrupted png file");
+        throw runtime_error ("corrupted png file"s);
     }
 
     png_structp png = png_create_read_struct (PNG_LIBPNG_VER_STRING, nullptr,
@@ -36,7 +36,7 @@ Png::Png (string filename) {
     if (setjmp (png_jmpbuf (png))) {
         png_destroy_read_struct (&png, &png_info, nullptr);
 
-        throw runtime_error ("error reading png");
+        throw runtime_error ("error reading png"s);
     }
     png_init_io (png, in);
     png_set_sig_bytes (png, 8);
@@ -51,7 +51,7 @@ Png::Png (string filename) {
     if (bit_depth != 8 || color_type != PNG_COLOR_TYPE_RGBA) {
         png_destroy_read_struct (&png, &png_info, nullptr);
 
-        throw runtime_error ("unsupported format");
+        throw runtime_error ("unsupported format"s);
     }
 
     data = new png_byte[width * height * 4];
@@ -169,7 +169,7 @@ bool Png::save (string filename) {
 }
 
 bool Png::save () {
-    if (filename.empty ()) throw logic_error ("filename is empty");
+    if (filename.empty ()) throw logic_error ("filename is empty"s);
 
     return save (filename);
 }

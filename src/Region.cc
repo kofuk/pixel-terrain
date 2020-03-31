@@ -33,7 +33,7 @@ namespace anvil {
 
         filesystem::path journal_path (journal_dir);
         journal_path /=
-            filesystem::path (filename).filename ().string () + ".journal";
+            filesystem::path (filename).filename ().string () + ".journal"s;
         last_update = unique_ptr<File<uint64_t>> (
             new File<uint64_t> (journal_path, 1024));
     }

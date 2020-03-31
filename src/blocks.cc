@@ -29,18 +29,18 @@ void init_block_list () {
 bool is_biome_overridden (string const &block) {
     /* first, check if block is water or grass_block because the most
      * blocks are one of them. */
-    if (block == "water" || block == "grass_block") return true;
+    if (block == "water"s || block == "grass_block"s) return true;
 
     /* next, capture grass, large_grass, seagrass and large_seagrass. */
-    if (block.size () >= 5 && block.find ("grass") == block.size () - 5)
+    if (block.size () >= 5 && block.find ("grass"s) == block.size () - 5)
         return true;
 
     /* next, check if block is leaf-family. */
-    if (block.find ("leaves") != string::npos) return true;
+    if (block.find ("leaves"s) != string::npos) return true;
 
     /* capture remains */
-    if (block == "fern" || block == "large_fern" || block == "vine" ||
-        block == "bubble_column")
+    if (block == "fern"s || block == "large_fern"s || block == "vine"s ||
+        block == "bubble_column"s)
         return true;
 
     return false;
