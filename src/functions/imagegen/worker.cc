@@ -12,10 +12,10 @@
 #include <utility>
 #include <vector>
 
+#include "../../logger/logger.hh"
+#include "../../nbt/Region.hh"
 #include "PNG.hh"
-#include "Region.hh"
 #include "generator.hh"
-#include "logger.hh"
 #include "worker.hh"
 
 using namespace std;

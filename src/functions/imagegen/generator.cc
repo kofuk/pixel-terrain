@@ -4,11 +4,11 @@
 #include <memory>
 #include <string>
 
+#include "../../logger/logger.hh"
 #include "PNG.hh"
 #include "blocks.hh"
 #include "color.hh"
 #include "generator.hh"
-#include "logger.hh"
 
 namespace generator {
     struct PixelState {
@@ -314,8 +314,9 @@ namespace generator {
 
         if (image == nullptr) {
             if (option_verbose) {
-                logger::d ("exiting without generating; any chunk changed in "s +
-                           item->debug_string ());
+                logger::d (
+                    "exiting without generating; any chunk changed in "s +
+                    item->debug_string ());
             }
 
             return;

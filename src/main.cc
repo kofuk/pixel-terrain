@@ -18,12 +18,12 @@
 #include <getopt.h>
 #include <unistd.h>
 
-#include "Region.hh"
-#include "blocks.hh"
-#include "logger.hh"
-#include "server.hh"
-#include "worker.hh"
-#include "pretty_printer.hh"
+#include "functions/blockserver/server.hh"
+#include "functions/imagegen/blocks.hh"
+#include "functions/imagegen/worker.hh"
+#include "logger/logger.hh"
+#include "logger/pretty_printer.hh"
+#include "nbt/Region.hh"
 
 using namespace std;
 
@@ -43,8 +43,7 @@ static void generate_all (string src_dir) {
         try {
             filesystem::create_directories (option_journal_dir);
         } catch (filesystem::filesystem_error const &e) {
-            logger::e ("cannot create journal directory: "s +
-                       e.what ());
+            logger::e ("cannot create journal directory: "s + e.what ());
 
             exit (1);
         }
@@ -52,9 +51,9 @@ static void generate_all (string src_dir) {
 
     start_worker ();
 
-    filesystem::directory_iterator dirents(src_dir);
-    int nfiles = distance(begin (dirents), end (dirents));
-    pretty_printer::set_total(nfiles);
+    filesystem::directory_iterator dirents (src_dir);
+    int nfiles = distance (begin (dirents), end (dirents));
+    pretty_printer::set_total (nfiles);
 
     int min_x = numeric_limits<int>::max ();
     int min_z = numeric_limits<int>::max ();
@@ -114,7 +113,7 @@ static void generate_all (string src_dir) {
             }
         }
 
-        pretty_printer::increment_progress_bar();
+        pretty_printer::increment_progress_bar ();
     }
 
     for (int i = 0; i < option_jobs; ++i) {

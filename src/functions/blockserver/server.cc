@@ -19,7 +19,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "Region.hh"
+#include "../../nbt/Region.hh"
 #include "server.hh"
 
 using namespace std;

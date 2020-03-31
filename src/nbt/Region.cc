@@ -17,7 +17,6 @@
 #include "Region.hh"
 #include "nbt.hh"
 #include "utils.hh"
-#include "worker.hh"
 
 namespace anvil {
     Region::Region (string file_name) {

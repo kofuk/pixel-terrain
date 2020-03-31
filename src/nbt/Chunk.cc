@@ -2,11 +2,9 @@
 #include <cstdint>
 #include <stdexcept>
 
+#include "../logger/logger.hh"
 #include "Chunk.hh"
 #include "nbt.hh"
-
-
-#include "logger.hh"
 
 namespace anvil {
     Chunk::Chunk (nbt::NBTFile *nbt_data) : nbt_file (nbt_data) {
@@ -125,7 +123,7 @@ namespace anvil {
     int32_t Chunk::get_biome (int32_t x, int32_t y, int32_t z) {
         if (biomes.size () == 256) {
             return biomes[(z / 2) * 16 + (x / 2)];
-        } else if (biomes.size() == 1024) {
+        } else if (biomes.size () == 1024) {
             return biomes[(y / 64) * 256 + (z / 4) * 4 + (x / 4)];
         }
         return 0;
