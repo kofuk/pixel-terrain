@@ -31,23 +31,25 @@ QueuedItem::QueuedItem (shared_ptr<RegionContainer> region, int off_x,
 
 string QueuedItem::debug_string () {
     if (region == nullptr) {
-        return "(finishing job)";
+        return "(finishing job)"s;
     }
 
-    return "(" + to_string (region->rx) + "+" + to_string (off_x) + ", " +
-           to_string (region->rz) + "+" + to_string (off_z) + ")";
+    return "("s + to_string (region->rx) + "+"s + to_string (off_x) + ", "s +
+           to_string (region->rz) + "+"s + to_string (off_z) + ")"s;
 }
 
-static queue<QueuedItem *> offs_queue;
+namespace {
+    queue<QueuedItem *> offs_queue;
 
-static mutex queue_mutex;
-static vector<thread *> threads;
+    mutex queue_mutex;
+    vector<thread *> threads;
 
-static condition_variable queue_cap_cond;
-static mutex queue_cap_cond_mutex;
+    condition_variable queue_cap_cond;
+    mutex queue_cap_cond_mutex;
 
-static condition_variable queued_cond;
-static mutex queued_cond_mutex;
+    condition_variable queued_cond;
+    mutex queued_cond_mutex;
+} // namespace
 
 string option_out_dir;
 bool option_verbose;
@@ -72,31 +74,33 @@ QueuedItem *fetch_item () {
     return result;
 }
 
-static void run_worker_loop () {
-    for (;;) {
-        QueuedItem *item = fetch_item ();
-        if (item == nullptr) {
-            {
-                unique_lock<mutex> lock (queued_cond_mutex);
-                queued_cond.wait (lock);
+namespace {
+    void run_worker_loop () {
+        for (;;) {
+            QueuedItem *item = fetch_item ();
+            if (item == nullptr) {
+                {
+                    unique_lock<mutex> lock (queued_cond_mutex);
+                    queued_cond.wait (lock);
+                }
+
+                continue;
             }
 
-            continue;
-        }
+            if (item->region == nullptr) {
+                if (option_verbose) {
+                    logger::d ("shutting down worker");
+                }
 
-        if (item->region == nullptr) {
-            if (option_verbose) {
-                logger::d ("shutting down worker");
+                delete item;
+
+                break;
             }
 
-            delete item;
-
-            break;
+            generator::generate_256 (item);
         }
-
-        generator::generate_256 (item);
     }
-}
+} // namespace
 
 void queue_item (QueuedItem *item) {
     if (option_verbose) {

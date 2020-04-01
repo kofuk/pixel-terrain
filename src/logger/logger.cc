@@ -6,7 +6,9 @@
 using namespace std;
 
 namespace logger {
-    static mutex m;
+    namespace {
+        mutex m;
+    }
 
     void d (string message) {
         unique_lock<mutex> lock (m);

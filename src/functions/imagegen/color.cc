@@ -31,7 +31,8 @@ namespace generator {
                (new_a & 0xff);
     }
 
-    uint_fast32_t blend_color (uint_fast32_t source, uint_fast32_t overlay, float opacity) {
+    uint_fast32_t blend_color (uint_fast32_t source, uint_fast32_t overlay,
+                               float opacity) {
         if (opacity == 0) return source;
 
         uint_fast8_t b_r = (source >> 24) & 0xff;
@@ -47,7 +48,8 @@ namespace generator {
         uint_fast8_t g = f_g + (b_g - f_g) * opacity;
         uint_fast8_t b = f_b + (b_b - f_b) * opacity;
 
-        return ((r & 0xff) << 24) | ((g & 0xff) << 16) | ((b & 0xff) << 8) | (a & 0xff);
+        return ((r & 0xff) << 24) | ((g & 0xff) << 16) | ((b & 0xff) << 8) |
+               (a & 0xff);
     }
 
     uint_fast32_t increase_brightness (uint_fast32_t color, int amount) {

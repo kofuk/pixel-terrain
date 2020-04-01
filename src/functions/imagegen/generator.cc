@@ -29,202 +29,211 @@ namespace generator {
         bool get_flag (int_fast32_t field) { return this->flags & field; }
     };
 
-    static constexpr int32_t PS_IS_TRANSPARENT = 1;
-    static constexpr int32_t PS_BIOME_OVERRIDDEN = 1 << 1;
+    namespace {
+        constexpr int32_t PS_IS_TRANSPARENT = 1;
+        constexpr int32_t PS_BIOME_OVERRIDDEN = 1 << 1;
 
-    static inline PixelState &
-    get_pixel_state (shared_ptr<array<PixelState, 256 * 256>> pixel_state,
-                     int x, int y) {
-        return (*pixel_state)[y * 256 + x];
-    }
-
-    static shared_ptr<array<PixelState, 256 * 256>>
-    scan_chunk (anvil::Chunk *chunk) {
-        int max_y = chunk->get_max_height ();
-        if (option_nether) {
-            if (max_y > 127) max_y = 127;
+        inline PixelState &
+        get_pixel_state (shared_ptr<array<PixelState, 256 * 256>> pixel_state,
+                         int x, int y) {
+            return (*pixel_state)[y * 256 + x];
         }
 
-        shared_ptr<array<PixelState, 256 * 256>> pixel_states (
-            new array<PixelState, 256 * 256>);
-        for (int z = 0; z < 16; ++z) {
-            for (int x = 0; x < 16; ++x) {
-                bool air_found = false;
-                string prev_block;
+        shared_ptr<array<PixelState, 256 * 256>>
+        scan_chunk (anvil::Chunk *chunk) {
+            int max_y = chunk->get_max_height ();
+            if (option_nether) {
+                if (max_y > 127) max_y = 127;
+            }
 
-                PixelState &pixel_state = get_pixel_state (pixel_states, x, z);
+            shared_ptr<array<PixelState, 256 * 256>> pixel_states (
+                new array<PixelState, 256 * 256>);
+            for (int z = 0; z < 16; ++z) {
+                for (int x = 0; x < 16; ++x) {
+                    bool air_found = false;
+                    string prev_block;
 
-                for (int y = max_y; y >= 0; --y) {
-                    string block;
-                    try {
-                        block = chunk->get_block (x, y, z);
-                    } catch (exception const &e) {
-                        logger::e (
-                            "Warning: error occurred while obtaining block"s);
-                        logger::e (e.what ());
+                    PixelState &pixel_state =
+                        get_pixel_state (pixel_states, x, z);
 
-                        continue;
-                    }
+                    for (int y = max_y; y >= 0; --y) {
+                        string block;
+                        try {
+                            block = chunk->get_block (x, y, z);
+                        } catch (exception const &e) {
+                            logger::e (
+                                "Warning: error occurred while obtaining block"s);
+                            logger::e (e.what ());
 
-                    if (block == "air"sv || block == "cave_air"sv ||
-                        block == "void_air"sv) {
-                        air_found = true;
+                            continue;
+                        }
+
+                        if (block == "air"sv || block == "cave_air"sv ||
+                            block == "void_air"sv) {
+                            air_found = true;
+                            prev_block = block;
+                            continue;
+                        }
+
+                        if (block == prev_block) {
+                            continue;
+                        }
+
                         prev_block = block;
-                        continue;
-                    }
 
-                    if (block == prev_block) {
-                        continue;
-                    }
+                        auto color_itr = colors.find (block);
+                        if (color_itr == end (colors)) {
+                            logger::i (R"(colors[")"s + block + R"("] = ???)"s);
+                        } else {
+                            uint_fast32_t color = color_itr->second;
 
-                    prev_block = block;
-
-                    auto color_itr = colors.find (block);
-                    if (color_itr == end (colors)) {
-                        logger::i (R"(colors[")"s + block + R"("] = ???)"s);
-                    } else {
-                        uint_fast32_t color = color_itr->second;
-
-                        if (pixel_state.fg_color == 0x00000000) {
-                            pixel_state.fg_color = color;
-                            pixel_state.top_height = y;
-                            pixel_state.top_biome = chunk->get_biome (x, y, z);
-                            if (is_biome_overridden (block)) {
-                                pixel_state.add_flags (PS_BIOME_OVERRIDDEN);
-                            }
-                            if ((color & 0xff) == 0xff) {
+                            if (pixel_state.fg_color == 0x00000000) {
+                                pixel_state.fg_color = color;
+                                pixel_state.top_height = y;
+                                pixel_state.top_biome =
+                                    chunk->get_biome (x, y, z);
+                                if (is_biome_overridden (block)) {
+                                    pixel_state.add_flags (PS_BIOME_OVERRIDDEN);
+                                }
+                                if ((color & 0xff) == 0xff) {
+                                    pixel_state.mid_color = color;
+                                    pixel_state.mid_height = y;
+                                    pixel_state.bg_color = color;
+                                    pixel_state.opaque_height = y;
+                                    break;
+                                } else {
+                                    pixel_state.add_flags (PS_IS_TRANSPARENT);
+                                }
+                            } else if (pixel_state.mid_color == 0x00000000) {
                                 pixel_state.mid_color = color;
                                 pixel_state.mid_height = y;
-                                pixel_state.bg_color = color;
-                                pixel_state.opaque_height = y;
-                                break;
+                                if ((color & 0xff) == 0xff) {
+                                    pixel_state.bg_color = color;
+                                    pixel_state.opaque_height = y;
+                                    break;
+                                }
                             } else {
-                                pixel_state.add_flags (PS_IS_TRANSPARENT);
-                            }
-                        } else if (pixel_state.mid_color == 0x00000000) {
-                            pixel_state.mid_color = color;
-                            pixel_state.mid_height = y;
-                            if ((color & 0xff) == 0xff) {
-                                pixel_state.bg_color = color;
-                                pixel_state.opaque_height = y;
-                                break;
-                            }
-                        } else {
-                            pixel_state.bg_color =
-                                blend_color (pixel_state.bg_color, color);
-                            if ((pixel_state.bg_color & 0xff) == 0xff) {
-                                pixel_state.opaque_height = y;
-                                break;
+                                pixel_state.bg_color =
+                                    blend_color (pixel_state.bg_color, color);
+                                if ((pixel_state.bg_color & 0xff) == 0xff) {
+                                    pixel_state.opaque_height = y;
+                                    break;
+                                }
                             }
                         }
                     }
+                    pixel_state.bg_color |= 0xff;
+                    if (pixel_state.top_height == pixel_state.opaque_height) {
+                        pixel_state.fg_color = 0x00000000;
+                        pixel_state.mid_color = 0x00000000;
+                    } else if (pixel_state.mid_height ==
+                               pixel_state.opaque_height) {
+                        pixel_state.mid_color = 0x00000000;
+                    }
                 }
-                pixel_state.bg_color |= 0xff;
-                if (pixel_state.top_height == pixel_state.opaque_height) {
-                    pixel_state.fg_color = 0x00000000;
-                    pixel_state.mid_color = 0x00000000;
-                } else if (pixel_state.mid_height ==
-                           pixel_state.opaque_height) {
-                    pixel_state.mid_color = 0x00000000;
+            }
+
+            return pixel_states;
+        }
+
+        void
+        generate_image (int chunk_x, int chunk_z,
+                        shared_ptr<array<PixelState, 256 * 256>> pixel_states,
+                        Png &image) {
+            /* process biome color overrides */
+            for (int z = 0; z < 16; ++z) {
+                for (int x = 0; x < 16; ++x) {
+                    PixelState &pixel_state =
+                        get_pixel_state (pixel_states, x, z);
+                    if (pixel_state.get_flag (PS_BIOME_OVERRIDDEN)) {
+                        uint_fast32_t *color;
+                        if (pixel_state.fg_color != 0x00000000) {
+                            color = &(pixel_state.fg_color);
+                        } else {
+                            color = &(pixel_state.bg_color);
+                        }
+                        int32_t biome = pixel_state.top_biome;
+                        if (biome == 6 || biome == 134) {
+                            *color = blend_color (*color, 0x665956ff, 0.5);
+                        } else if (biome == 21 || biome == 149 || biome == 23 ||
+                                   biome == 151) {
+                            *color = blend_color (*color, 0x83bd7eff, 0.5);
+                        } else if (biome == 35 || biome == 163) {
+                            *color = blend_color (*color, 0xa8ab33ff, 0.5);
+                        }
+                    }
+                }
+            }
+
+            for (int z = 0; z < 16; ++z) {
+                for (int x = 1; x < 16; ++x) {
+                    PixelState &left = get_pixel_state (pixel_states, x - 1, z);
+                    PixelState &cur = get_pixel_state (pixel_states, x, z);
+                    if (left.opaque_height < cur.opaque_height) {
+                        cur.bg_color = increase_brightness (cur.bg_color, 30);
+                        if (x == 1) {
+                            left.bg_color =
+                                increase_brightness (left.bg_color, 30);
+                        }
+                    } else if (cur.opaque_height < left.opaque_height) {
+                        cur.bg_color = increase_brightness (cur.bg_color, -30);
+                        if (x == 1) {
+                            left.bg_color =
+                                increase_brightness (left.bg_color, -30);
+                        }
+                    }
+                }
+            }
+
+            for (int z = 1; z < 16; ++z) {
+                for (int x = 0; x < 16; ++x) {
+                    PixelState &cur = get_pixel_state (pixel_states, x, z);
+                    PixelState &upper =
+                        get_pixel_state (pixel_states, x, z - 1);
+
+                    if (upper.opaque_height < cur.opaque_height) {
+                        cur.bg_color = increase_brightness (cur.bg_color, 10);
+                        if (z == 1) {
+                            upper.bg_color =
+                                increase_brightness (upper.bg_color, 10);
+                        }
+                    } else if (cur.opaque_height < upper.opaque_height) {
+                        cur.bg_color = increase_brightness (cur.bg_color, -10);
+                        if (z == 1) {
+                            upper.bg_color =
+                                increase_brightness (upper.bg_color, -10);
+                        }
+                    }
+                }
+            }
+
+            for (int z = 0; z < 16; ++z) {
+                for (int x = 0; x < 16; ++x) {
+                    PixelState &pixel_state =
+                        get_pixel_state (pixel_states, x, z);
+
+                    uint_fast32_t bg_color = increase_brightness (
+                        pixel_state.mid_color,
+                        (pixel_state.mid_height - pixel_state.top_height) * 3);
+                    uint_fast32_t color =
+                        blend_color (pixel_state.fg_color, bg_color);
+                    bg_color = increase_brightness (
+                        pixel_state.bg_color,
+                        (pixel_state.opaque_height - pixel_state.top_height) *
+                            3);
+                    color = blend_color (color, bg_color);
+                    image.set_pixel (chunk_x * 16 + x, chunk_z * 16 + z, color);
                 }
             }
         }
 
-        return pixel_states;
-    }
-
-    static void
-    generate_image (int chunk_x, int chunk_z,
-                    shared_ptr<array<PixelState, 256 * 256>> pixel_states,
-                    Png &image) {
-        /* process biome color overrides */
-        for (int z = 0; z < 16; ++z) {
-            for (int x = 0; x < 16; ++x) {
-                PixelState &pixel_state = get_pixel_state (pixel_states, x, z);
-                if (pixel_state.get_flag (PS_BIOME_OVERRIDDEN)) {
-                    uint_fast32_t *color;
-                    if (pixel_state.fg_color != 0x00000000) {
-                        color = &(pixel_state.fg_color);
-                    } else {
-                        color = &(pixel_state.bg_color);
-                    }
-                    int32_t biome = pixel_state.top_biome;
-                    if (biome == 6 || biome == 134) {
-                        *color = blend_color (*color, 0x665956ff, 0.5);
-                    } else if (biome == 21 || biome == 149 || biome == 23 ||
-                               biome == 151) {
-                        *color = blend_color (*color, 0x83bd7eff, 0.5);
-                    } else if (biome == 35 || biome == 163) {
-                        *color = blend_color (*color, 0xa8ab33ff, 0.5);
-                    }
-                }
-            }
+        void generate_chunk (anvil::Chunk *chunk, int chunk_x, int chunk_z,
+                             Png &image) {
+            shared_ptr<array<PixelState, 256 * 256>> pixel_states =
+                scan_chunk (chunk);
+            generate_image (chunk_x, chunk_z, pixel_states, image);
         }
-
-        for (int z = 0; z < 16; ++z) {
-            for (int x = 1; x < 16; ++x) {
-                PixelState &left = get_pixel_state (pixel_states, x - 1, z);
-                PixelState &cur = get_pixel_state (pixel_states, x, z);
-                if (left.opaque_height < cur.opaque_height) {
-                    cur.bg_color = increase_brightness (cur.bg_color, 30);
-                    if (x == 1) {
-                        left.bg_color = increase_brightness (left.bg_color, 30);
-                    }
-                } else if (cur.opaque_height < left.opaque_height) {
-                    cur.bg_color = increase_brightness (cur.bg_color, -30);
-                    if (x == 1) {
-                        left.bg_color =
-                            increase_brightness (left.bg_color, -30);
-                    }
-                }
-            }
-        }
-
-        for (int z = 1; z < 16; ++z) {
-            for (int x = 0; x < 16; ++x) {
-                PixelState &cur = get_pixel_state (pixel_states, x, z);
-                PixelState &upper = get_pixel_state (pixel_states, x, z - 1);
-
-                if (upper.opaque_height < cur.opaque_height) {
-                    cur.bg_color = increase_brightness (cur.bg_color, 10);
-                    if (z == 1) {
-                        upper.bg_color =
-                            increase_brightness (upper.bg_color, 10);
-                    }
-                } else if (cur.opaque_height < upper.opaque_height) {
-                    cur.bg_color = increase_brightness (cur.bg_color, -10);
-                    if (z == 1) {
-                        upper.bg_color =
-                            increase_brightness (upper.bg_color, -10);
-                    }
-                }
-            }
-        }
-
-        for (int z = 0; z < 16; ++z) {
-            for (int x = 0; x < 16; ++x) {
-                PixelState &pixel_state = get_pixel_state (pixel_states, x, z);
-
-                uint_fast32_t bg_color = increase_brightness (
-                    pixel_state.mid_color,
-                    (pixel_state.mid_height - pixel_state.top_height) * 3);
-                uint_fast32_t color =
-                    blend_color (pixel_state.fg_color, bg_color);
-                bg_color = increase_brightness (
-                    pixel_state.bg_color,
-                    (pixel_state.opaque_height - pixel_state.top_height) * 3);
-                color = blend_color (color, bg_color);
-                image.set_pixel (chunk_x * 16 + x, chunk_z * 16 + z, color);
-            }
-        }
-    }
-
-    static void generate_chunk (anvil::Chunk *chunk, int chunk_x, int chunk_z,
-                                Png &image) {
-        shared_ptr<array<PixelState, 256 * 256>> pixel_states =
-            scan_chunk (chunk);
-        generate_image (chunk_x, chunk_z, pixel_states, image);
-    }
+    } // namespace
 
     void generate_256 (QueuedItem *item) {
         anvil::Region *region = item->region->region;

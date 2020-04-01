@@ -4,6 +4,6 @@
 namespace pretty_printer {
     void set_total (int total);
     void increment_progress_bar ();
-} // namespace
+} // namespace pretty_printer
 
 #endif

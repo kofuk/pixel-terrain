@@ -6,74 +6,77 @@
 #include "utils.hh"
 
 namespace nbt {
-    static Tag *tag_byte_factory (shared_ptr<unsigned char[]> buf, size_t len,
-                                  size_t &off) {
-        return new TagByte (buf, len, off);
-    }
+    namespace {
+        Tag *tag_byte_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                               size_t &off) {
+            return new TagByte (buf, len, off);
+        }
 
-    static Tag *tag_short_factory (shared_ptr<unsigned char[]> buf, size_t len,
-                                   size_t &off) {
-        return new TagShort (buf, len, off);
-    }
+        Tag *tag_short_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                size_t &off) {
+            return new TagShort (buf, len, off);
+        }
 
-    static Tag *tag_int_factory (shared_ptr<unsigned char[]> buf, size_t len,
+        Tag *tag_int_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                              size_t &off) {
+            return new TagInt (buf, len, off);
+        }
+
+        Tag *tag_long_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                               size_t &off) {
+            return new TagLong (buf, len, off);
+        }
+
+        Tag *tag_float_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                size_t &off) {
+            return new TagFloat (buf, len, off);
+        }
+
+        Tag *tag_double_factory (shared_ptr<unsigned char[]> buf, size_t len,
                                  size_t &off) {
-        return new TagInt (buf, len, off);
-    }
+            return new TagDouble (buf, len, off);
+        }
 
-    static Tag *tag_long_factory (shared_ptr<unsigned char[]> buf, size_t len,
-                                  size_t &off) {
-        return new TagLong (buf, len, off);
-    }
+        Tag *tag_byte_array_factory (shared_ptr<unsigned char[]> buf,
+                                     size_t len, size_t &off) {
+            return new TagByteArray (buf, len, off);
+        }
 
-    static Tag *tag_float_factory (shared_ptr<unsigned char[]> buf, size_t len,
+        Tag *tag_string_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                                 size_t &off) {
+            return new TagString (buf, len, off);
+        }
+
+        Tag *tag_list_factory (shared_ptr<unsigned char[]> buf, size_t len,
+                               size_t &off) {
+            return new TagList (buf, len, off);
+        }
+
+        Tag *tag_compound_factory (shared_ptr<unsigned char[]> buf, size_t len,
                                    size_t &off) {
-        return new TagFloat (buf, len, off);
-    }
+            return new TagCompound (buf, len, off, false);
+        }
 
-    static Tag *tag_double_factory (shared_ptr<unsigned char[]> buf, size_t len,
+        Tag *tag_int_array_factory (shared_ptr<unsigned char[]> buf, size_t len,
                                     size_t &off) {
-        return new TagDouble (buf, len, off);
-    }
+            return new TagIntArray (buf, len, off);
+        }
 
-    static Tag *tag_byte_array_factory (shared_ptr<unsigned char[]> buf,
-                                        size_t len, size_t &off) {
-        return new TagByteArray (buf, len, off);
-    }
+        Tag *tag_long_array_factory (shared_ptr<unsigned char[]> buf,
+                                     size_t len, size_t &off) {
+            return new TagLongArray (buf, len, off);
+        }
 
-    static Tag *tag_string_factory (shared_ptr<unsigned char[]> buf, size_t len,
-                                    size_t &off) {
-        return new TagString (buf, len, off);
-    }
-
-    static Tag *tag_list_factory (shared_ptr<unsigned char[]> buf, size_t len,
-                                  size_t &off) {
-        return new TagList (buf, len, off);
-    }
-
-    static Tag *tag_compound_factory (shared_ptr<unsigned char[]> buf,
-                                      size_t len, size_t &off) {
-        return new TagCompound (buf, len, off, false);
-    }
-
-    static Tag *tag_int_array_factory (shared_ptr<unsigned char[]> buf,
-                                       size_t len, size_t &off) {
-        return new TagIntArray (buf, len, off);
-    }
-
-    static Tag *tag_long_array_factory (shared_ptr<unsigned char[]> buf,
-                                        size_t len, size_t &off) {
-        return new TagLongArray (buf, len, off);
-    }
-
-    static function<Tag *(shared_ptr<unsigned char[]> buf, size_t len,
-                          size_t &off)>
-        tag_factories[] = {&tag_byte_factory,       &tag_short_factory,
-                           &tag_int_factory,        &tag_long_factory,
-                           &tag_float_factory,      &tag_double_factory,
-                           &tag_byte_array_factory, &tag_string_factory,
-                           &tag_list_factory,       &tag_compound_factory,
-                           &tag_int_array_factory,  &tag_long_array_factory};
+        function<Tag *(shared_ptr<unsigned char[]> buf, size_t len,
+                       size_t &off)>
+            tag_factories[] = {
+                &tag_byte_factory,       &tag_short_factory,
+                &tag_int_factory,        &tag_long_factory,
+                &tag_float_factory,      &tag_double_factory,
+                &tag_byte_array_factory, &tag_string_factory,
+                &tag_list_factory,       &tag_compound_factory,
+                &tag_int_array_factory,  &tag_long_array_factory};
+    } // namespace
 
     Tag::Tag (tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
               size_t &off)

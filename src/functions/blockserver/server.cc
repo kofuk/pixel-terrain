@@ -54,266 +54,268 @@ namespace server {
     string nether_dir;
     string end_dir;
 
-    static void terminate_server (int) {
-        unlink ("/tmp/mcmap.sock");
-        exit (0);
-    }
-
-    static void send_response (FILE *f, int response_code, int altitude,
-                               string *block) {
-        fputs ("MMP/1.0 ", f);
-        putc ('0' + response_code / 100, f);
-        putc ('0' + response_code / 10 % 10, f);
-        putc ('0' + response_code % 10, f);
-        fputs ("\r\n\r\n", f);
-
-        string block_name = *block;
-
-        if (block->find (":") == string::npos) {
-            block_name = "minecraft:" + block_name;
+    namespace {
+        void terminate_server (int) {
+            unlink ("/tmp/mcmap.sock");
+            exit (0);
         }
 
-        if (response_code == 200) {
-            fputs (string (R"({"altitude": )" + to_string (altitude) +
-                           R"(, "block": ")" + block_name + R"("})" + "\n")
-                       .c_str (),
-                   f);
-        }
-    }
+        void send_response (FILE *f, int response_code, int altitude,
+                            string *block) {
+            fputs ("MMP/1.0 ", f);
+            putc ('0' + response_code / 100, f);
+            putc ('0' + response_code / 10 % 10, f);
+            putc ('0' + response_code % 10, f);
+            fputs ("\r\n\r\n", f);
 
-    static inline int positive_mod (int a, int b) {
-        int mod = a % b;
-        if (mod < 0) mod += b;
+            string block_name = *block;
 
-        return mod;
-    }
-
-    static void resolve_block (FILE *f, string dimen, long long int x,
-                               long long int z) {
-        int region_x;
-        int region_z;
-
-        if (x >= 0) {
-            region_x = x / 512;
-        } else {
-            region_x = (x + 1) / 512 - 1;
-        }
-
-        if (z >= 0) {
-            region_z = z / 512;
-        } else {
-            region_z = (z + 1) / 512 - 1;
-        }
-
-        int chunk_x = positive_mod (x, 512) / 16;
-        int chunk_z = positive_mod (z, 512) / 16;
-        int x_in_chunk = positive_mod (x, 512) % 16;
-        int z_in_chunk = positive_mod (x, 512) % 16;
-
-        filesystem::path region_file;
-
-        if (dimen == "nether") {
-            if (nether_dir.empty ()) {
-                send_response (f, 404, 0, nullptr);
-
-                return;
+            if (block->find (":") == string::npos) {
+                block_name = "minecraft:" + block_name;
             }
 
-            region_file = nether_dir;
-        } else if (dimen == "end") {
-            if (end_dir.empty ()) {
-                send_response (f, 404, 0, nullptr);
+            if (response_code == 200) {
+                fputs (string (R"({"altitude": )" + to_string (altitude) +
+                               R"(, "block": ")" + block_name + R"("})" + "\n")
+                           .c_str (),
+                       f);
+            }
+        }
 
-                return;
+        inline int positive_mod (int a, int b) {
+            int mod = a % b;
+            if (mod < 0) mod += b;
+
+            return mod;
+        }
+
+        void resolve_block (FILE *f, string dimen, long long int x,
+                            long long int z) {
+            int region_x;
+            int region_z;
+
+            if (x >= 0) {
+                region_x = x / 512;
+            } else {
+                region_x = (x + 1) / 512 - 1;
             }
 
-            region_file = end_dir;
-        } else {
-            if (overworld_dir.empty ()) {
-                send_response (f, 404, 0, nullptr);
-
-                return;
+            if (z >= 0) {
+                region_z = z / 512;
+            } else {
+                region_z = (z + 1) / 512 - 1;
             }
 
-            region_file = overworld_dir;
-        }
+            int chunk_x = positive_mod (x, 512) / 16;
+            int chunk_z = positive_mod (z, 512) / 16;
+            int x_in_chunk = positive_mod (x, 512) % 16;
+            int z_in_chunk = positive_mod (x, 512) % 16;
 
-        region_file /=
-            "r." + to_string (region_x) + "." + to_string (region_z) + ".mca";
-        if (!filesystem::exists (region_file)) {
-            send_response (f, 404, 0, nullptr);
+            filesystem::path region_file;
 
-            return;
-        }
-
-        anvil::Region *r = new anvil::Region (region_file.string ());
-        anvil::Chunk *chunk = r->get_chunk (chunk_x, chunk_z);
-        if (chunk == nullptr) {
-            send_response (f, 404, 0, nullptr);
-
-            return;
-        }
-        if (dimen == "nether") {
-            bool air_found = false;
-            for (int y = 127; y >= 0; --y) {
-                string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
-                if (block == "air" || block == "cave_air" ||
-                    block == "void_air") {
-                    if (y == 0) {
-                        send_response (f, 404, 0, nullptr);
-
-                        break;
-                    }
-
-                    air_found = true;
-
-                    continue;
-                }
-
-                if (!air_found) {
-                    if (y == 0) {
-                        send_response (f, 404, 0, nullptr);
-
-                        break;
-                    }
-                    continue;
-                }
-
-                if (block.empty ()) {
+            if (dimen == "nether") {
+                if (nether_dir.empty ()) {
                     send_response (f, 404, 0, nullptr);
-                } else {
-                    send_response (f, 200, y, &block);
+
+                    return;
                 }
 
-                break;
-            }
-        } else {
-            for (int y = 255; y >= 0; --y) {
-                string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
-                if (block == "air" || block == "cave_air" ||
-                    block == "void_air") {
-                    if (y == 0) {
-                        send_response (f, 404, 0, nullptr);
-
-                        break;
-                    }
-
-                    continue;
-                }
-
-                if (block.empty ()) {
+                region_file = nether_dir;
+            } else if (dimen == "end") {
+                if (end_dir.empty ()) {
                     send_response (f, 404, 0, nullptr);
-                } else {
-                    send_response (f, 200, y, &block);
+
+                    return;
                 }
 
-                break;
+                region_file = end_dir;
+            } else {
+                if (overworld_dir.empty ()) {
+                    send_response (f, 404, 0, nullptr);
+
+                    return;
+                }
+
+                region_file = overworld_dir;
             }
-        }
 
-        delete chunk;
-        delete r;
-    }
+            region_file /= "r." + to_string (region_x) + "." +
+                           to_string (region_z) + ".mca";
+            if (!filesystem::exists (region_file)) {
+                send_response (f, 404, 0, nullptr);
 
-    static void handle_request (int fd) {
-        FILE *f = fdopen (fd, "rb+");
-        if (f == NULL) {
-            close (fd);
-
-            return;
-        }
-
-        char *line = nullptr;
-        size_t cap = 0;
-        if (getline (&line, &cap, f) < 0) {
-            send_response (f, 400, 0, nullptr);
-            fclose (f);
-
-            return;
-        }
-        size_t len = strlen (line);
-        for (size_t i = 0; i < len; ++i) {
-            if (line[i] == '\r' || line[i] == '\n') {
-                line[i] = 0;
-                break;
+                return;
             }
-        }
 
-        if (strcmp (line, "GET MMP/1.0")) {
-            send_response (f, 400, 0, nullptr);
-            fclose (f);
+            anvil::Region *r = new anvil::Region (region_file.string ());
+            anvil::Chunk *chunk = r->get_chunk (chunk_x, chunk_z);
+            if (chunk == nullptr) {
+                send_response (f, 404, 0, nullptr);
 
-            return;
-        }
+                return;
+            }
+            if (dimen == "nether") {
+                bool air_found = false;
+                for (int y = 127; y >= 0; --y) {
+                    string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
+                    if (block == "air" || block == "cave_air" ||
+                        block == "void_air") {
+                        if (y == 0) {
+                            send_response (f, 404, 0, nullptr);
 
-        string dimen;
-        long long int x;
-        bool x_set = false;
-        long long int z;
-        bool z_set = false;
-        try {
-            while (getline (&line, &cap, f) >= 0) {
-                len = strlen (line);
-                for (size_t i = 0; i < len; ++i) {
-                    if (line[i] == '\r' || line[i] == '\n') {
-                        line[i] = 0;
+                            break;
+                        }
 
-                        break;
+                        air_found = true;
+
+                        continue;
                     }
+
+                    if (!air_found) {
+                        if (y == 0) {
+                            send_response (f, 404, 0, nullptr);
+
+                            break;
+                        }
+                        continue;
+                    }
+
+                    if (block.empty ()) {
+                        send_response (f, 404, 0, nullptr);
+                    } else {
+                        send_response (f, 200, y, &block);
+                    }
+
+                    break;
                 }
+            } else {
+                for (int y = 255; y >= 0; --y) {
+                    string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
+                    if (block == "air" || block == "cave_air" ||
+                        block == "void_air") {
+                        if (y == 0) {
+                            send_response (f, 404, 0, nullptr);
 
-                if (line[0] == 0) break;
+                            break;
+                        }
 
-                char *pos_colon = strchr (line, ':');
-                if (pos_colon == nullptr) {
-                    send_response (f, 400, 0, 0);
+                        continue;
+                    }
+
+                    if (block.empty ()) {
+                        send_response (f, 404, 0, nullptr);
+                    } else {
+                        send_response (f, 200, y, &block);
+                    }
+
+                    break;
                 }
-                *pos_colon = 0;
+            }
 
-                string key = line;
-                ++pos_colon;
-                while (*pos_colon == ' ')
+            delete chunk;
+            delete r;
+        }
+
+        void handle_request (int fd) {
+            FILE *f = fdopen (fd, "rb+");
+            if (f == NULL) {
+                close (fd);
+
+                return;
+            }
+
+            char *line = nullptr;
+            size_t cap = 0;
+            if (getline (&line, &cap, f) < 0) {
+                send_response (f, 400, 0, nullptr);
+                fclose (f);
+
+                return;
+            }
+            size_t len = strlen (line);
+            for (size_t i = 0; i < len; ++i) {
+                if (line[i] == '\r' || line[i] == '\n') {
+                    line[i] = 0;
+                    break;
+                }
+            }
+
+            if (strcmp (line, "GET MMP/1.0")) {
+                send_response (f, 400, 0, nullptr);
+                fclose (f);
+
+                return;
+            }
+
+            string dimen;
+            long long int x;
+            bool x_set = false;
+            long long int z;
+            bool z_set = false;
+            try {
+                while (getline (&line, &cap, f) >= 0) {
+                    len = strlen (line);
+                    for (size_t i = 0; i < len; ++i) {
+                        if (line[i] == '\r' || line[i] == '\n') {
+                            line[i] = 0;
+
+                            break;
+                        }
+                    }
+
+                    if (line[0] == 0) break;
+
+                    char *pos_colon = strchr (line, ':');
+                    if (pos_colon == nullptr) {
+                        send_response (f, 400, 0, 0);
+                    }
+                    *pos_colon = 0;
+
+                    string key = line;
                     ++pos_colon;
+                    while (*pos_colon == ' ')
+                        ++pos_colon;
 
-                string value = pos_colon;
-                if (key == "Coord-X") {
-                    x_set = true;
-                    x = stoll (value);
-                } else if (key == "Coord-Z") {
-                    z_set = true;
-                    z = stoll (value);
-                } else if (key == "Dimension") {
-                    dimen = value;
+                    string value = pos_colon;
+                    if (key == "Coord-X") {
+                        x_set = true;
+                        x = stoll (value);
+                    } else if (key == "Coord-Z") {
+                        z_set = true;
+                        z = stoll (value);
+                    } else if (key == "Dimension") {
+                        dimen = value;
+                    }
                 }
+            } catch (invalid_argument const &) {
+                send_response (f, 400, 0, nullptr);
+                fclose (f);
+
+                return;
+            } catch (out_of_range const &) {
+                send_response (f, 400, 0, nullptr);
+                fclose (f);
+
+                return;
             }
-        } catch (invalid_argument const &) {
-            send_response (f, 400, 0, nullptr);
+
+            if (dimen != "overworld") {
+                cerr << "error" << endl;
+            }
+
+            if (!x_set || !z_set ||
+                (dimen != "overworld" && dimen != "nether" && dimen != "end")) {
+                send_response (f, 400, 0, nullptr);
+                fclose (f);
+
+                return;
+            }
+
+            resolve_block (f, dimen, x, z);
+
             fclose (f);
-
-            return;
-        } catch (out_of_range const &) {
-            send_response (f, 400, 0, nullptr);
-            fclose (f);
-
-            return;
         }
-
-        if (dimen != "overworld") {
-            cerr << "error" << endl;
-        }
-
-        if (!x_set || !z_set ||
-            (dimen != "overworld" && dimen != "nether" && dimen != "end")) {
-            send_response (f, 400, 0, nullptr);
-            fclose (f);
-
-            return;
-        }
-
-        resolve_block (f, dimen, x, z);
-
-        fclose (f);
-    }
+    } // namespace
 
     void launch_server (bool daemon_mode) {
         if (daemon_mode) {

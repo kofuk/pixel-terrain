@@ -68,7 +68,7 @@ Png::Png (string filename) {
 
     png_destroy_read_struct (&png, &png_info, nullptr);
 
-    fclose(in);
+    fclose (in);
 }
 
 Png::~Png () { delete[] data; }
