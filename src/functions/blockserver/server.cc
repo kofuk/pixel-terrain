@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "../../logger/logger.hh"
 #include "../../nbt/Region.hh"
 #include "server.hh"
 
@@ -55,31 +56,62 @@ namespace server {
     string end_dir;
 
     namespace {
+        class Response {
+            int response_code = 500;
+            int altitude = 0;
+            string block;
+            bool response_wrote = false;
+
+            Response (Response const &) = delete;
+            Response operator= (Response const &) = delete;
+
+        public:
+            Response () {}
+
+            ~Response () {
+                if (!response_wrote) {
+                    logger::e (
+                        "BUG: Response object discarded without writing its data"s);
+                }
+            }
+
+            void write_to (FILE *out) {
+                response_wrote = true;
+
+                fputs ("MMP/1.0 ", out);
+                fputs (to_string (response_code).c_str (), out);
+                fputs ("\r\n\r\n", out);
+                if (response_code != 200) return;
+
+                fprintf (out,
+                         R"({"altitide": %d, "block": "%s"})"
+                         "\r\n",
+                         altitude, block.c_str ());
+            }
+
+            Response *set_response_code (int code) {
+                response_code = code;
+                return this;
+            }
+
+            Response *set_altitude (int altitide) {
+                this->altitude = altitide;
+                return this;
+            }
+
+            Response *set_block (string const &block) {
+                if (block.find (':') == string::npos) {
+                    this->block = "minecraft:"s + block;
+                } else {
+                    this->block = block;
+                }
+                return this;
+            }
+        };
+
         void terminate_server (int) {
             unlink ("/tmp/mcmap.sock");
             exit (0);
-        }
-
-        void send_response (FILE *f, int response_code, int altitude,
-                            string *block) {
-            fputs ("MMP/1.0 ", f);
-            putc ('0' + response_code / 100, f);
-            putc ('0' + response_code / 10 % 10, f);
-            putc ('0' + response_code % 10, f);
-            fputs ("\r\n\r\n", f);
-
-            string block_name = *block;
-
-            if (block->find (":") == string::npos) {
-                block_name = "minecraft:" + block_name;
-            }
-
-            if (response_code == 200) {
-                fputs (string (R"({"altitude": )" + to_string (altitude) +
-                               R"(, "block": ")" + block_name + R"("})" + "\n")
-                           .c_str (),
-                       f);
-            }
         }
 
         inline int positive_mod (int a, int b) {
@@ -113,17 +145,17 @@ namespace server {
 
             filesystem::path region_file;
 
-            if (dimen == "nether") {
+            if (dimen == "nether"s) {
                 if (nether_dir.empty ()) {
-                    send_response (f, 404, 0, nullptr);
+                    Response ().set_response_code (404)->write_to (f);
 
                     return;
                 }
 
                 region_file = nether_dir;
-            } else if (dimen == "end") {
+            } else if (dimen == "end"s) {
                 if (end_dir.empty ()) {
-                    send_response (f, 404, 0, nullptr);
+                    Response ().set_response_code (404)->write_to (f);
 
                     return;
                 }
@@ -131,7 +163,7 @@ namespace server {
                 region_file = end_dir;
             } else {
                 if (overworld_dir.empty ()) {
-                    send_response (f, 404, 0, nullptr);
+                    Response ().set_response_code (404)->write_to (f);
 
                     return;
                 }
@@ -139,10 +171,10 @@ namespace server {
                 region_file = overworld_dir;
             }
 
-            region_file /= "r." + to_string (region_x) + "." +
-                           to_string (region_z) + ".mca";
+            region_file /= "r."s + to_string (region_x) + "."s +
+                           to_string (region_z) + ".mca"s;
             if (!filesystem::exists (region_file)) {
-                send_response (f, 404, 0, nullptr);
+                Response ().set_response_code (404)->write_to (f);
 
                 return;
             }
@@ -150,18 +182,18 @@ namespace server {
             anvil::Region *r = new anvil::Region (region_file.string ());
             anvil::Chunk *chunk = r->get_chunk (chunk_x, chunk_z);
             if (chunk == nullptr) {
-                send_response (f, 404, 0, nullptr);
+                Response ().set_response_code (404)->write_to (f);
 
                 return;
             }
-            if (dimen == "nether") {
+            if (dimen == "nether"s) {
                 bool air_found = false;
                 for (int y = 127; y >= 0; --y) {
                     string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
-                    if (block == "air" || block == "cave_air" ||
-                        block == "void_air") {
+                    if (block == "air"s || block == "cave_air"s ||
+                        block == "void_air"s) {
                         if (y == 0) {
-                            send_response (f, 404, 0, nullptr);
+                            Response ().set_response_code (404)->write_to (f);
 
                             break;
                         }
@@ -173,7 +205,7 @@ namespace server {
 
                     if (!air_found) {
                         if (y == 0) {
-                            send_response (f, 404, 0, nullptr);
+                            Response ().set_response_code (404)->write_to (f);
 
                             break;
                         }
@@ -181,9 +213,13 @@ namespace server {
                     }
 
                     if (block.empty ()) {
-                        send_response (f, 404, 0, nullptr);
+                        Response ().set_response_code (404)->write_to (f);
                     } else {
-                        send_response (f, 200, y, &block);
+                        Response ()
+                            .set_response_code (200)
+                            ->set_altitude (y)
+                            ->set_block (block)
+                            ->write_to (f);
                     }
 
                     break;
@@ -191,10 +227,10 @@ namespace server {
             } else {
                 for (int y = 255; y >= 0; --y) {
                     string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
-                    if (block == "air" || block == "cave_air" ||
-                        block == "void_air") {
+                    if (block == "air"s || block == "cave_air"s ||
+                        block == "void_air"s) {
                         if (y == 0) {
-                            send_response (f, 404, 0, nullptr);
+                            Response ().set_response_code (404)->write_to (f);
 
                             break;
                         }
@@ -203,9 +239,13 @@ namespace server {
                     }
 
                     if (block.empty ()) {
-                        send_response (f, 404, 0, nullptr);
+                        Response ().set_response_code (404)->write_to (f);
                     } else {
-                        send_response (f, 200, y, &block);
+                        Response ()
+                            .set_response_code (200)
+                            ->set_altitude (y)
+                            ->set_block (block)
+                            ->write_to (f);
                     }
 
                     break;
@@ -227,7 +267,7 @@ namespace server {
             char *line = nullptr;
             size_t cap = 0;
             if (getline (&line, &cap, f) < 0) {
-                send_response (f, 400, 0, nullptr);
+                Response ().set_response_code (400)->write_to (f);
                 fclose (f);
 
                 return;
@@ -241,7 +281,7 @@ namespace server {
             }
 
             if (strcmp (line, "GET MMP/1.0")) {
-                send_response (f, 400, 0, nullptr);
+                Response ().set_response_code (400)->write_to (f);
                 fclose (f);
 
                 return;
@@ -267,7 +307,7 @@ namespace server {
 
                     char *pos_colon = strchr (line, ':');
                     if (pos_colon == nullptr) {
-                        send_response (f, 400, 0, 0);
+                        Response ().set_response_code (400)->write_to (f);
                     }
                     *pos_colon = 0;
 
@@ -277,35 +317,36 @@ namespace server {
                         ++pos_colon;
 
                     string value = pos_colon;
-                    if (key == "Coord-X") {
+                    if (key == "Coord-X"s) {
                         x_set = true;
                         x = stoll (value);
-                    } else if (key == "Coord-Z") {
+                    } else if (key == "Coord-Z"s) {
                         z_set = true;
                         z = stoll (value);
-                    } else if (key == "Dimension") {
+                    } else if (key == "Dimension"s) {
                         dimen = value;
                     }
                 }
             } catch (invalid_argument const &) {
-                send_response (f, 400, 0, nullptr);
+                Response ().set_response_code (400)->write_to (f);
                 fclose (f);
 
                 return;
             } catch (out_of_range const &) {
-                send_response (f, 400, 0, nullptr);
+                Response ().set_response_code (400)->write_to (f);
                 fclose (f);
 
                 return;
             }
 
-            if (dimen != "overworld") {
+            if (dimen != "overworld"s) {
                 cerr << "error" << endl;
             }
 
             if (!x_set || !z_set ||
-                (dimen != "overworld" && dimen != "nether" && dimen != "end")) {
-                send_response (f, 400, 0, nullptr);
+                (dimen != "overworld"s && dimen != "nether"s &&
+                 dimen != "end"s)) {
+                Response ().set_response_code (400)->write_to (f);
                 fclose (f);
 
                 return;
