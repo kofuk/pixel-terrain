@@ -17,6 +17,7 @@
 #include "PNG.hh"
 #include "generator.hh"
 #include "worker.hh"
+#include "../threaded_worker.hh"
 
 using namespace std;
 
@@ -39,16 +40,7 @@ string QueuedItem::debug_string () {
 }
 
 namespace {
-    queue<QueuedItem *> offs_queue;
-
-    mutex queue_mutex;
-    vector<thread *> threads;
-
-    condition_variable queue_cap_cond;
-    mutex queue_cap_cond_mutex;
-
-    condition_variable queued_cond;
-    mutex queued_cond_mutex;
+    ThreadedWorker<shared_ptr<QueuedItem>> *worker;
 } // namespace
 
 string option_out_dir;
@@ -59,75 +51,12 @@ bool option_generate_progress;
 bool option_generate_range;
 string option_journal_dir;
 
-QueuedItem *fetch_item () {
-    QueuedItem *result;
-
-    unique_lock<mutex> lock (queue_mutex);
-
-    if (offs_queue.empty ()) return nullptr;
-
-    result = offs_queue.front ();
-    offs_queue.pop ();
-
-    queue_cap_cond.notify_one ();
-
-    return result;
-}
-
-namespace {
-    void run_worker_loop () {
-        for (;;) {
-            QueuedItem *item = fetch_item ();
-            if (item == nullptr) {
-                {
-                    unique_lock<mutex> lock (queued_cond_mutex);
-                    queued_cond.wait (lock);
-                }
-
-                continue;
-            }
-
-            if (item->region == nullptr) {
-                if (option_verbose) {
-                    logger::d ("shutting down worker");
-                }
-
-                delete item;
-
-                break;
-            }
-
-            generator::generate_256 (item);
-        }
-    }
-} // namespace
-
-void queue_item (QueuedItem *item) {
+void queue_item (shared_ptr<QueuedItem> item) {
     if (option_verbose) {
         logger::d ("trying to queue " + item->debug_string ());
     }
 
-    unique_lock<mutex> lock (queue_cap_cond_mutex);
-
-    for (;;) {
-        {
-            unique_lock<mutex> queue_lock (queue_mutex);
-
-            if (offs_queue.size () < static_cast<size_t> (option_jobs) * 2) {
-                offs_queue.push (item);
-
-                queued_cond.notify_all ();
-
-                if (option_verbose) {
-                    logger::d ("item " + item->debug_string () +
-                               " successfully queued");
-                }
-                return;
-            }
-        }
-
-        queue_cap_cond.wait (lock);
-    }
+    worker->queue_job(move (item));
 }
 
 void start_worker () {
@@ -135,24 +64,15 @@ void start_worker () {
         logger::d ("starting worker thread(s) ...");
     }
 
-    try {
-        for (int i = 0; i < option_jobs; ++i) {
-            threads.push_back (new thread (&run_worker_loop));
-        }
-    } catch (system_error const &e) {
-        logger::e (string ("Cannot create thread: ") + e.what ());
-
-        for (thread *t : threads) {
-            t->join ();
-        }
-
-        exit (1);
-    }
+    worker = new ThreadedWorker<shared_ptr<QueuedItem>> (option_jobs, &generator::generate_256);
+    worker->start ();
 }
 
 void wait_for_worker () {
-    for (auto itr = begin (threads); itr != end (threads); ++itr) {
-        (*itr)->join ();
-        delete *itr;
-    }
+    worker->wait();
+    delete worker;
+}
+
+void finish_worker () {
+    worker->finish();
 }

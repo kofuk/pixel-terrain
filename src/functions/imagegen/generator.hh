@@ -5,7 +5,7 @@
 
 namespace generator {
     /* generates 256x256 image */
-    void generate_256 (QueuedItem *item);
+    void generate_256 (shared_ptr<QueuedItem> item);
 } // namespace generator
 
 #endif

@@ -235,7 +235,7 @@ namespace generator {
         }
     } // namespace
 
-    void generate_256 (QueuedItem *item) {
+    void generate_256 (shared_ptr<QueuedItem> item) {
         anvil::Region *region = item->region->region;
         int region_x = item->region->rx;
         int region_z = item->region->rz;

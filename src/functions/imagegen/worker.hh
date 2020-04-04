@@ -35,8 +35,9 @@ extern bool option_generate_range;
 extern string option_journal_dir;
 
 QueuedItem *fetch_item ();
-void queue_item (QueuedItem *item);
+void queue_item (shared_ptr<QueuedItem> item);
 void start_worker ();
 void wait_for_worker ();
+void finish_worker ();
 
 #endif

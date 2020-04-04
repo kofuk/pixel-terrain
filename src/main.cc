@@ -110,18 +110,15 @@ namespace {
 
             for (int off_x = 0; off_x < 2; ++off_x) {
                 for (int off_z = 0; off_z < 2; ++off_z) {
-                    queue_item (new QueuedItem (rc, off_x, off_z));
+                    queue_item (shared_ptr<QueuedItem> (
+                        new QueuedItem (rc, off_x, off_z)));
                 }
             }
 
             pretty_printer::increment_progress_bar ();
         }
 
-        for (int i = 0; i < option_jobs; ++i) {
-            QueuedItem *item = new QueuedItem (nullptr, 0, 0);
-            queue_item (item);
-        }
-
+        finish_worker ();
         wait_for_worker ();
 
         if (option_generate_range) {
