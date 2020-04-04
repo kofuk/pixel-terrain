@@ -7,8 +7,11 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <mutex>
+#include <pthread.h>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <unordered_map>
 
 #include <signal.h>
@@ -21,6 +24,7 @@
 
 #include "../../logger/logger.hh"
 #include "../../nbt/Region.hh"
+#include "../threaded_worker.hh"
 #include "server.hh"
 
 using namespace std;
@@ -56,6 +60,9 @@ namespace server {
     string end_dir;
 
     namespace {
+        ThreadedWorker<int> *worker;
+        mutex worker_mutex;
+
         class Response {
             int response_code = 500;
             int altitude = 0;
@@ -109,7 +116,7 @@ namespace server {
             }
         };
 
-        void terminate_server (int) {
+        void terminate_server () {
             unlink ("/tmp/mcmap.sock");
             exit (0);
         }
@@ -356,6 +363,37 @@ namespace server {
 
             fclose (f);
         }
+
+        void handle_signals (sigset_t *sigs) {
+            int sig;
+            for (;;) {
+                if (sigwait (sigs, &sig) != 0) {
+                    exit (1);
+                }
+
+                unique_lock<mutex> lock (worker_mutex);
+                if (sig == SIGUSR1) {
+                    if (worker != nullptr) {
+                        worker->finish ();
+                        worker->wait ();
+                        delete worker;
+                    }
+                    terminate_server ();
+                }
+            }
+        }
+
+        void prepare_signel_handle_thread () {
+            sigset_t sigs;
+            sigemptyset (&sigs);
+            sigaddset (&sigs, SIGPIPE);
+            sigaddset (&sigs, SIGUSR1);
+            sigaddset (&sigs, SIGINT);
+            pthread_sigmask (SIG_BLOCK, &sigs, nullptr);
+
+            thread t (&handle_signals, &sigs);
+            t.detach ();
+        }
     } // namespace
 
     void launch_server (bool daemon_mode) {
@@ -366,6 +404,11 @@ namespace server {
                 exit (1);
             }
         }
+
+        prepare_signel_handle_thread ();
+        worker = new ThreadedWorker<int> (thread::hardware_concurrency (),
+                                          &handle_request);
+        worker->start ();
 
         int ssock;
 
@@ -399,33 +442,21 @@ namespace server {
             goto fail;
         }
 
-        signal (SIGUSR1, &terminate_server);
-
         for (;;) {
             int fd;
             if ((fd = accept (ssock, reinterpret_cast<sockaddr *> (&sa_peer),
                               &addr_len)) > 0) {
-                pid_t pid;
-                if ((pid = fork ()) == 0) {
-                    close (ssock);
-
-                    pid = fork ();
-                    if (pid == 0) {
-                        handle_request (fd);
-
-                        exit (0);
-                    }
-
-                    exit (0);
-                }
-
-                waitpid (pid, nullptr, 0);
+                unique_lock<mutex> lock (worker_mutex);
+                worker->queue_job (fd);
             }
-            close (fd);
         }
 
     fail:
         perror ("server");
         close (ssock);
+        if (worker != nullptr) {
+            worker->finish ();
+            worker->wait ();
+        }
     }
 } // namespace server
