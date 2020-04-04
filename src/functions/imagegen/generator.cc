@@ -137,9 +137,7 @@ namespace generator {
         }
 
         void
-        generate_image (int chunk_x, int chunk_z,
-                        shared_ptr<array<PixelState, 256 * 256>> pixel_states,
-                        Png &image) {
+        handle_biomes (shared_ptr<array<PixelState, 256 * 256>> pixel_states) {
             /* process biome color overrides */
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
@@ -164,7 +162,10 @@ namespace generator {
                     }
                 }
             }
+        }
 
+        void handle_inclination (
+            shared_ptr<array<PixelState, 256 * 256>> pixel_states) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 1; x < 16; ++x) {
                     PixelState &left = get_pixel_state (pixel_states, x - 1, z);
@@ -206,7 +207,18 @@ namespace generator {
                     }
                 }
             }
+        }
 
+        void process_pipeline (
+            shared_ptr<array<PixelState, 256 * 256>> pixel_states) {
+            handle_biomes (pixel_states);
+            handle_inclination (pixel_states);
+        }
+
+        void
+        generate_image (int chunk_x, int chunk_z,
+                        shared_ptr<array<PixelState, 256 * 256>> pixel_states,
+                        Png &image) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
                     PixelState &pixel_state =
@@ -231,6 +243,7 @@ namespace generator {
                              Png &image) {
             shared_ptr<array<PixelState, 256 * 256>> pixel_states =
                 scan_chunk (chunk);
+            process_pipeline (pixel_states);
             generate_image (chunk_x, chunk_z, pixel_states, image);
         }
     } // namespace
