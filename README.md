@@ -2,7 +2,7 @@
 
 ![Sample Image](images/sample.png)
 
-This generates map image from your Minecraft save data.
+This generates map image from your Minecraft save data considering tilt and biomes.
 
 This software contains C++ re-implementation of [matcool/anvil-parser](https://github.com/matcool/anvil-parser)
 and [twoolie/NBT](https://github.com/twoolie/NBT).
@@ -24,9 +24,7 @@ also, this project uses CMake as build system so CMake (>= 3.15) is needed.
 I'm working on this project on ArchLinux. I think you can build other GNU/Linux distros,
 but not tested.
 
-Also, I sometimes build this project on MSYS2 but not all revisions won't be able to built
-on Windows. And, server functions are not supported on Windows
-because it is too much bother (since Unix domain socket does not exist on Windows, of course).
+In older version, I supported Windows but no longer supported in current version.
 
 ## Installing Artifacts
 
