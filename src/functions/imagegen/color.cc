@@ -44,9 +44,9 @@ namespace generator {
         uint_fast8_t f_g = (overlay >> 16) & 0xff;
         uint_fast8_t f_b = (overlay >> 8) & 0xff;
 
-        uint_fast8_t r = f_r + (b_r - f_r) * opacity;
-        uint_fast8_t g = f_g + (b_g - f_g) * opacity;
-        uint_fast8_t b = f_b + (b_b - f_b) * opacity;
+        uint_fast8_t r = b_r + (f_r - b_r) * opacity;
+        uint_fast8_t g = b_g + (f_g - b_g) * opacity;
+        uint_fast8_t b = b_b + (f_b - b_b) * opacity;
 
         return ((r & 0xff) << 24) | ((g & 0xff) << 16) | ((b & 0xff) << 8) |
                (a & 0xff);
