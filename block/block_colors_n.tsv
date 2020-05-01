@@ -4,6 +4,7 @@ nether_brick_slab	38	18	1e	ff
 nether_brick_stairs	38	18	1e	ff
 nether_brick_wall	19	0d	10	e6
 nether_bricks	38	18	1e	ff
+nether_portal	3f	26	66	aa
 nether_quartz_ore	aa	83	7a	ff
 nether_wart	86	00	01	e6
 nether_wart_block	7b	00	00	ff

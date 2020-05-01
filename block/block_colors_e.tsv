@@ -2,6 +2,7 @@ block_id	r	g	b	a
 emerald_block	00	b1	3e	ff
 emerald_ore	48	a5	78	ff
 enchanting_table	bd	b4	95	ff
+end_gateway	00	2c	30	ff
 end_portal	00	2c	30	ff
 end_portal_frame	00	48	3d	ff
 end_rod	f7	df	c9	50
