@@ -1,3 +1,6 @@
+/* Construct block-color mappng from embeded data.
+   And decide that the block should be overridden by per-biome color. */
+
 #include <cstdint>
 #include <cstring>
 

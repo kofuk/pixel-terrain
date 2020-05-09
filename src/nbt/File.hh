@@ -1,3 +1,5 @@
+/* Wrapper of memory-mapped file. */
+
 #ifndef FILE_HH
 #define FILE_HH
 

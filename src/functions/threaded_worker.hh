@@ -1,6 +1,8 @@
 #ifndef WORKER_THREAD_HH
 #define WORKER_THREAD_HH
 
+/* Generic implementation of threaded worker. */
+
 #include <chrono>
 #include <condition_variable>
 #include <functional>

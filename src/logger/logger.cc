@@ -1,3 +1,5 @@
+/* Logger, that can be used from different thread safely. */
+
 #include <iostream>
 #include <mutex>
 

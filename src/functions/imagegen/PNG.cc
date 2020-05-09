@@ -1,3 +1,6 @@
+/* libpng wrapper.
+   This file make easy to handle pixel buffer and PNG file. */
+
 #include <algorithm>
 #include <cerrno>
 #include <cmath>

@@ -1,3 +1,6 @@
+/* Class to access a mca file.
+   Implementation is based on matcool/anvil-parser. */
+
 #include <algorithm>
 #include <cerrno>
 #include <cstdint>

@@ -1,3 +1,5 @@
+/* Utilities for color blending, changing brightness, and so on. */
+
 #include "color.hh"
 
 #include <algorithm>

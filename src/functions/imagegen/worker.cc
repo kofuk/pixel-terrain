@@ -1,3 +1,5 @@
+/* Helper to use multi-thread efficiently. */
+
 #include <algorithm>
 #include <condition_variable>
 #include <cstdint>

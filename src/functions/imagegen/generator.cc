@@ -1,3 +1,6 @@
+/* Read whole mca files, and construct intermidiate representation of those,
+   then decide pixel color and generate PNG image.. */
+
 #include <array>
 #include <cstdint>
 #include <filesystem>

@@ -1,3 +1,5 @@
+/* Text-based progress bar */
+
 #include <iomanip>
 #include <iostream>
 #include <mutex>

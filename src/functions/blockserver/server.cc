@@ -1,3 +1,5 @@
+/* Server to provide block id and coordinate server. */
+
 #include <algorithm>
 #include <csignal>
 #include <cstdio>

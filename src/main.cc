@@ -1,3 +1,8 @@
+/*
+ * Entry point for minecraft-image-generator.
+ * Parse option and all call specific function.
+ */
+
 #include <algorithm>
 #include <array>
 #include <csetjmp>
@@ -28,6 +33,7 @@
 using namespace std;
 
 namespace {
+    /* TODO: Should move to functions/imagegen */
     void write_range_file (int start_x, int start_z, int end_x, int end_z) {
         filesystem::path out_path (option_out_dir);
         out_path /= "chunk_range.json"s;
@@ -39,6 +45,7 @@ namespace {
             << end_z << "]" << endl;
     }
 
+    /* TODO: Should move to functions/imagegen */
     void generate_all (string src_dir) {
         if (!option_journal_dir.empty ()) {
             try {

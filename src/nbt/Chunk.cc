@@ -1,3 +1,7 @@
+/* Class to access chunk data structure.
+   This implementation based on matcool/anvil-parser with
+   performance tuning and biome support. */
+
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
