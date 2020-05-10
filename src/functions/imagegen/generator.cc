@@ -71,8 +71,8 @@ namespace generator {
                             continue;
                         }
 
-                        if (block == "air"sv || block == "cave_air"sv ||
-                            block == "void_air"sv) {
+                        if (block == "minecraft:air"sv || block == "minecraft:cave_air"sv ||
+                            block == "minecraft:void_air"sv) {
                             air_found = true;
                             prev_block = block;
                             continue;

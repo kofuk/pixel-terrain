@@ -199,8 +199,8 @@ namespace server {
                 bool air_found = false;
                 for (int y = 127; y >= 0; --y) {
                     string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
-                    if (block == "air"s || block == "cave_air"s ||
-                        block == "void_air"s) {
+                    if (block == "minecraft:air"s || block == "minecraft:cave_air"s ||
+                        block == "minecraft:void_air"s) {
                         if (y == 0) {
                             Response ().set_response_code (404)->write_to (f);
 
@@ -236,8 +236,8 @@ namespace server {
             } else {
                 for (int y = 255; y >= 0; --y) {
                     string block = chunk->get_block (x_in_chunk, y, z_in_chunk);
-                    if (block == "air"s || block == "cave_air"s ||
-                        block == "void_air"s) {
+                    if (block == "minecraft:air"s || block == "minecraft:cave_air"s ||
+                        block == "minecraft:void_air"s) {
                         if (y == 0) {
                             Response ().set_response_code (404)->write_to (f);
 

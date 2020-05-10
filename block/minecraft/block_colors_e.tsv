@@ -1,0 +1,14 @@
+block_id	r	g	b	a
+minecraft:emerald_block	00	b1	3e	ff
+minecraft:emerald_ore	48	a5	78	ff
+minecraft:enchanting_table	bd	b4	95	ff
+minecraft:end_gateway	00	2c	30	ff
+minecraft:end_portal	00	2c	30	ff
+minecraft:end_portal_frame	00	48	3d	ff
+minecraft:end_rod	f7	df	c9	50
+minecraft:end_stone	da	f4	a8	ff
+minecraft:end_stone_brick_slab	e8	f4	b2	ff
+minecraft:end_stone_brick_stairs	e8	f4	b2	ff
+minecraft:end_stone_brick_wall	d6	d6	95	e6
+minecraft:end_stone_bricks	db	ff	ae	ff
+minecraft:ender_chest	04	14	1c	ff

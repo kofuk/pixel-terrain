@@ -43,7 +43,7 @@ fi
 
     echo 'static unsigned char block_colors_data[] = { '
 
-    DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)"
+    DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)/minecraft"
     for F in "$DIR/block_colors_"*".tsv"; do
         tail -n +2 -- "$F" | awk -F$'\t' '{for(i=1;i<=length($1);++i)printf "'"'%s', "'",substr($1,i,1);printf "0, ";for(i=5;i>1;--i)printf "0x%s, ",$i;printf "\n"}'
     done

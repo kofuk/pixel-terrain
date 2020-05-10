@@ -109,16 +109,10 @@ namespace anvil {
              itr != end (**palette_tag_list); ++itr) {
             nbt::TagCompound *tag = static_cast<nbt::TagCompound *> (*itr);
 
-            string *src_name = nbt::value<string *> (
+            string *name = nbt::value<string *> (
                 tag->get_as<nbt::TagString, nbt::TAG_STRING> ("Name"s));
 
-            string name;
-            if (src_name->find ("minecraft:"s) == 0) {
-                name = src_name->substr (10);
-            } else {
-                name = *src_name;
-            }
-            palette->push_back (name);
+            palette->push_back (*name);
         }
 
         return palette;
@@ -145,7 +139,7 @@ namespace anvil {
 
         vector<string> *palette = palettes[section_no];
         if (palette == nullptr) {
-            return "air"s;
+            return "minecraft:air"s;
         }
 
         int bits = 4;
@@ -171,7 +165,8 @@ namespace anvil {
                 "BlockStates"s));
         int state = index * bits / 64;
 
-        if (static_cast<uint64_t> (state) >= states.size ()) return "air"s;
+        if (static_cast<uint64_t> (state) >= states.size ())
+            return "minecraft:air"s;
 
         uint64_t data = states[state];
 
@@ -191,7 +186,7 @@ namespace anvil {
 
         if (palette_id <= 0 ||
             (*palette).size () <= static_cast<size_t> (palette_id))
-            return "air"s;
+            return "minecraft:air"s;
 
         return (*palette)[palette_id];
     }

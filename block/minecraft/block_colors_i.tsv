@@ -1,0 +1,13 @@
+block_id	r	g	b	a
+minecraft:ice	a4	ba	fb	ff
+minecraft:infested_chiseled_stone_bricks	63	63	63	ff
+minecraft:infested_cobblestone	88	87	88	ff
+minecraft:infested_cracked_stone_bricks	63	63	63	ff
+minecraft:infested_mossy_stone_bricks	7f	7f	7f	ff
+minecraft:infested_stone	7f	7f	7f	ff
+minecraft:infested_stone_bricks	78	76	78	ff
+minecraft:iron_bars	5a	65	5c	96
+minecraft:iron_block	92	92	92	ff
+minecraft:iron_door	cd	cd	cd	96
+minecraft:iron_ore	a9	8b	7c	ff
+minecraft:iron_trapdoor	b9	b8	b8	c8
