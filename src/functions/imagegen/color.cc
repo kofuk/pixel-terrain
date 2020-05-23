@@ -7,8 +7,8 @@
 
 using namespace std;
 
-namespace generator {
-    uint_fast32_t blend_color (uint_fast32_t fg, uint_fast32_t bg) {
+namespace mcmap::generator {
+    uint_fast32_t blend_color(uint_fast32_t fg, uint_fast32_t bg) {
         if ((bg & 0xff) == 0) {
             return fg;
         }
@@ -33,8 +33,8 @@ namespace generator {
                (new_a & 0xff);
     }
 
-    uint_fast32_t blend_color (uint_fast32_t source, uint_fast32_t overlay,
-                               float opacity) {
+    uint_fast32_t blend_color(uint_fast32_t source, uint_fast32_t overlay,
+                              float opacity) {
         if (opacity == 0) return source;
 
         uint_fast8_t b_r = (source >> 24) & 0xff;
@@ -54,22 +54,22 @@ namespace generator {
                (a & 0xff);
     }
 
-    uint_fast32_t increase_brightness (uint_fast32_t color, int amount) {
-        int c[4] = {static_cast<uint_fast8_t> ((color >> 24) & 0xff),
-                    static_cast<uint_fast8_t> ((color >> 16) & 0xff),
-                    static_cast<uint_fast8_t> ((color >> 8) & 0xff),
-                    static_cast<uint_fast8_t> (color & 0xff)};
+    uint_fast32_t increase_brightness(uint_fast32_t color, int amount) {
+        int c[4] = {static_cast<uint_fast8_t>((color >> 24) & 0xff),
+                    static_cast<uint_fast8_t>((color >> 16) & 0xff),
+                    static_cast<uint_fast8_t>((color >> 8) & 0xff),
+                    static_cast<uint_fast8_t>(color & 0xff)};
         if (amount > 0) {
             for (int i = 0; i < 3; ++i) {
-                c[i] = min<int> (c[i] + amount, 255);
+                c[i] = min<int>(c[i] + amount, 255);
             }
         } else {
             for (int i = 0; i < 3; ++i) {
-                c[i] = max<int> (c[i] + amount, 0);
+                c[i] = max<int>(c[i] + amount, 0);
             }
         }
 
         return ((c[0] & 0xff) << 24) | ((c[1] & 0xff) << 16) |
                ((c[2] & 0xff) << 8) | (c[3] & 0xff);
     }
-} // namespace generator
+} // namespace mcmap::generator

@@ -3,9 +3,9 @@
 
 #include "worker.hh"
 
-namespace generator {
+namespace mcmap::generator {
     /* generates 256x256 image */
-    void generate_256 (shared_ptr<QueuedItem> item);
-} // namespace generator
+    void generate_256(shared_ptr<QueuedItem> item);
+} // namespace mcmap::generator
 
 #endif

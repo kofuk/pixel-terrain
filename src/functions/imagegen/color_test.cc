@@ -4,6 +4,8 @@
 
 #include "color.hh"
 
+using namespace mcmap;
+
 BOOST_AUTO_TEST_CASE (blend_color) {
     BOOST_TEST ((generator::blend_color (0xffffffaa, 0x00000000) &
                  0xffffffff) == 0xffffffaa);

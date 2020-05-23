@@ -7,23 +7,23 @@
 
 using namespace std;
 
-namespace logger {
+namespace mcmap::logger {
     namespace {
         mutex m;
     }
 
-    void d (string message) {
-        unique_lock<mutex> lock (m);
+    void d(string message) {
+        unique_lock<mutex> lock(m);
         cerr << message << endl;
     }
 
-    void e (string message) {
-        unique_lock<mutex> lock (m);
+    void e(string message) {
+        unique_lock<mutex> lock(m);
         cerr << message << endl;
     }
 
-    void i (string message) {
-        unique_lock<mutex> lock (m);
+    void i(string message) {
+        unique_lock<mutex> lock(m);
         cout << message << endl;
     }
-} // namespace logger
+} // namespace mcmap::logger

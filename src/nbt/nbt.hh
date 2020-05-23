@@ -12,7 +12,7 @@
 
 using namespace std;
 
-namespace nbt {
+namespace mcmap::nbt {
     using tagtype_t = unsigned char;
 
     static constexpr tagtype_t TAG_END = 0;
@@ -33,10 +33,10 @@ namespace nbt {
         tagtype_t tag_type;
         string name;
 
-        Tag (tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
-             size_t &off);
-        Tag (tagtype_t type);
-        virtual ~Tag (){};
+        Tag(tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
+            size_t &off);
+        Tag(tagtype_t type);
+        virtual ~Tag(){};
 
     protected:
         shared_ptr<unsigned char[]> raw_buf;
@@ -46,139 +46,137 @@ namespace nbt {
 
     /* virtual tag type to hold common resource for primitive types */
     struct TagPrimitive : Tag {
-        TagPrimitive (tagtype_t type, shared_ptr<unsigned char[]> buf,
-                      size_t const len, size_t &off);
+        TagPrimitive(tagtype_t type, shared_ptr<unsigned char[]> buf,
+                     size_t const len, size_t &off);
 
     protected:
         bool parsed;
     };
 
     struct TagByte : TagPrimitive {
-        TagByte (shared_ptr<unsigned char[]> buf, size_t const len,
-                 size_t &off);
-        static inline unsigned char get_value (shared_ptr<unsigned char[]> buf,
-                                               size_t const len, size_t &off) {
-            unsigned char v = *(buf.get () + off);
+        TagByte(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
+        static inline unsigned char get_value(shared_ptr<unsigned char[]> buf,
+                                              size_t const len, size_t &off) {
+            unsigned char v = *(buf.get() + off);
 
             ++off;
             if (off >= len) {
-                throw out_of_range ("off >= len in TagByte");
+                throw out_of_range("off >= len in TagByte");
             }
 
             return v;
         }
 
-        unsigned char operator* ();
+        unsigned char operator*();
 
     private:
         unsigned char value;
     };
 
     struct TagShort : TagPrimitive {
-        TagShort (shared_ptr<unsigned char[]> buf, size_t const len,
-                  size_t &off);
-        static inline int16_t get_value (shared_ptr<unsigned char[]> buf,
-                                         size_t const len, size_t &off) {
-            int16_t v = utils::to_host_byte_order (
-                *reinterpret_cast<int16_t *> (buf.get () + off));
+        TagShort(shared_ptr<unsigned char[]> buf, size_t const len,
+                 size_t &off);
+        static inline int16_t get_value(shared_ptr<unsigned char[]> buf,
+                                        size_t const len, size_t &off) {
+            int16_t v = utils::to_host_byte_order(
+                *reinterpret_cast<int16_t *>(buf.get() + off));
 
             off += 2;
             if (off >= len) {
-                throw out_of_range ("off >= len in TagShort");
+                throw out_of_range("off >= len in TagShort");
             }
 
             return v;
         }
-        int16_t operator* ();
+        int16_t operator*();
 
     private:
         int16_t value;
     };
 
     struct TagInt : TagPrimitive {
-        TagInt (shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
+        TagInt(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
 
-        static inline int32_t get_value (shared_ptr<unsigned char[]> buf,
-                                         size_t const len, size_t &off) {
-            int32_t v = utils::to_host_byte_order (
-                *reinterpret_cast<int32_t *> (buf.get () + off));
+        static inline int32_t get_value(shared_ptr<unsigned char[]> buf,
+                                        size_t const len, size_t &off) {
+            int32_t v = utils::to_host_byte_order(
+                *reinterpret_cast<int32_t *>(buf.get() + off));
 
             off += 4;
             if (off >= len) {
-                throw out_of_range ("off >= len in TagInt");
+                throw out_of_range("off >= len in TagInt");
             }
 
             return v;
         }
-        int32_t operator* ();
+        int32_t operator*();
 
     private:
         int32_t value;
     };
 
     struct TagLong : TagPrimitive {
-        TagLong (shared_ptr<unsigned char[]> buf, size_t const len,
-                 size_t &off);
+        TagLong(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
 
-        static inline uint64_t get_value (shared_ptr<unsigned char[]> buf,
-                                          size_t const len, size_t &off) {
-            uint64_t v = utils::to_host_byte_order (
-                *reinterpret_cast<int64_t *> (buf.get () + off));
+        static inline uint64_t get_value(shared_ptr<unsigned char[]> buf,
+                                         size_t const len, size_t &off) {
+            uint64_t v = utils::to_host_byte_order(
+                *reinterpret_cast<int64_t *>(buf.get() + off));
 
             off += 8;
             if (off >= len) {
-                throw out_of_range ("off >= len in TagLong");
+                throw out_of_range("off >= len in TagLong");
             }
 
             return v;
         }
 
-        uint64_t operator* ();
+        uint64_t operator*();
 
     private:
         uint64_t value;
     };
 
     struct TagFloat : TagPrimitive {
-        TagFloat (shared_ptr<unsigned char[]> buf, size_t const len,
-                  size_t &off);
+        TagFloat(shared_ptr<unsigned char[]> buf, size_t const len,
+                 size_t &off);
 
-        static inline float get_value (shared_ptr<unsigned char[]> buf,
-                                       size_t const len, size_t &off) {
-            float v = utils::to_host_byte_order (
-                *reinterpret_cast<float *> (buf.get () + off));
+        static inline float get_value(shared_ptr<unsigned char[]> buf,
+                                      size_t const len, size_t &off) {
+            float v = utils::to_host_byte_order(
+                *reinterpret_cast<float *>(buf.get() + off));
 
             off += 4;
             if (off >= len) {
-                throw out_of_range ("off >= len in TagFloat");
+                throw out_of_range("off >= len in TagFloat");
             }
 
             return v;
         }
 
-        float operator* ();
+        float operator*();
 
     private:
         float value;
     };
 
     struct TagDouble : TagPrimitive {
-        TagDouble (shared_ptr<unsigned char[]> buf, size_t const len,
-                   size_t &off);
+        TagDouble(shared_ptr<unsigned char[]> buf, size_t const len,
+                  size_t &off);
 
-        static inline double get_value (shared_ptr<unsigned char[]> buf,
-                                        size_t const len, size_t &off) {
-            double v = utils::to_host_byte_order (
-                *reinterpret_cast<double *> (buf.get () + off));
+        static inline double get_value(shared_ptr<unsigned char[]> buf,
+                                       size_t const len, size_t &off) {
+            double v = utils::to_host_byte_order(
+                *reinterpret_cast<double *>(buf.get() + off));
 
             off += 8;
             if (off >= len) {
-                throw out_of_range ("off >= len in TagDouble");
+                throw out_of_range("off >= len in TagDouble");
             }
 
             return v;
         }
-        double operator* ();
+        double operator*();
 
     private:
         double value;
@@ -186,8 +184,8 @@ namespace nbt {
 
     /* virtual class to hold common resource to array type */
     struct TagArray : Tag {
-        TagArray (tagtype_t type, shared_ptr<unsigned char[]> buf,
-                  size_t const len, size_t &off);
+        TagArray(tagtype_t type, shared_ptr<unsigned char[]> buf,
+                 size_t const len, size_t &off);
 
     protected:
         bool parsed;
@@ -195,47 +193,47 @@ namespace nbt {
     };
 
     struct TagByteArray : TagArray {
-        TagByteArray (shared_ptr<unsigned char[]> buf, size_t const len,
-                      size_t &off);
-        vector<char> operator* ();
+        TagByteArray(shared_ptr<unsigned char[]> buf, size_t const len,
+                     size_t &off);
+        vector<char> operator*();
 
     private:
         vector<char> values;
     };
 
     struct TagIntArray : TagArray {
-        TagIntArray (shared_ptr<unsigned char[]> buf, size_t const len,
-                     size_t &off);
-        vector<int32_t> operator* ();
+        TagIntArray(shared_ptr<unsigned char[]> buf, size_t const len,
+                    size_t &off);
+        vector<int32_t> operator*();
 
     private:
         vector<int32_t> values;
     };
 
     struct TagLongArray : TagArray {
-        TagLongArray (shared_ptr<unsigned char[]> buf, size_t const len,
-                      size_t &off);
-        vector<int64_t> operator* ();
+        TagLongArray(shared_ptr<unsigned char[]> buf, size_t const len,
+                     size_t &off);
+        vector<int64_t> operator*();
 
     private:
         vector<int64_t> value;
     };
 
     struct TagString : Tag {
-        TagString (shared_ptr<unsigned char[]> buf, size_t const len,
-                   size_t &off);
-        ~TagString ();
-        string *operator* ();
+        TagString(shared_ptr<unsigned char[]> buf, size_t const len,
+                  size_t &off);
+        ~TagString();
+        string *operator*();
 
-        static inline string *get_value (shared_ptr<unsigned char[]> buf,
-                                         size_t const len, size_t &off) {
-            int16_t str_len = TagShort::get_value (buf, len, off);
-            string *v = new string (reinterpret_cast<char *> (buf.get () + off),
-                                    static_cast<size_t> (str_len));
-            off += static_cast<size_t> (str_len);
+        static inline string *get_value(shared_ptr<unsigned char[]> buf,
+                                        size_t const len, size_t &off) {
+            int16_t str_len = TagShort::get_value(buf, len, off);
+            string *v = new string(reinterpret_cast<char *>(buf.get() + off),
+                                   static_cast<size_t>(str_len));
+            off += static_cast<size_t>(str_len);
 
             if (off >= len) {
-                throw runtime_error ("off >= len in tagString");
+                throw runtime_error("off >= len in tagString");
             }
 
             return v;
@@ -249,13 +247,12 @@ namespace nbt {
     struct TagList : Tag {
         tagtype_t payload_type;
 
-        TagList (shared_ptr<unsigned char[]> buf, size_t const len,
-                 size_t &off);
-        ~TagList ();
+        TagList(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
+        ~TagList();
 
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
-        vector<nbt::Tag *> &operator* ();
+        void parse_buffer(shared_ptr<unsigned char[]> buf, size_t const len,
+                          size_t &off);
+        vector<nbt::Tag *> &operator*();
 
     private:
         bool parsed;
@@ -263,9 +260,9 @@ namespace nbt {
         vector<nbt::Tag *> tags;
     };
 
-    template <typename T, class C> T value (C *clazz) {
+    template <typename T, class C> T value(C *clazz) {
         if (clazz == nullptr) {
-            throw runtime_error ("no value");
+            throw runtime_error("no value");
         }
 
         return **clazz;
@@ -274,30 +271,30 @@ namespace nbt {
     struct TagCompound : Tag {
         unordered_map<string, nbt::Tag *> tags;
 
-        TagCompound (shared_ptr<unsigned char[]> buf, size_t const len,
-                     size_t &off, bool toplevel);
-        TagCompound ();
-        ~TagCompound ();
+        TagCompound(shared_ptr<unsigned char[]> buf, size_t const len,
+                    size_t &off, bool toplevel);
+        TagCompound();
+        ~TagCompound();
 
-        void parse_buffer (shared_ptr<unsigned char[]> buf, size_t const len,
-                           size_t &off);
-        void parse_until (string &tag_name);
+        void parse_buffer(shared_ptr<unsigned char[]> buf, size_t const len,
+                          size_t &off);
+        void parse_until(string &tag_name);
 
-        template <typename T, tagtype_t TT> T *get_as (string key) {
-            auto r = tags.find (key);
-            if (r == end (tags)) {
+        template <typename T, tagtype_t TT> T *get_as(string key) {
+            auto r = tags.find(key);
+            if (r == end(tags)) {
                 if (toplevel) {
-                    parse_until (key);
+                    parse_until(key);
                 }
-                r = tags.find (key);
-                if (r == end (tags) || r->second->tag_type != TT) {
+                r = tags.find(key);
+                if (r == end(tags) || r->second->tag_type != TT) {
                     return nullptr;
                 }
             } else if (r->second->tag_type != TT) {
                 return nullptr;
             }
 
-            return static_cast<T *> (r->second);
+            return static_cast<T *>(r->second);
         }
 
     private:
@@ -307,11 +304,11 @@ namespace nbt {
     struct NBTFile : TagCompound {
         utils::DecompressedData *data;
 
-        NBTFile (utils::DecompressedData *data);
-        ~NBTFile ();
+        NBTFile(utils::DecompressedData *data);
+        ~NBTFile();
 
-        void parse_file ();
+        void parse_file();
     };
-} // namespace nbt
+} // namespace mcmap::nbt
 
 #endif

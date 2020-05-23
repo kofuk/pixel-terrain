@@ -7,24 +7,26 @@
 
 using namespace std;
 
-class Png {
-    int width;
-    int height;
-    string filename;
-    png_bytep data;
+namespace mcmap {
+    class Png {
+        int width;
+        int height;
+        string filename;
+        png_bytep data;
 
-public:
-    Png (int width, int height);
-    Png (string filename);
-    ~Png ();
+    public:
+        Png(int width, int height);
+        Png(string filename);
+        ~Png();
 
-    int get_width ();
-    int get_height ();
-    void set_pixel (int x, int y, uint_fast32_t color);
-    uint_fast32_t get_pixel (int x, int y);
-    void clear (int x, int y);
-    bool save (string filename);
-    bool save ();
-};
+        int get_width();
+        int get_height();
+        void set_pixel(int x, int y, uint_fast32_t color);
+        uint_fast32_t get_pixel(int x, int y);
+        void clear(int x, int y);
+        bool save(string filename);
+        bool save();
+    };
+} // namespace mcmap
 
 #endif

@@ -16,65 +16,66 @@
 
 #include "../../logger/logger.hh"
 #include "../../nbt/Region.hh"
+#include "../threaded_worker.hh"
 #include "PNG.hh"
 #include "generator.hh"
 #include "worker.hh"
-#include "../threaded_worker.hh"
 
 using namespace std;
 
-RegionContainer::RegionContainer (anvil::Region *region, int rx, int rz)
-    : region (region), rx (rx), rz (rz) {}
+namespace mcmap {
+    RegionContainer::RegionContainer(anvil::Region *region, int rx, int rz)
+        : region(region), rx(rx), rz(rz) {}
 
-RegionContainer::~RegionContainer () { delete region; }
+    RegionContainer::~RegionContainer() { delete region; }
 
-QueuedItem::QueuedItem (shared_ptr<RegionContainer> region, int off_x,
-                        int off_z)
-    : region (move (region)), off_x (off_x), off_z (off_z) {}
+    QueuedItem::QueuedItem(shared_ptr<RegionContainer> region, int off_x,
+                           int off_z)
+        : region(move(region)), off_x(off_x), off_z(off_z) {}
 
-string QueuedItem::debug_string () {
-    if (region == nullptr) {
-        return "(finishing job)"s;
+    string QueuedItem::debug_string() {
+        if (region == nullptr) {
+            return "(finishing job)"s;
+        }
+
+        return "("s + to_string(region->rx) + "+"s + to_string(off_x) + ", "s +
+               to_string(region->rz) + "+"s + to_string(off_z) + ")"s;
     }
 
-    return "("s + to_string (region->rx) + "+"s + to_string (off_x) + ", "s +
-           to_string (region->rz) + "+"s + to_string (off_z) + ")"s;
-}
+    namespace {
+        ThreadedWorker<shared_ptr<QueuedItem>> *worker;
+    } // namespace
 
-namespace {
-    ThreadedWorker<shared_ptr<QueuedItem>> *worker;
-} // namespace
+    string option_out_dir;
+    bool option_verbose;
+    int option_jobs;
+    bool option_nether;
+    bool option_generate_progress;
+    bool option_generate_range;
+    string option_journal_dir;
 
-string option_out_dir;
-bool option_verbose;
-int option_jobs;
-bool option_nether;
-bool option_generate_progress;
-bool option_generate_range;
-string option_journal_dir;
+    void queue_item(shared_ptr<QueuedItem> item) {
+        if (option_verbose) {
+            logger::d("trying to queue " + item->debug_string());
+        }
 
-void queue_item (shared_ptr<QueuedItem> item) {
-    if (option_verbose) {
-        logger::d ("trying to queue " + item->debug_string ());
+        worker->queue_job(move(item));
     }
 
-    worker->queue_job(move (item));
-}
+    void start_worker() {
+        if (option_verbose) {
+            logger::d("starting worker thread(s) ...");
+        }
 
-void start_worker () {
-    if (option_verbose) {
-        logger::d ("starting worker thread(s) ...");
+        worker = new ThreadedWorker<shared_ptr<QueuedItem>>(
+            option_jobs, &generator::generate_256);
+        worker->start();
     }
 
-    worker = new ThreadedWorker<shared_ptr<QueuedItem>> (option_jobs, &generator::generate_256);
-    worker->start ();
-}
+    void wait_for_worker() {
+        worker->wait();
+        delete worker;
+    }
 
-void wait_for_worker () {
-    worker->wait();
-    delete worker;
-}
-
-void finish_worker () {
-    worker->finish();
-}
+    void finish_worker() { worker->finish(); }
+} // namespace mcmap

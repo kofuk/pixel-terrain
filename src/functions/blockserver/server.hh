@@ -5,14 +5,16 @@
 
 using namespace std;
 
-namespace server {
-    extern string overworld_dir;
-    extern string nether_dir;
-    extern string end_dir;
+namespace mcmap {
+    namespace server {
+        extern string overworld_dir;
+        extern string nether_dir;
+        extern string end_dir;
 
-    void print_protocol_detail ();
+        void print_protocol_detail();
 
-    void launch_server (bool daemon_mode);
-} // namespace server
+        void launch_server(bool daemon_mode);
+    } // namespace server
+} // namespace mcmap
 
 #endif
