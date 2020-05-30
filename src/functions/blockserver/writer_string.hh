@@ -4,10 +4,12 @@
 #include <string>
 #include <vector>
 
+#include "writer.hh"
+
 namespace mcmap::server {
     using namespace std;
 
-    class writer_string {
+    class writer_string : public writer {
         vector<char> data;
 
     public:

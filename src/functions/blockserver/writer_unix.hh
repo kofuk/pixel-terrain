@@ -8,7 +8,7 @@
 using namespace std;
 
 namespace mcmap::server {
-    class writer_unix {
+    class writer_unix : public writer {
         static constexpr size_t buf_size = 2048;
         char buf[buf_size];
         size_t off = 0;
