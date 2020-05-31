@@ -12,6 +12,7 @@
 #include "blocks.hh"
 #include "color.hh"
 #include "generator.hh"
+#include "worker.hh"
 
 namespace mcmap::generator {
     struct PixelState {
@@ -76,6 +77,10 @@ namespace mcmap::generator {
                             block == "minecraft:void_air"sv) {
                             air_found = true;
                             prev_block = block;
+                            continue;
+                        }
+
+                        if (option_nether && !air_found) {
                             continue;
                         }
 
