@@ -1,5 +1,6 @@
-add_custom_target(block_colors_data
-  BYPRODUCTS block_colors_data.hh
+add_custom_target(block_colors_data DEPENDS block_colors_data.hh)
+
+add_custom_command(OUTPUT block_colors_data.hh
   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gen_block_colors_data.sh block_colors_data.hh
   DEPENDS gen_block_colors_data.sh
   minecraft/block_colors_a.tsv minecraft/block_colors_b.tsv minecraft/block_colors_c.tsv
