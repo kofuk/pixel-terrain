@@ -16,18 +16,12 @@
 #include <thread>
 #include <unordered_map>
 
-#include <signal.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
 #include "../../logger/logger.hh"
 #include "../../nbt/Region.hh"
-#include "../threaded_worker.hh"
+#include "request.hh"
 #include "server.hh"
+#include "server_unix_socket.hh"
+#include "writer.hh"
 
 using namespace std;
 
@@ -64,9 +58,6 @@ namespace mcmap {
         string end_dir;
 
         namespace {
-            ThreadedWorker<int> *worker;
-            mutex worker_mutex;
-
             class Response {
                 int response_code = 500;
                 int altitude = 0;
@@ -86,18 +77,20 @@ namespace mcmap {
                     }
                 }
 
-                void write_to(FILE *out) {
+                void write_to(writer *w) {
                     response_wrote = true;
 
-                    fputs("MMP/1.0 ", out);
-                    fputs(to_string(response_code).c_str(), out);
-                    fputs("\r\n\r\n", out);
+                    w->write_data("MMP/1.0 ");
+                    w->write_data(response_code);
+                    w->write_data("\r\n\r\n");
                     if (response_code != 200) return;
 
-                    fprintf(out,
-                            R"({"altitide": %d, "block": "%s"})"
-                            "\r\n",
-                            altitude, block.c_str());
+                    w->write_data(R"({"altitude": )");
+                    w->write_data(altitude);
+                    w->write_data(R"(, "block": ")");
+                    w->write_data(block);
+                    w->write_data(R"("})");
+                    w->write_data("\r\n");
                 }
 
                 Response *set_response_code(int code) {
@@ -111,19 +104,10 @@ namespace mcmap {
                 }
 
                 Response *set_block(string const &block) {
-                    if (block.find(':') == string::npos) {
-                        this->block = "minecraft:"s + block;
-                    } else {
-                        this->block = block;
-                    }
+                    this->block = block;
                     return this;
                 }
             };
-
-            void terminate_server() {
-                unlink("/tmp/mcmap.sock");
-                exit(0);
-            }
 
             inline int positive_mod(int a, int b) {
                 int mod = a % b;
@@ -132,7 +116,7 @@ namespace mcmap {
                 return mod;
             }
 
-            void resolve_block(FILE *f, string dimen, long long int x,
+            void resolve_block(writer *w, string dimen, long long int x,
                                long long int z) {
                 int region_x;
                 int region_z;
@@ -158,7 +142,7 @@ namespace mcmap {
 
                 if (dimen == "nether"s) {
                     if (nether_dir.empty()) {
-                        Response().set_response_code(404)->write_to(f);
+                        Response().set_response_code(404)->write_to(w);
 
                         return;
                     }
@@ -166,7 +150,7 @@ namespace mcmap {
                     region_file = nether_dir;
                 } else if (dimen == "end"s) {
                     if (end_dir.empty()) {
-                        Response().set_response_code(404)->write_to(f);
+                        Response().set_response_code(404)->write_to(w);
 
                         return;
                     }
@@ -174,7 +158,7 @@ namespace mcmap {
                     region_file = end_dir;
                 } else {
                     if (overworld_dir.empty()) {
-                        Response().set_response_code(404)->write_to(f);
+                        Response().set_response_code(404)->write_to(w);
 
                         return;
                     }
@@ -185,7 +169,7 @@ namespace mcmap {
                 region_file /= "r."s + to_string(region_x) + "."s +
                                to_string(region_z) + ".mca"s;
                 if (!filesystem::exists(region_file)) {
-                    Response().set_response_code(404)->write_to(f);
+                    Response().set_response_code(404)->write_to(w);
 
                     return;
                 }
@@ -193,7 +177,7 @@ namespace mcmap {
                 anvil::Region *r = new anvil::Region(region_file.string());
                 anvil::Chunk *chunk = r->get_chunk(chunk_x, chunk_z);
                 if (chunk == nullptr) {
-                    Response().set_response_code(404)->write_to(f);
+                    Response().set_response_code(404)->write_to(w);
 
                     return;
                 }
@@ -206,7 +190,7 @@ namespace mcmap {
                             block == "minecraft:cave_air"s ||
                             block == "minecraft:void_air"s) {
                             if (y == 0) {
-                                Response().set_response_code(404)->write_to(f);
+                                Response().set_response_code(404)->write_to(w);
 
                                 break;
                             }
@@ -218,7 +202,7 @@ namespace mcmap {
 
                         if (!air_found) {
                             if (y == 0) {
-                                Response().set_response_code(404)->write_to(f);
+                                Response().set_response_code(404)->write_to(w);
 
                                 break;
                             }
@@ -226,13 +210,13 @@ namespace mcmap {
                         }
 
                         if (block.empty()) {
-                            Response().set_response_code(404)->write_to(f);
+                            Response().set_response_code(404)->write_to(w);
                         } else {
                             Response()
                                 .set_response_code(200)
                                 ->set_altitude(y)
                                 ->set_block(block)
-                                ->write_to(f);
+                                ->write_to(w);
                         }
 
                         break;
@@ -245,7 +229,7 @@ namespace mcmap {
                             block == "minecraft:cave_air"s ||
                             block == "minecraft:void_air"s) {
                             if (y == 0) {
-                                Response().set_response_code(404)->write_to(f);
+                                Response().set_response_code(404)->write_to(w);
 
                                 break;
                             }
@@ -254,13 +238,13 @@ namespace mcmap {
                         }
 
                         if (block.empty()) {
-                            Response().set_response_code(404)->write_to(f);
+                            Response().set_response_code(404)->write_to(w);
                         } else {
                             Response()
                                 .set_response_code(200)
                                 ->set_altitude(y)
                                 ->set_block(block)
-                                ->write_to(f);
+                                ->write_to(w);
                         }
 
                         break;
@@ -271,201 +255,43 @@ namespace mcmap {
                 delete r;
             }
 
-            void handle_request(int fd) {
-                FILE *f = fdopen(fd, "rb+");
-                if (f == NULL) {
-                    close(fd);
-
-                    return;
-                }
-
-                char *line = nullptr;
-                size_t cap = 0;
-                if (getline(&line, &cap, f) < 0) {
-                    Response().set_response_code(400)->write_to(f);
-                    fclose(f);
-
-                    return;
-                }
-                size_t len = strlen(line);
-                for (size_t i = 0; i < len; ++i) {
-                    if (line[i] == '\r' || line[i] == '\n') {
-                        line[i] = 0;
-                        break;
-                    }
-                }
-
-                if (strcmp(line, "GET MMP/1.0")) {
-                    Response().set_response_code(400)->write_to(f);
-                    fclose(f);
-
-                    return;
-                }
-
-                string dimen;
-                long long int x;
-                bool x_set = false;
-                long long int z;
-                bool z_set = false;
-                try {
-                    while (getline(&line, &cap, f) >= 0) {
-                        len = strlen(line);
-                        for (size_t i = 0; i < len; ++i) {
-                            if (line[i] == '\r' || line[i] == '\n') {
-                                line[i] = 0;
-
-                                break;
-                            }
-                        }
-
-                        if (line[0] == 0) break;
-
-                        char *pos_colon = strchr(line, ':');
-                        if (pos_colon == nullptr) {
-                            Response().set_response_code(400)->write_to(f);
-                        }
-                        *pos_colon = 0;
-
-                        string key = line;
-                        ++pos_colon;
-                        while (*pos_colon == ' ')
-                            ++pos_colon;
-
-                        string value = pos_colon;
-                        if (key == "Coord-X"s) {
-                            x_set = true;
-                            x = stoll(value);
-                        } else if (key == "Coord-Z"s) {
-                            z_set = true;
-                            z = stoll(value);
-                        } else if (key == "Dimension"s) {
-                            dimen = value;
-                        }
-                    }
-                } catch (invalid_argument const &) {
-                    Response().set_response_code(400)->write_to(f);
-                    fclose(f);
-
-                    return;
-                } catch (out_of_range const &) {
-                    Response().set_response_code(400)->write_to(f);
-                    fclose(f);
-
-                    return;
-                }
-
-                if (dimen != "overworld"s) {
-                    cerr << "error" << endl;
-                }
-
-                if (!x_set || !z_set ||
-                    (dimen != "overworld"s && dimen != "nether"s &&
-                     dimen != "end"s)) {
-                    Response().set_response_code(400)->write_to(f);
-                    fclose(f);
-
-                    return;
-                }
-
-                resolve_block(f, dimen, x, z);
-
-                fclose(f);
-            }
-
-            void handle_signals(sigset_t *sigs) {
-                int sig;
-                for (;;) {
-                    if (sigwait(sigs, &sig) != 0) {
-                        exit(1);
-                    }
-
-                    unique_lock<mutex> lock(worker_mutex);
-                    if (sig == SIGUSR1) {
-                        if (worker != nullptr) {
-                            worker->finish();
-                            worker->wait();
-                            delete worker;
-                        }
-                        terminate_server();
-                    }
-                }
-            }
-
-            void prepare_signel_handle_thread() {
-                sigset_t sigs;
-                sigemptyset(&sigs);
-                sigaddset(&sigs, SIGPIPE);
-                sigaddset(&sigs, SIGUSR1);
-                sigaddset(&sigs, SIGINT);
-                pthread_sigmask(SIG_BLOCK, &sigs, nullptr);
-
-                thread t(&handle_signals, &sigs);
-                t.detach();
-            }
         } // namespace
 
+        void handle_request(request *req, writer *w) {
+            req->parse_all();
+
+            if (req->get_method() != "GET" || req->get_protocol() != "MMP" ||
+                req->get_version() != "1.0") {
+                Response().set_response_code(400)->write_to(w);
+                return;
+            }
+
+            string dimen = req->get_request_field("Dimension");
+            if (!(dimen == "overworld" || dimen == "nether" ||
+                  dimen == "end")) {
+                Response().set_response_code(400)->write_to(w);
+                return;
+            }
+
+            long long int x;
+            long long int z;
+            try {
+                x = stoi(req->get_request_field("Coord-X"));
+                z = stoi(req->get_request_field("Coord-Z"));
+            } catch (invalid_argument const &) {
+                Response().set_response_code(400)->write_to(w);
+                return;
+            } catch (out_of_range const &) {
+                Response().set_response_code(400)->write_to(w);
+                return;
+            }
+
+            resolve_block(w, dimen, x, z);
+        }
+
         void launch_server(bool daemon_mode) {
-            if (daemon_mode) {
-                if (daemon(0, 0) == -1) {
-                    cerr << "cannot run in daemon mode" << endl;
-
-                    exit(1);
-                }
-            }
-
-            prepare_signel_handle_thread();
-            worker = new ThreadedWorker<int>(thread::hardware_concurrency(),
-                                             &handle_request);
-            worker->start();
-
-            int ssock;
-
-            sockaddr_un sa;
-            memset(&sa, 0, sizeof(sa));
-            sockaddr_un sa_peer;
-            memset(&sa_peer, 0, sizeof(sa));
-
-            socklen_t addr_len = sizeof(sockaddr_un);
-
-            if ((ssock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-                perror("server");
-
-                exit(1);
-            }
-
-            sa.sun_family = AF_UNIX;
-            strcpy(sa.sun_path, "/tmp/mcmap.sock");
-
-            if (bind(ssock, reinterpret_cast<sockaddr *>(&sa),
-                     sizeof(sockaddr_un)) == -1) {
-                goto fail;
-            }
-
-            if (listen(ssock, 4) == -1) {
-                goto fail;
-            }
-
-            if (chmod("/tmp/mcmap.sock", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
-                                             S_IROTH | S_IWOTH) == -1) {
-                goto fail;
-            }
-
-            for (;;) {
-                int fd;
-                if ((fd = accept(ssock, reinterpret_cast<sockaddr *>(&sa_peer),
-                                 &addr_len)) > 0) {
-                    unique_lock<mutex> lock(worker_mutex);
-                    worker->queue_job(fd);
-                }
-            }
-
-        fail:
-            perror("server");
-            close(ssock);
-            if (worker != nullptr) {
-                worker->finish();
-                worker->wait();
-            }
+            server_base *s = new server_unix_socket(daemon_mode);
+            s->start_server();
         }
     } // namespace server
 } // namespace mcmap

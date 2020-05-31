@@ -1,4 +1,4 @@
-target_sources(mcmap PRIVATE server.cc writer_unix.cc)
+target_sources(mcmap PRIVATE reader_unix.cc request.cc server.cc server_unix_socket.cc writer_unix.cc)
 
 add_executable(writer_unix_test writer_unix_test.cc writer_unix.cc)
 target_include_directories(writer_unix_test PRIVATE ${Boost_INLUDE_DIRS})
@@ -12,7 +12,7 @@ target_compile_definitions(writer_string_test PRIVATE "BOOST_TEST_DYN_LINK=1")
 target_compile_definitions(writer_string_test PRIVATE "BOOST_TEST_MAIN")
 target_link_libraries(writer_string_test ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-add_executable(request_test request_test.cc)
+add_executable(request_test request_test.cc request.cc)
 target_include_directories(request_test PRIVATE ${Boost_INLUDE_DIRS})
 target_compile_definitions(request_test PRIVATE "BOOST_TEST_DYN_LINK=1")
 target_compile_definitions(request_test PRIVATE "BOOST_TEST_MAIN")

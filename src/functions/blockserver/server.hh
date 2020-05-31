@@ -3,18 +3,20 @@
 
 #include <string>
 
+#include "request.hh"
+#include "writer.hh"
+
 using namespace std;
 
-namespace mcmap {
-    namespace server {
-        extern string overworld_dir;
-        extern string nether_dir;
-        extern string end_dir;
+namespace mcmap::server {
+    extern string overworld_dir;
+    extern string nether_dir;
+    extern string end_dir;
 
-        void print_protocol_detail();
+    void print_protocol_detail();
 
-        void launch_server(bool daemon_mode);
-    } // namespace server
-} // namespace mcmap
+    void handle_request(request *req, writer *w);
+    void launch_server(bool daemon_mode);
+} // namespace mcmap::server
 
 #endif
