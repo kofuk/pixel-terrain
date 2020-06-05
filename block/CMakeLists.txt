@@ -1,15 +1,15 @@
+add_executable(block_data_generator block_data_generator.cc)
+
+add_boost_test(block_data_generator_test blocks_generator_test block_data_generator.cc)
+target_compile_definitions(block_data_generator_test PRIVATE -DTEST)
+
 add_custom_target(block_colors_data DEPENDS block_colors_data.hh)
 
+file(GLOB COLOR_DATA_SOURCES minecraft/block_colors_?.tsv)
+
 add_custom_command(OUTPUT block_colors_data.hh
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gen_block_colors_data.sh block_colors_data.hh
-  DEPENDS gen_block_colors_data.sh
-  minecraft/block_colors_a.tsv minecraft/block_colors_b.tsv minecraft/block_colors_c.tsv
-  minecraft/block_colors_d.tsv minecraft/block_colors_e.tsv minecraft/block_colors_f.tsv
-  minecraft/block_colors_g.tsv minecraft/block_colors_h.tsv minecraft/block_colors_i.tsv
-  minecraft/block_colors_j.tsv minecraft/block_colors_k.tsv minecraft/block_colors_l.tsv
-  minecraft/block_colors_m.tsv minecraft/block_colors_n.tsv minecraft/block_colors_o.tsv
-  minecraft/block_colors_p.tsv minecraft/block_colors_q.tsv minecraft/block_colors_r.tsv
-  minecraft/block_colors_s.tsv minecraft/block_colors_t.tsv minecraft/block_colors_v.tsv
-  minecraft/block_colors_w.tsv minecraft/block_colors_y.tsv minecraft/block_colors_z.tsv
+  COMMAND block_data_generator ${CMAKE_CURRENT_BINARY_DIR}/block_colors_data.hh ${COLOR_DATA_SOURCES}
+  DEPENDS block_data_generator ${COLOR_DATA_SOURCES}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "Embedding block color data"
   VERBATIM)

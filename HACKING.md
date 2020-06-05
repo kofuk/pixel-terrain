@@ -4,8 +4,7 @@
 
 Edit TSV (Tab-Separated Values) files on `/block`.
 These are stored in `/block/${namespace}/block_colors_${prefix}.tsv` for convenience.
-If you add new namespace or new prefix, remember editing `gen_block_colors_data.sh`
-and `CMakeLists.txt`.
+If you add new namespace or new prefix, remember editing `CMakeLists.txt`.
 
 Format for each TSV files is following:
 
