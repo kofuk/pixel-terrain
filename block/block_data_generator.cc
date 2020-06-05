@@ -61,7 +61,7 @@ namespace {
     }
 
     void write_postamble(std::ostream &out_file) {
-        out_file << "};" << std::endl << std::endl;
+        out_file << "0};" << std::endl << std::endl;
         out_file << "#endif" << std::endl;
     }
 
