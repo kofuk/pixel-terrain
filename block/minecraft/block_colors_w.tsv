@@ -1,13 +1,6 @@
 block_id	r	g	b	a
 minecraft:wall_torch	ff	e8	0a	64
-minecraft:warped_door	39	8c	8a	96
-minecraft:warped_fungi	16	7e	86	64
-minecraft:warped_nylium	16	61	5b	ff
-minecraft:warped_stem	44	21	31	ff
-minecraft:warped_wart_block	19	63	67	ff
 minecraft:water	34	56	9b	96
-minecraft:weeping_vines	5a	00	00	ff
-minecraft:weeping_vines_plant	5a	00	00	ff
 minecraft:wet_sponge	c1	bc	4e	ff
 minecraft:wheat	e2	c3	64	ff
 minecraft:white_banner	7e	82	81	50
