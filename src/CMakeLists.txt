@@ -8,4 +8,6 @@ add_subdirectory(functions)
 add_subdirectory(logger)
 add_subdirectory(nbt)
 
+configure_file(dir-locals.el.in ${CMAKE_CURRENT_SOURCE_DIR}/.dir-locals.el @ONLY)
+
 install(TARGETS mcmap DESTINATION bin)

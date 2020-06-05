@@ -1,0 +1,1 @@
+((nil . ((flycheck-clang-include-path . (list "@ZLIB_INCLUDE_DIRS@" "@PNG_INCLUDE_DIRS@" "@CMAKE_BINARY_DIR@")))))
