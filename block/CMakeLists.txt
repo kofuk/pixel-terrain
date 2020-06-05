@@ -5,7 +5,7 @@ target_compile_definitions(block_data_generator_test PRIVATE -DTEST)
 
 add_custom_target(block_colors_data DEPENDS block_colors_data.hh)
 
-file(GLOB COLOR_DATA_SOURCES minecraft/block_colors_?.tsv)
+file(GLOB COLOR_DATA_SOURCES minecraft/*.tsv)
 
 add_custom_command(OUTPUT block_colors_data.hh
   COMMAND block_data_generator ${CMAKE_CURRENT_BINARY_DIR}/block_colors_data.hh ${COLOR_DATA_SOURCES}
