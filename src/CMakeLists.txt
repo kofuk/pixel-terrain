@@ -8,10 +8,4 @@ add_subdirectory(functions)
 add_subdirectory(logger)
 add_subdirectory(nbt)
 
-if(${CMAKE_CXX_COMPILER} STREQUAL "clang++")
-  target_compile_options(mcmap PRIVATE -Wall -Wextra -O2)
-else()
-  target_compile_options(mcmap PRIVATE -Wall -Wextra -O2 --param=max-vartrack-size=55000000)
-endif()
-
 install(TARGETS mcmap DESTINATION bin)
