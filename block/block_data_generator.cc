@@ -40,8 +40,10 @@
  * represents RRGGBBAA.
  */
 
-
 namespace {
+    size_t total_elements;
+    size_t total_bytes;
+
     void print_usage() {
         std::cout << "usage: block_data_generator outfile infile..."
                   << std::endl;
@@ -62,6 +64,11 @@ namespace {
 
     void write_postamble(std::ostream &out_file) {
         out_file << "0};" << std::endl << std::endl;
+        ++total_bytes;
+
+        out_file << "/* " << total_bytes << " bytes, " << total_elements
+                 << " elements written. */" << std::endl;
+
         out_file << "#endif" << std::endl;
     }
 
@@ -104,6 +111,7 @@ namespace {
                 out_file << ',';
             }
             out_file << '0' << ',';
+            total_bytes += fields[0].size() + 1;
 
             unsigned char color_components[4];
 
@@ -135,6 +143,9 @@ namespace {
 #else
 #error "Unsupported byte order"
 #endif
+
+            total_bytes += 4;
+            ++total_elements;
 
             out_file << std::endl;
         }
