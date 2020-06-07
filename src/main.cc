@@ -20,8 +20,7 @@
 #include <string>
 #include <thread>
 
-#include <getopt.h>
-#include <unistd.h>
+#include <optlib/optlib.h>
 
 #include "functions/blockserver/server.hh"
 #include "functions/imagegen/blocks.hh"
@@ -144,37 +143,10 @@ namespace mcmap {
 
         void print_usage() {
             cout << "Usage: mcmap generate [OPTION]... SRC_DIR" << endl;
-            cout << "       mcmap server CONFIG" << endl;
-            cout << "Modes:" << endl;
-            cout << " generate  image generating mode" << endl;
-            cout << " server    block info provider server" << endl << endl;
-            cout << "Global options:" << endl;
-            cout << " --help     display this help and exit" << endl;
-            cout << " --version  display version information and exit" << endl
-                 << endl;
-            cout << "GENERATE mode options:" << endl;
-            cout << " -j N, --jobs=N    generate N images concurrently. "
-                    "(default: "
-                    "processor count)"
-                 << endl;
-            cout << " -n --nether       Use nether image generation algorythm "
-                    "(experimental)."
-                 << endl;
-            cout << " -o --out DIR      specify output directory. (default: "
-                    "current "
-                    "directory)"
-                 << endl;
-            cout << " -r --gen-range    output chunk range to chunk_range.json"
-                 << endl;
-            cout << " -U --journal DIR  read journal from DIR" << endl;
-            cout << " -v --verbose      output verbose log" << endl << endl;
-            cout << "SERVER mode options:" << endl;
-            cout << " --daemon         run server process in background"
-                 << endl;
-            cout << " --overworld DIR  specify directory for overworld" << endl;
-            cout << " --nether DIR     specify directory for nether" << endl;
-            cout << " --end DIR        specify directory for end" << endl;
-            cout << " --help    display protocol and config detail and exit"
+            cout << "       mcmap server [OPTION]..." << endl;
+            cout << "       mcmap --version" << endl;
+            cout << "For help for each mode, execute these mode with `--help' "
+                    "option."
                  << endl;
         }
 
@@ -189,45 +161,61 @@ namespace mcmap {
                  << "for more information and the source code." << endl;
         }
 
-        option generate_command_options[] = {
-            {"jobs", required_argument, 0, 'j'},
-            {"journal", required_argument, 0, 'U'},
-            {"nether", no_argument, 0, 'n'},
-            {"out", required_argument, 0, 'o'},
-            {"gen-range", no_argument, 0, 'r'},
-            {"verbose", no_argument, 0, 'v'},
-            {0, 0, 0, 0}};
-
-        option server_command_options[] = {
-            {"daemon", no_argument, 0, 'd'},
-            {"overworld", required_argument, 0, 'o'},
-            {"nether", required_argument, 0, 'n'},
-            {"end", required_argument, 0, 'e'},
-            {"help", no_argument, 0, 'h'},
-            {0, 0, 0, 0}};
-
         int generate_command(int argc, char **argv) {
             option_jobs = thread::hardware_concurrency();
             option_out_dir = ".";
 
-            int c;
+            optlib_parser *parser = optlib_parser_new(argc, argv);
+            optlib_parser_add_option(
+                parser, "jobs", 'j', true,
+                "Specify max concurrency for image generation.");
+            optlib_parser_add_option(
+                parser, "journal", 'U', true,
+                "Specify cache directory to generate images efficiently.");
+            optlib_parser_add_option(
+                parser, "nether", 'n', false,
+                "Use image generator optimized to nether.");
+            optlib_parser_add_option(parser, "out", 'o', true,
+                                     "Specify image output directory.");
+            optlib_parser_add_option(
+                parser, "gen-range", 'r', false,
+                "Generate JSON file indicates X and Z range block exists.");
+            optlib_parser_add_option(parser, "verbose", 'v', false,
+                                     "Output verbose (debug) log.");
+
             for (;;) {
-                c = getopt_long(argc, argv, "j:no:rU:v",
-                                generate_command_options, nullptr);
-                if (c == -1) break;
-
-                switch (c) {
-                case 'V':
-                    print_version();
-                    exit(0);
+                optlib_option *opt = optlib_next(parser);
+                if (parser->finished) {
                     break;
+                }
+                if (!opt) {
+                    optlib_print_help(parser, stdout);
+                    optlib_parser_free(parser);
+                    exit(1);
+                }
 
+                switch (opt->short_opt) {
                 case 'v':
                     option_verbose = true;
                     break;
 
                 case 'j':
-                    option_jobs = stoi(optarg);
+                    try {
+                        option_jobs = stoi(opt->argval);
+                        if (option_jobs <= 0) {
+                            throw out_of_range("concurrency is negative");
+                        }
+                    } catch (invalid_argument const &e) {
+                        cout << "Invalid concurrency." << endl;
+                        optlib_print_help(parser, stdout);
+                        optlib_parser_free(parser);
+                        exit(1);
+                    } catch (out_of_range const &e) {
+                        cout << "Concurrency is out of permitted range."
+                             << endl;
+                        optlib_parser_free(parser);
+                        exit(1);
+                    }
                     break;
 
                 case 'n':
@@ -235,7 +223,7 @@ namespace mcmap {
                     break;
 
                 case 'o':
-                    option_out_dir = optarg;
+                    option_out_dir = opt->argval;
                     break;
 
                 case 'r':
@@ -243,19 +231,15 @@ namespace mcmap {
                     break;
 
                 case 'U':
-                    option_journal_dir = optarg;
+                    option_journal_dir = opt->argval;
                     break;
-
-                default:
-                    print_usage();
-                    exit(1);
                 }
             }
 
-            if (optind >= argc) {
-                print_usage();
-
-                return 0;
+            if (optind != argc - 1) {
+                optlib_print_help(parser, stdout);
+                optlib_parser_free(parser);
+                exit(1);
             }
 
             init_block_list();
@@ -267,44 +251,60 @@ namespace mcmap {
 
         int server_command(int argc, char **argv) {
             bool daemon_mode = false;
-            int opt;
+
+            optlib_parser *parser = optlib_parser_new(argc, argv);
+            optlib_parser_add_option(parser, "daemon", 'd', false,
+                                     "Run block server as daemon.");
+            optlib_parser_add_option(
+                parser, "overworld", 'o', true,
+                "Specify data directory for the overworld.");
+            optlib_parser_add_option(parser, "nether", 'n', true,
+                                     "Specify data directory for the nether.");
+            optlib_parser_add_option(parser, "end", 'e', true,
+                                     "Specify data directory for the end.");
+            optlib_parser_add_option(parser, "help", 'e', false,
+                                     "Print this message and exit.");
+
             for (;;) {
-                opt = getopt_long(argc, argv,
-                                  "dho:n:e:", server_command_options, nullptr);
+                optlib_option *opt = optlib_next(parser);
 
-                if (opt == -1) break;
+                if (parser->finished) {
+                    break;
+                }
+                if (!opt) {
+                    server::print_help(parser);
+                    exit(1);
+                }
 
-                switch (opt) {
+                switch (opt->short_opt) {
                 case 'd':
                     daemon_mode = true;
                     break;
 
                 case 'h':
-                    server::print_protocol_detail();
+                    server::print_help(parser);
                     exit(0);
 
                 case 'o':
-                    server::overworld_dir = optarg;
+                    server::overworld_dir = opt->argval;
                     break;
 
                 case 'n':
-                    server::nether_dir = optarg;
+                    server::nether_dir = opt->argval;
                     break;
 
                 case 'e':
-                    server::end_dir = optarg;
+                    server::end_dir = opt->argval;
                     break;
-
-                default:
-                    print_usage();
-                    exit(1);
                 }
             }
 
             if (argc - optind == 0) {
+                optlib_parser_free(parser);
                 server::launch_server(daemon_mode);
             } else {
-                print_usage();
+                server::print_help(parser);
+                optlib_parser_free(parser);
                 exit(1);
             }
 
@@ -331,11 +331,11 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    if (!strcmp(argv[1], "--help")) {
-        mcmap::print_usage();
-        exit(0);
-    } else if (!strcmp(argv[1], "--version")) {
+    if (!strcmp(argv[1], "--version")) {
         mcmap::print_version();
+        exit(0);
+    } else if (argv[1][0] == '-' || argv[1][0] == '/') {
+        mcmap::print_usage();
         exit(0);
     } else {
         mcmap::handle_commands(--argc, ++argv);

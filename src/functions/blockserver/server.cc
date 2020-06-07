@@ -16,6 +16,8 @@
 #include <thread>
 #include <unordered_map>
 
+#include <optlib/optlib.h>
+
 #include "../../logger/logger.hh"
 #include "../../nbt/Region.hh"
 #include "request.hh"
@@ -27,7 +29,12 @@ using namespace std;
 
 namespace mcmap {
     namespace server {
-        void print_protocol_detail() {
+        void print_help(optlib_parser *opt) {
+            cout << "usage: mcmap server [OPTIONS...]" << endl;
+
+            cout << "Possible options are:" << endl;
+            optlib_print_help(opt, stderr);
+
             cout << "Help for block info server's protocol and config" << endl
                  << endl;
 

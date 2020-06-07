@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <optlib/optlib.h>
+
 #include "request.hh"
 #include "writer.hh"
 
@@ -13,7 +15,7 @@ namespace mcmap::server {
     extern string nether_dir;
     extern string end_dir;
 
-    void print_protocol_detail();
+    void print_help(optlib_parser *opt);
 
     void handle_request(request *req, writer *w);
     void launch_server(bool daemon_mode);
