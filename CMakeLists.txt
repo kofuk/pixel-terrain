@@ -19,10 +19,9 @@ else()
     IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/liboptlib.a)
 endif()
 
-find_package(ZLIB REQUIRED)
-find_package(PNG REQUIRED)
+include(cmake/require_zlib.cmake)
+include(cmake/require_png.cmake)
 find_package(Threads REQUIRED)
-find_package(PkgConfig REQUIRED)
 
 include(cmake/test_utils.cmake)
 
