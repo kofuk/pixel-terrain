@@ -70,7 +70,7 @@ class test_reader : public reader {
 public:
     test_reader(int index) { test_data = test_request[index]; }
 
-    ssize_t fill_buffer(char *buf, size_t len, size_t off) {
+    long int fill_buffer(char *buf, size_t len, size_t off) {
         if (!test_data[this->off]) return -1;
         size_t N = min(len - off, (size_t)5);
         for (size_t i = 0; i < N; ++i) {

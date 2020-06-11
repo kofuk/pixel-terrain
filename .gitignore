@@ -4,3 +4,4 @@ __pycache__
 /src/.dir-locals.el
 /compile_flags.txt
 /external
+/.vscode

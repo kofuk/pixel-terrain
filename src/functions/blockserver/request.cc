@@ -46,7 +46,7 @@ namespace mcmap::server {
         }
         if (!has_cr || end + 1 == n_in_buf) {
             if (n_in_buf != 2048) {
-                ssize_t n_read =
+                long int n_read =
                     request_reader->fill_buffer(int_buf, 2048, n_in_buf);
                 if (n_read <= 0) {
                     *ok = false;
