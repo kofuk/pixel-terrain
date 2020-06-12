@@ -22,9 +22,9 @@
 
 #include <optlib/optlib.h>
 
-#include "functions/blockserver/server.hh"
-#include "functions/imagegen/blocks.hh"
-#include "functions/imagegen/worker.hh"
+#include "commands/generate/blocks.hh"
+#include "commands/generate/worker.hh"
+#include "commands/server/server.hh"
 #include "logger/logger.hh"
 #include "logger/pretty_printer.hh"
 #include "nbt/Region.hh"
@@ -35,7 +35,7 @@ namespace pixel_terrain {
     namespace {
         /* TODO: Should move to functions/imagegen */
         void write_range_file(int start_x, int start_z, int end_x, int end_z) {
-            filesystem::path out_path(option_out_dir);
+            filesystem::path out_path(commands::generate::option_out_dir);
             out_path /= "chunk_range.json"s;
 
             ofstream out(out_path.string());
@@ -47,9 +47,10 @@ namespace pixel_terrain {
 
         /* TODO: Should move to functions/imagegen */
         void generate_all(string src_dir) {
-            if (!option_journal_dir.empty()) {
+            if (!commands::generate::option_journal_dir.empty()) {
                 try {
-                    filesystem::create_directories(option_journal_dir);
+                    filesystem::create_directories(
+                        commands::generate::option_journal_dir);
                 } catch (filesystem::filesystem_error const &e) {
                     logger::e("cannot create journal directory: "s + e.what());
 
@@ -57,7 +58,7 @@ namespace pixel_terrain {
                 }
             }
 
-            start_worker();
+            commands::generate::start_worker();
 
             filesystem::directory_iterator dirents(src_dir);
             int nfiles = distance(begin(dirents), end(dirents));
@@ -91,7 +92,7 @@ namespace pixel_terrain {
                 int x = stoi(name.substr(2, i - 2));
                 int z = stoi(name.substr(start_z, i - start_z));
 
-                if (option_generate_range) {
+                if (commands::generate::option_generate_range) {
                     if (x < min_x) min_x = x;
                     if (x > max_x) max_x = x;
                     if (z < min_z) min_z = z;
@@ -100,11 +101,12 @@ namespace pixel_terrain {
 
                 anvil::Region *r;
                 try {
-                    if (option_journal_dir.empty()) {
+                    if (commands::generate::option_journal_dir.empty()) {
                         r = new anvil::Region(path.path().string());
                     } else {
-                        r = new anvil::Region(path.path().string(),
-                                              option_journal_dir);
+                        r = new anvil::Region(
+                            path.path().string(),
+                            commands::generate::option_journal_dir);
                     }
                 } catch (exception const &e) {
                     logger::e("failed to read region: "s +
@@ -114,22 +116,24 @@ namespace pixel_terrain {
                     continue;
                 }
 
-                shared_ptr<RegionContainer> rc(new RegionContainer(r, x, z));
+                shared_ptr<commands::generate::RegionContainer> rc(
+                    new commands::generate::RegionContainer(r, x, z));
 
                 for (int off_x = 0; off_x < 2; ++off_x) {
                     for (int off_z = 0; off_z < 2; ++off_z) {
-                        queue_item(shared_ptr<QueuedItem>(
-                            new QueuedItem(rc, off_x, off_z)));
+                        queue_item(shared_ptr<commands::generate::QueuedItem>(
+                            new commands::generate::QueuedItem(rc, off_x,
+                                                               off_z)));
                     }
                 }
 
                 pretty_printer::increment_progress_bar();
             }
 
-            finish_worker();
-            wait_for_worker();
+            commands::generate::finish_worker();
+            commands::generate::wait_for_worker();
 
-            if (option_generate_range) {
+            if (commands::generate::option_generate_range) {
                 /* max_* is exclusive */
                 ++max_x;
                 ++max_z;
@@ -162,8 +166,8 @@ namespace pixel_terrain {
         }
 
         int generate_command(int argc, char **argv) {
-            option_jobs = thread::hardware_concurrency();
-            option_out_dir = ".";
+            commands::generate::option_jobs = thread::hardware_concurrency();
+            commands::generate::option_out_dir = ".";
 
             optlib_parser *parser = optlib_parser_new(argc, argv);
             optlib_parser_add_option(
@@ -196,13 +200,13 @@ namespace pixel_terrain {
 
                 switch (opt->short_opt) {
                 case 'v':
-                    option_verbose = true;
+                    commands::generate::option_verbose = true;
                     break;
 
                 case 'j':
                     try {
-                        option_jobs = stoi(opt->argval);
-                        if (option_jobs <= 0) {
+                        commands::generate::option_jobs = stoi(opt->argval);
+                        if (commands::generate::option_jobs <= 0) {
                             throw out_of_range("concurrency is negative");
                         }
                     } catch (invalid_argument const &e) {
@@ -219,19 +223,19 @@ namespace pixel_terrain {
                     break;
 
                 case 'n':
-                    option_nether = true;
+                    commands::generate::option_nether = true;
                     break;
 
                 case 'o':
-                    option_out_dir = opt->argval;
+                    commands::generate::option_out_dir = opt->argval;
                     break;
 
                 case 'r':
-                    option_generate_range = true;
+                    commands::generate::option_generate_range = true;
                     break;
 
                 case 'U':
-                    option_journal_dir = opt->argval;
+                    commands::generate::option_journal_dir = opt->argval;
                     break;
                 }
             }
@@ -242,7 +246,7 @@ namespace pixel_terrain {
                 exit(1);
             }
 
-            init_block_list();
+            commands::generate::init_block_list();
 
             generate_all(argv[optind]);
 

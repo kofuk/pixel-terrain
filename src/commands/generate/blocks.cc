@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace pixel_terrain {
+namespace pixel_terrain::commands::generate {
     unordered_map<string_view, uint32_t> colors;
 
     void init_block_list() {
@@ -50,4 +50,4 @@ namespace pixel_terrain {
 
         return false;
     }
-} // namespace pixel_terrain
+} // namespace pixel_terrain::commands::generate

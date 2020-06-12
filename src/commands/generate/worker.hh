@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace pixel_terrain {
+namespace pixel_terrain::commands::generate {
     struct RegionContainer {
         anvil::Region *region;
         int rx;
@@ -40,6 +40,6 @@ namespace pixel_terrain {
     void start_worker();
     void wait_for_worker();
     void finish_worker();
-} // namespace pixel_terrain
+} // namespace pixel_terrain::commands::generate
 
 #endif

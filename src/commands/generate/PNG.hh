@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace pixel_terrain {
+namespace pixel_terrain::commands::generate {
     class Png {
         int width;
         int height;
@@ -27,6 +27,6 @@ namespace pixel_terrain {
         bool save(string filename);
         bool save();
     };
-} // namespace pixel_terrain
+} // namespace pixel_terrain::commands::generate
 
 #endif

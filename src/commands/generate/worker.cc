@@ -23,7 +23,7 @@
 
 using namespace std;
 
-namespace pixel_terrain {
+namespace pixel_terrain::commands::generate {
     RegionContainer::RegionContainer(anvil::Region *region, int rx, int rz)
         : region(region), rx(rx), rz(rz) {}
 
@@ -68,7 +68,7 @@ namespace pixel_terrain {
         }
 
         worker = new ThreadedWorker<shared_ptr<QueuedItem>>(
-            option_jobs, &generator::generate_256);
+            option_jobs, &generate_256);
         worker->start();
     }
 
@@ -78,4 +78,4 @@ namespace pixel_terrain {
     }
 
     void finish_worker() { worker->finish(); }
-} // namespace pixel_terrain
+} // namespace pixel_terrain::commands::generate

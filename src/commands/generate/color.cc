@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace pixel_terrain::generator {
+namespace pixel_terrain::commands::generate {
     uint_fast32_t blend_color(uint_fast32_t fg, uint_fast32_t bg) {
         if ((bg & 0xff) == 0) {
             return fg;
@@ -72,4 +72,4 @@ namespace pixel_terrain::generator {
         return ((c[0] & 0xff) << 24) | ((c[1] & 0xff) << 16) |
                ((c[2] & 0xff) << 8) | (c[3] & 0xff);
     }
-} // namespace pixel_terrain::generator
+} // namespace pixel_terrain::commands::generate

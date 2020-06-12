@@ -14,7 +14,7 @@
 #include "generator.hh"
 #include "worker.hh"
 
-namespace pixel_terrain::generator {
+namespace pixel_terrain::commands::generate {
     struct PixelState {
         uint_fast32_t flags;
         uint_fast8_t top_height;
@@ -359,4 +359,4 @@ namespace pixel_terrain::generator {
         }
     }
 
-} // namespace pixel_terrain::generator
+} // namespace pixel_terrain::commands::generate

@@ -12,7 +12,7 @@ target_include_directories(pixel-terrain PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/ex
 target_link_libraries(pixel-terrain ${ZLIB_LIBRARIES} ${PNG_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT} optlib)
 
-add_subdirectory(functions)
+add_subdirectory(commands)
 add_subdirectory(logger)
 add_subdirectory(nbt)
 

@@ -8,11 +8,11 @@
 
 using namespace std;
 
-namespace pixel_terrain {
+namespace pixel_terrain::commands::generate {
     extern unordered_map<string_view, uint32_t> colors;
 
     void init_block_list();
     bool is_biome_overridden(string const &block);
-} // namespace pixel_terrain
+} // namespace pixel_terrain::commands::generate
 
 #endif
