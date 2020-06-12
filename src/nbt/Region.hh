@@ -5,14 +5,14 @@
 #include <string>
 
 #include "Chunk.hh"
-#include "File.hh"
+#include "file.hh"
 #include "nbt.hh"
 
 namespace pixel_terrain::anvil {
     class Region {
-        unique_ptr<File<unsigned char>> data;
+        unique_ptr<file<unsigned char>> data;
         size_t len;
-        unique_ptr<File<uint64_t>> last_update;
+        unique_ptr<file<uint64_t>> last_update;
 
         size_t header_offset(int chunk_x, int chunk_z);
         size_t chunk_location_off(int chunk_x, int chunk_z);

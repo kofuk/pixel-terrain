@@ -16,28 +16,28 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "File.hh"
 #include "Region.hh"
+#include "file.hh"
 #include "nbt.hh"
 #include "utils.hh"
 
 namespace pixel_terrain::anvil {
     Region::Region(string file_name) {
         data =
-            unique_ptr<File<unsigned char>>(new File<unsigned char>(file_name));
+            unique_ptr<file<unsigned char>>(new file<unsigned char>(file_name));
         len = data->size();
     }
 
     Region::Region(string filename, string journal_dir) {
         data =
-            unique_ptr<File<unsigned char>>(new File<unsigned char>(filename));
+            unique_ptr<file<unsigned char>>(new file<unsigned char>(filename));
         len = data->size();
 
         filesystem::path journal_path(journal_dir);
         journal_path /=
             filesystem::path(filename).filename().string() + ".journal"s;
-        last_update =
-            unique_ptr<File<uint64_t>>(new File<uint64_t>(journal_path, 1024));
+        last_update = unique_ptr<file<uint64_t>>(
+            new file<uint64_t>(journal_path, 1024, "r+"));
     }
 
     size_t Region::header_offset(int chunk_x, int chunk_z) {
