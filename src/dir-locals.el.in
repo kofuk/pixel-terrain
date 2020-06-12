@@ -1,4 +1,4 @@
-((nil . ((flycheck-clang-include-path . (list
+((c++-mode . ((flycheck-clang-include-path . (list
                                          "@LIBS_INCLUDE_DIRS_DIR_LOCALS@"
                                          "@CMAKE_BINARY_DIR@"
                                          "@PROJECT_SOURCE_DIR@/external/include")))))

@@ -18,7 +18,7 @@ namespace pixel_terrain::server {
     void print_help(optlib_parser *opt);
 
     void handle_request(request *req, writer *w);
-    void launch_server(bool daemon_mode);
+    int main(int argc, char **argv);
 } // namespace pixel_terrain::server
 
 #endif
