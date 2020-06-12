@@ -27,7 +27,7 @@
 
 using namespace std;
 
-namespace pixel_terrain::server {
+namespace pixel_terrain::commands::server {
     void print_help(optlib_parser *opt) {
         cout << "usage: mcmap server [OPTIONS...]" << endl;
 
@@ -356,4 +356,4 @@ namespace pixel_terrain::server {
 
         return 0;
     }
-} // namespace pixel_terrain::server
+} // namespace pixel_terrain::commands::server

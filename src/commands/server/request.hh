@@ -6,7 +6,7 @@
 
 #include "reader.hh"
 
-namespace pixel_terrain::server {
+namespace pixel_terrain::commands::server {
     using namespace std;
 
     class request {
@@ -34,6 +34,6 @@ namespace pixel_terrain::server {
         size_t get_field_count() const noexcept;
         string const get_request_field(string const &key) noexcept;
     };
-} // namespace pixel_terrain::server
+} // namespace pixel_terrain::commands::server
 
 #endif

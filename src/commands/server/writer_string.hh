@@ -6,7 +6,7 @@
 
 #include "writer.hh"
 
-namespace pixel_terrain::server {
+namespace pixel_terrain::commands::server {
     using namespace std;
 
     class writer_string : public writer {
@@ -17,6 +17,6 @@ namespace pixel_terrain::server {
         void write_data(int const data);
         operator string() const;
     };
-} // namespace pixel_terrain::server
+} // namespace pixel_terrain::commands::server
 
 #endif

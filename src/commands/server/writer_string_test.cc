@@ -8,7 +8,7 @@ using namespace pixel_terrain;
 using namespace std;
 
 BOOST_AUTO_TEST_CASE(writer_string_alpha) {
-    server::writer_string w;
+    commands::server::writer_string w;
 
     string initial = w;
     BOOST_TEST(initial == "");
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(writer_string_alpha) {
 }
 
 BOOST_AUTO_TEST_CASE(writer_string_num) {
-    server::writer_string w;
+    commands::server::writer_string w;
 
     w.write_data(1);
     BOOST_TEST(static_cast<string>(w) == "1");
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(writer_string_num) {
 }
 
 BOOST_AUTO_TEST_CASE(writer_string_mixed) {
-    server::writer_string w;
+    commands::server::writer_string w;
 
     w.write_data(1);
     BOOST_TEST(static_cast<string>(w) == "1");

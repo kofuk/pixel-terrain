@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(writer_unix_normal) {
         BOOST_TEST_FAIL("Failed to open /dev/null");
     }
 
-    server::writer_unix w(fd);
+    commands::server::writer_unix w(fd);
     w.write_data("ABC");
     BOOST_TEST(w.get_current_offset() == 3);
     BOOST_TEST(strncmp(w.get_current_buffer(), "ABC", 3) == 0);
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(writer_unix_exceed) {
         BOOST_TEST_FAIL("Failed to open /dev/null");
     }
 
-    server::writer_unix w(fd);
+    commands::server::writer_unix w(fd);
 
     for (int i = 0; i < 2048; ++i) {
         w.write_data(0);

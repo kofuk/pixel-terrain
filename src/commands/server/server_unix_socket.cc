@@ -17,7 +17,7 @@
 #include "server_unix_socket.hh"
 #include "writer.hh"
 
-namespace pixel_terrain::server {
+namespace pixel_terrain::commands::server {
     namespace {
         ThreadedWorker<int> *worker;
         mutex worker_mutex;
@@ -138,4 +138,4 @@ namespace pixel_terrain::server {
             worker->wait();
         }
     }
-} // namespace pixel_terrain::server
+} // namespace pixel_terrain::commands::server

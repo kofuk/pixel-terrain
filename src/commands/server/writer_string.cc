@@ -1,6 +1,6 @@
 #include "writer_string.hh"
 
-namespace pixel_terrain::server {
+namespace pixel_terrain::commands::server {
     void writer_string::write_data(string const &data) {
         this->data.insert(this->data.end(), data.begin(), data.end());
     }
@@ -12,4 +12,4 @@ namespace pixel_terrain::server {
     writer_string::operator string() const {
         return string(data.data(), data.size());
     }
-} // namespace pixel_terrain::server
+} // namespace pixel_terrain::commands::server

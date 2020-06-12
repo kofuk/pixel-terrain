@@ -51,7 +51,7 @@ namespace pixel_terrain {
             if (!strcmp(argv[0], "generate")) {
                 commands::generate::main(argc, argv);
             } else if (!strcmp(argv[0], "server")) {
-                server::main(argc, argv);
+                commands::server::main(argc, argv);
             } else {
                 cout << "unrecognized option: " << argv[0] << endl;
                 print_usage();

@@ -1,6 +1,6 @@
 #include "request.hh"
 
-namespace pixel_terrain::server {
+namespace pixel_terrain::commands::server {
     request::request(reader *r) : request_reader(r) {}
 
     bool request::parse_sig(string const &line) {
@@ -119,4 +119,4 @@ namespace pixel_terrain::server {
         return fields[key];
     }
 
-} // namespace pixel_terrain::server
+} // namespace pixel_terrain::commands::server

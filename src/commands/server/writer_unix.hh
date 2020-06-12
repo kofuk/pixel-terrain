@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace pixel_terrain::server {
+namespace pixel_terrain::commands::server {
     class writer_unix : public writer {
         static constexpr size_t buf_size = 2048;
         char buf[buf_size];
@@ -27,6 +27,6 @@ namespace pixel_terrain::server {
         char const *get_current_buffer();
         size_t get_current_offset();
     };
-} // namespace pixel_terrain::server
+} // namespace pixel_terrain::commands::server
 
 #endif
