@@ -15,7 +15,7 @@
 
 #include "PNG.hh"
 
-namespace mcmap {
+namespace pixel_terrain {
     Png::Png(int width, int height)
         : width(width), height(height), data(new png_byte[width * height * 4]) {
         fill(data, data + width * height * 4, 0);
@@ -177,4 +177,4 @@ namespace mcmap {
 
         return save(filename);
     }
-} // namespace mcmap
+} // namespace pixel_terrain

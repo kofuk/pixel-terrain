@@ -1,6 +1,6 @@
 #include "request.hh"
 
-namespace mcmap::server {
+namespace pixel_terrain::server {
     request::request(reader *r) : request_reader(r) {}
 
     bool request::parse_sig(string const &line) {
@@ -119,4 +119,4 @@ namespace mcmap::server {
         return fields[key];
     }
 
-} // namespace mcmap::server
+} // namespace pixel_terrain::server

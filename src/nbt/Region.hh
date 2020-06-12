@@ -8,7 +8,7 @@
 #include "File.hh"
 #include "nbt.hh"
 
-namespace mcmap::anvil {
+namespace pixel_terrain::anvil {
     class Region {
         unique_ptr<File<unsigned char>> data;
         size_t len;
@@ -27,6 +27,6 @@ namespace mcmap::anvil {
         Chunk *get_chunk(int chunk_x, int chunk_z);
         Chunk *get_chunk_if_dirty(int chunk_x, int chunk_z);
     };
-} // namespace mcmap::anvil
+} // namespace pixel_terrain::anvil
 
 #endif

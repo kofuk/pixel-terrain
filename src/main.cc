@@ -31,7 +31,7 @@
 
 using namespace std;
 
-namespace mcmap {
+namespace pixel_terrain {
     namespace {
         /* TODO: Should move to functions/imagegen */
         void write_range_file(int start_x, int start_z, int end_x, int end_z) {
@@ -323,22 +323,22 @@ namespace mcmap {
             }
         }
     } // namespace
-} // namespace mcmap
+} // namespace pixel_terrain
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        mcmap::print_usage();
+        pixel_terrain::print_usage();
         exit(1);
     }
 
     if (!strcmp(argv[1], "--version")) {
-        mcmap::print_version();
+        pixel_terrain::print_version();
         exit(0);
     } else if (argv[1][0] == '-' || argv[1][0] == '/') {
-        mcmap::print_usage();
+        pixel_terrain::print_usage();
         exit(0);
     } else {
-        mcmap::handle_commands(--argc, ++argv);
+        pixel_terrain::handle_commands(--argc, ++argv);
     }
 
     return 0;

@@ -14,7 +14,7 @@
 #include "generator.hh"
 #include "worker.hh"
 
-namespace mcmap::generator {
+namespace pixel_terrain::generator {
     struct PixelState {
         uint_fast32_t flags;
         uint_fast8_t top_height;
@@ -359,4 +359,4 @@ namespace mcmap::generator {
         }
     }
 
-} // namespace mcmap::generator
+} // namespace pixel_terrain::generator

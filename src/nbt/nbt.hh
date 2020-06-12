@@ -12,7 +12,7 @@
 
 using namespace std;
 
-namespace mcmap::nbt {
+namespace pixel_terrain::nbt {
     using tagtype_t = unsigned char;
 
     static constexpr tagtype_t TAG_END = 0;
@@ -309,6 +309,6 @@ namespace mcmap::nbt {
 
         void parse_file();
     };
-} // namespace mcmap::nbt
+} // namespace pixel_terrain::nbt
 
 #endif

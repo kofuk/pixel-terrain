@@ -4,7 +4,7 @@
 
 #include "writer_unix.hh"
 
-namespace mcmap::server {
+namespace pixel_terrain::server {
     writer_unix::writer_unix(int fd) : fd(fd) {}
 
     writer_unix::~writer_unix() { write(fd, buf, off); }
@@ -24,4 +24,4 @@ namespace mcmap::server {
     char const *writer_unix::get_current_buffer() { return buf; }
 
     size_t writer_unix::get_current_offset() { return off; }
-} // namespace mcmap::server
+} // namespace pixel_terrain::server

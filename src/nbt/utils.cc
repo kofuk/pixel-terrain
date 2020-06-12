@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace mcmap::nbt::utils {
+namespace pixel_terrain::nbt::utils {
     DecompressedData *zlib_decompress(unsigned char *data, size_t const len) {
         int z_ret;
         z_stream strm;
@@ -59,4 +59,4 @@ namespace mcmap::nbt::utils {
 
         return dd;
     }
-} // namespace mcmap::nbt::utils
+} // namespace pixel_terrain::nbt::utils

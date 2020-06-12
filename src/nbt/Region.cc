@@ -21,7 +21,7 @@
 #include "nbt.hh"
 #include "utils.hh"
 
-namespace mcmap::anvil {
+namespace pixel_terrain::anvil {
     Region::Region(string file_name) {
         data =
             unique_ptr<File<unsigned char>>(new File<unsigned char>(file_name));
@@ -119,4 +119,4 @@ namespace mcmap::anvil {
 
         return chunk;
     }
-} // namespace mcmap::anvil
+} // namespace pixel_terrain::anvil

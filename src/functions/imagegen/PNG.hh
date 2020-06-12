@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace mcmap {
+namespace pixel_terrain {
     class Png {
         int width;
         int height;
@@ -27,6 +27,6 @@ namespace mcmap {
         bool save(string filename);
         bool save();
     };
-} // namespace mcmap
+} // namespace pixel_terrain
 
 #endif

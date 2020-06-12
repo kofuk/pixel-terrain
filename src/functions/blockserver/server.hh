@@ -10,7 +10,7 @@
 
 using namespace std;
 
-namespace mcmap::server {
+namespace pixel_terrain::server {
     extern string overworld_dir;
     extern string nether_dir;
     extern string end_dir;
@@ -19,6 +19,6 @@ namespace mcmap::server {
 
     void handle_request(request *req, writer *w);
     void launch_server(bool daemon_mode);
-} // namespace mcmap::server
+} // namespace pixel_terrain::server
 
 #endif

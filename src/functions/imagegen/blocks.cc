@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace mcmap {
+namespace pixel_terrain {
     unordered_map<string_view, uint32_t> colors;
 
     void init_block_list() {
@@ -50,4 +50,4 @@ namespace mcmap {
 
         return false;
     }
-} // namespace mcmap
+} // namespace pixel_terrain

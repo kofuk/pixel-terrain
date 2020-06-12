@@ -8,7 +8,7 @@
 #include "request.hh"
 
 using namespace std;
-using namespace mcmap::server;
+using namespace pixel_terrain::server;
 
 char const *test_request[] = {"GET MMP/1.0\r\n"
                               "Coord-X: 10\r\n"

@@ -10,7 +10,7 @@
 #include "Chunk.hh"
 #include "nbt.hh"
 
-namespace mcmap::anvil {
+namespace pixel_terrain::anvil {
     Chunk::Chunk(nbt::NBTFile *nbt_data) : nbt_file(nbt_data) {
         data = nbt_data->get_as<nbt::TagCompound, nbt::TAG_COMPOUND>("Level"s);
         if (data == nullptr) {
@@ -200,4 +200,4 @@ namespace mcmap::anvil {
         return 0;
     }
 
-} // namespace mcmap::anvil
+} // namespace pixel_terrain::anvil

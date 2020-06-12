@@ -29,7 +29,7 @@ using namespace std;
  * `std::condition_variable::wait()`.
  */
 
-namespace mcmap {
+namespace pixel_terrain {
     namespace {
         enum class SignalType { JOB, TERMINATE };
 
@@ -202,6 +202,6 @@ namespace mcmap {
             finished = true;
         }
     };
-} // namespace mcmap
+} // namespace pixel_terrain
 
 #endif

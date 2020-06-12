@@ -23,7 +23,7 @@
 
 using namespace std;
 
-namespace mcmap {
+namespace pixel_terrain {
     RegionContainer::RegionContainer(anvil::Region *region, int rx, int rz)
         : region(region), rx(rx), rz(rz) {}
 
@@ -78,4 +78,4 @@ namespace mcmap {
     }
 
     void finish_worker() { worker->finish(); }
-} // namespace mcmap
+} // namespace pixel_terrain

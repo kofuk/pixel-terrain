@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace mcmap::pretty_printer {
+namespace pixel_terrain::pretty_printer {
     namespace {
         int total_count;
         int current_count;
@@ -58,4 +58,4 @@ namespace mcmap::pretty_printer {
         ++current_count;
         update_progress_bar();
     }
-} // namespace mcmap::pretty_printer
+} // namespace pixel_terrain::pretty_printer

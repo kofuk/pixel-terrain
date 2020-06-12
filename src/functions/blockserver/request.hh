@@ -6,7 +6,7 @@
 
 #include "reader.hh"
 
-namespace mcmap::server {
+namespace pixel_terrain::server {
     using namespace std;
 
     class request {
@@ -34,6 +34,6 @@ namespace mcmap::server {
         size_t get_field_count() const noexcept;
         string const get_request_field(string const &key) noexcept;
     };
-} // namespace mcmap::server
+} // namespace pixel_terrain::server
 
 #endif

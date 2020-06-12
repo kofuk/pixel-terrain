@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace mcmap::server {
+namespace pixel_terrain::server {
     class reader_unix : public reader {
         int fd;
 
@@ -16,6 +16,6 @@ namespace mcmap::server {
 
         long int fill_buffer(char *buf, size_t len, size_t off);
     };
-} // namespace mcmap::server
+} // namespace pixel_terrain::server
 
 #endif

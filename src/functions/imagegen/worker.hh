@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace mcmap {
+namespace pixel_terrain {
     struct RegionContainer {
         anvil::Region *region;
         int rx;
@@ -40,6 +40,6 @@ namespace mcmap {
     void start_worker();
     void wait_for_worker();
     void finish_worker();
-} // namespace mcmap
+} // namespace pixel_terrain
 
 #endif

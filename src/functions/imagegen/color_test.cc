@@ -4,7 +4,7 @@
 
 #include "color.hh"
 
-using namespace mcmap;
+using namespace pixel_terrain;
 
 BOOST_AUTO_TEST_CASE (blend_color) {
     BOOST_TEST ((generator::blend_color (0xffffffaa, 0x00000000) &

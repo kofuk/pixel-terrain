@@ -8,11 +8,11 @@
 
 using namespace std;
 
-namespace mcmap {
+namespace pixel_terrain {
     extern unordered_map<string_view, uint32_t> colors;
 
     void init_block_list();
     bool is_biome_overridden(string const &block);
-} // namespace mcmap
+} // namespace pixel_terrain
 
 #endif

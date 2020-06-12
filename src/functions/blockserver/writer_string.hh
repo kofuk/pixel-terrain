@@ -6,7 +6,7 @@
 
 #include "writer.hh"
 
-namespace mcmap::server {
+namespace pixel_terrain::server {
     using namespace std;
 
     class writer_string : public writer {
@@ -17,6 +17,6 @@ namespace mcmap::server {
         void write_data(int const data);
         operator string() const;
     };
-} // namespace mcmap::server
+} // namespace pixel_terrain::server
 
 #endif

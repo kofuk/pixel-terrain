@@ -9,7 +9,7 @@
 
 #include "writer_unix.hh"
 
-using namespace mcmap;
+using namespace pixel_terrain;
 
 BOOST_AUTO_TEST_CASE(writer_unix_normal) {
     int fd = open("/dev/null", O_WRONLY);

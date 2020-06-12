@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace mcmap::nbt::utils {
+namespace pixel_terrain::nbt::utils {
     static inline void swap_chars(unsigned char *a, unsigned char *b) {
         *a ^= *b;
         *b ^= *a;
@@ -84,6 +84,6 @@ namespace mcmap::nbt::utils {
     };
 
     DecompressedData *zlib_decompress(unsigned char *data, size_t const len);
-} // namespace mcmap::nbt::utils
+} // namespace pixel_terrain::nbt::utils
 
 #endif

@@ -20,7 +20,7 @@
 
 using namespace std;
 
-namespace mcmap {
+namespace pixel_terrain {
     template <typename T> class File {
         bool mmapped = false;
         size_t data_len = 0;
@@ -112,6 +112,6 @@ namespace mcmap {
 
         T *get_raw_data() { return data; }
     };
-} // namespace mcmap
+} // namespace pixel_terrain
 
 #endif

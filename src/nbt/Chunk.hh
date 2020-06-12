@@ -8,7 +8,7 @@
 
 using namespace std;
 
-namespace mcmap::anvil {
+namespace pixel_terrain::anvil {
     class Chunk {
         nbt::NBTFile *nbt_file;
         nbt::TagCompound *data;
@@ -29,6 +29,6 @@ namespace mcmap::anvil {
         int32_t get_biome(int32_t x, int32_t y, int32_t z);
         int get_max_height();
     };
-} // namespace mcmap::anvil
+} // namespace pixel_terrain::anvil
 
 #endif

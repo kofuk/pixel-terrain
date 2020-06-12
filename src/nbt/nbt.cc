@@ -7,7 +7,7 @@
 #include "nbt.hh"
 #include "utils.hh"
 
-namespace mcmap::nbt {
+namespace pixel_terrain::nbt {
     namespace {
         Tag *tag_byte_factory(shared_ptr<unsigned char[]> buf, size_t len,
                               size_t &off) {
@@ -433,4 +433,4 @@ namespace mcmap::nbt {
         name = *TagString::get_value(data->data, data->len, off);
         parse_buffer(data->data, data->len, off);
     }
-} // namespace mcmap::nbt
+} // namespace pixel_terrain::nbt

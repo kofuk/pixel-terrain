@@ -3,9 +3,9 @@
 
 #include "worker.hh"
 
-namespace mcmap::generator {
+namespace pixel_terrain::generator {
     /* generates 256x256 image */
     void generate_256(shared_ptr<QueuedItem> item);
-} // namespace mcmap::generator
+} // namespace pixel_terrain::generator
 
 #endif

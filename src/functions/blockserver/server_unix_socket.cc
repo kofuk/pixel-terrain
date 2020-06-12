@@ -17,7 +17,7 @@
 #include "server_unix_socket.hh"
 #include "writer.hh"
 
-namespace mcmap::server {
+namespace pixel_terrain::server {
     namespace {
         ThreadedWorker<int> *worker;
         mutex worker_mutex;
@@ -138,4 +138,4 @@ namespace mcmap::server {
             worker->wait();
         }
     }
-} // namespace mcmap::server
+} // namespace pixel_terrain::server

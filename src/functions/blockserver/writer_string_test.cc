@@ -4,7 +4,7 @@
 
 #include "writer_string.hh"
 
-using namespace mcmap;
+using namespace pixel_terrain;
 using namespace std;
 
 BOOST_AUTO_TEST_CASE(writer_string_alpha) {

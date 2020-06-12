@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace mcmap::logger {
+namespace pixel_terrain::logger {
     namespace {
         mutex m;
     }
@@ -26,4 +26,4 @@ namespace mcmap::logger {
         unique_lock<mutex> lock(m);
         cout << message << endl;
     }
-} // namespace mcmap::logger
+} // namespace pixel_terrain::logger

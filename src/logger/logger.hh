@@ -5,10 +5,10 @@
 
 using namespace std;
 
-namespace mcmap::logger {
+namespace pixel_terrain::logger {
     void d(string message);
     void e(string message);
     void i(string message);
-} // namespace mcmap::logger
+} // namespace pixel_terrain::logger
 
 #endif

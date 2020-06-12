@@ -27,7 +27,7 @@
 
 using namespace std;
 
-namespace mcmap {
+namespace pixel_terrain {
     namespace server {
         void print_help(optlib_parser *opt) {
             cout << "usage: mcmap server [OPTIONS...]" << endl;
@@ -301,4 +301,4 @@ namespace mcmap {
             s->start_server();
         }
     } // namespace server
-} // namespace mcmap
+} // namespace pixel_terrain
