@@ -3,7 +3,7 @@ if(NOT ZLIB_FOUND)
   include(ExternalProject)
   ExternalProject_Add(zlib_project
     URL https://zlib.net/zlib-1.2.11.tar.xz
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external -DCMAKE_BUILD_TYPE=Release)
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
   add_library(zlib IMPORTED STATIC)
   if(MSVC)
     set_target_properties(zlib PROPERTIES

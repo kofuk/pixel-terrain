@@ -3,7 +3,7 @@ if(NOT PNG_FOUND)
   include(ExternalProject)
   ExternalProject_Add(png_project
     URL https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external -DCMAKE_BUILD_TYPE=Release
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     -DPNG_BUILD_ZLIB=NO -DZLIB_INCLUDE_DIR=${ZLIB_INCLUDE_DIRS}
     -DZLIB_LIBRARY=${ZLIB_LIBRARY})
   if(ZLIB_USE_EXTERNAL_PROJECT)
