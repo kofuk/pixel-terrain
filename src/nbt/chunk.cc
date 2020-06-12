@@ -7,28 +7,28 @@
 #include <stdexcept>
 
 #include "../logger/logger.hh"
-#include "Chunk.hh"
+#include "chunk.hh"
 #include "nbt.hh"
 
 namespace pixel_terrain::anvil {
-    Chunk::Chunk(nbt::NBTFile *nbt_data) : nbt_file(nbt_data) {
-        data = nbt_data->get_as<nbt::TagCompound, nbt::TAG_COMPOUND>("Level"s);
+    chunk::chunk(nbt::nbt_file *nbt_data) : nbt_file(nbt_data) {
+        data = nbt_data->get_as<nbt::tag_compound, nbt::TAG_COMPOUND>("Level"s);
         if (data == nullptr) {
             throw runtime_error("Level tag not found in chunk"s);
         }
 
         last_update = nbt::value<uint64_t>(
-            data->get_as<nbt::TagLong, nbt::TAG_LONG>("LastUpdate"s));
+            data->get_as<nbt::tag_long, nbt::TAG_LONG>("LastUpdate"s));
 
         palettes.fill(nullptr);
     }
 
-    Chunk::~Chunk() { delete nbt_file; }
+    chunk::~chunk() { delete nbt_file; }
 
-    void Chunk::parse_fields() {
+    void chunk::parse_fields() {
         palettes.fill(nullptr);
-        nbt::TagList *section =
-            data->get_as<nbt::TagList, nbt::TAG_LIST>("Sections"s);
+        nbt::tag_list *section =
+            data->get_as<nbt::tag_list, nbt::TAG_LIST>("Sections"s);
         if (section == nullptr) {
             throw runtime_error("Sections tag not found in Level"s);
         }
@@ -41,8 +41,8 @@ namespace pixel_terrain::anvil {
             unsigned char tag_y;
             try {
                 tag_y = nbt::value<unsigned char>(
-                    (static_cast<nbt::TagCompound *>(*itr))
-                        ->get_as<nbt::TagByte, nbt::TAG_BYTE>("Y"s));
+                    (static_cast<nbt::tag_compound *>(*itr))
+                        ->get_as<nbt::tag_byte, nbt::TAG_BYTE>("Y"s));
             } catch (runtime_error const &) {
                 continue;
             }
@@ -51,23 +51,23 @@ namespace pixel_terrain::anvil {
             }
 
             palettes[tag_y] =
-                get_palette(static_cast<nbt::TagCompound *>(*itr));
+                get_palette(static_cast<nbt::tag_compound *>(*itr));
         }
 
-        nbt::TagIntArray *biomes_tag =
-            data->get_as<nbt::TagIntArray, nbt::TAG_INT_ARRAY>("Biomes"s);
+        nbt::tag_int_array *biomes_tag =
+            data->get_as<nbt::tag_int_array, nbt::TAG_INT_ARRAY>("Biomes"s);
         if (biomes_tag != nullptr) {
             biomes = **biomes_tag;
         }
     }
 
-    nbt::TagCompound *Chunk::get_section(unsigned char y) {
+    nbt::tag_compound *chunk::get_section(unsigned char y) {
         if (15 < y) {
             return nullptr;
         }
 
-        nbt::TagList *section =
-            data->get_as<nbt::TagList, nbt::TAG_LIST>("Sections"s);
+        nbt::tag_list *section =
+            data->get_as<nbt::tag_list, nbt::TAG_LIST>("Sections"s);
         if (section == nullptr) {
             throw runtime_error("Sections tag not found in Level"s);
         }
@@ -80,23 +80,23 @@ namespace pixel_terrain::anvil {
             unsigned char tag_y;
             try {
                 tag_y = nbt::value<unsigned char>(
-                    (static_cast<nbt::TagCompound *>(*itr))
-                        ->get_as<nbt::TagByte, nbt::TAG_BYTE>("Y"s));
+                    (static_cast<nbt::tag_compound *>(*itr))
+                        ->get_as<nbt::tag_byte, nbt::TAG_BYTE>("Y"s));
             } catch (runtime_error const &) {
                 continue;
             }
 
-            if (tag_y == y) return static_cast<nbt::TagCompound *>(*itr);
+            if (tag_y == y) return static_cast<nbt::tag_compound *>(*itr);
         }
 
         return nullptr;
     }
 
-    vector<string> *Chunk::get_palette(nbt::TagCompound *section) {
+    vector<string> *chunk::get_palette(nbt::tag_compound *section) {
         vector<string> *palette = new vector<string>;
 
-        nbt::TagList *palette_tag_list =
-            section->get_as<nbt::TagList, nbt::TAG_LIST>("Palette"s);
+        nbt::tag_list *palette_tag_list =
+            section->get_as<nbt::tag_list, nbt::TAG_LIST>("Palette"s);
         if (palette_tag_list == nullptr) {
             return nullptr;
         }
@@ -107,10 +107,10 @@ namespace pixel_terrain::anvil {
 
         for (auto itr = begin(**palette_tag_list);
              itr != end(**palette_tag_list); ++itr) {
-            nbt::TagCompound *tag = static_cast<nbt::TagCompound *>(*itr);
+            nbt::tag_compound *tag = static_cast<nbt::tag_compound *>(*itr);
 
             string *name = nbt::value<string *>(
-                tag->get_as<nbt::TagString, nbt::TAG_STRING>("Name"s));
+                tag->get_as<nbt::tag_string, nbt::TAG_STRING>("Name"s));
 
             palette->push_back(*name);
         }
@@ -118,7 +118,7 @@ namespace pixel_terrain::anvil {
         return palette;
     }
 
-    int32_t Chunk::get_biome(int32_t x, int32_t y, int32_t z) {
+    int32_t chunk::get_biome(int32_t x, int32_t y, int32_t z) {
         if (biomes.size() == 256) {
             return biomes[(z / 2) * 16 + (x / 2)];
         } else if (biomes.size() == 1024) {
@@ -127,13 +127,13 @@ namespace pixel_terrain::anvil {
         return 0;
     }
 
-    string Chunk::get_block(int32_t x, int32_t y, int32_t z) {
+    string chunk::get_block(int32_t x, int32_t y, int32_t z) {
         if (x < 0 || 15 < x || y < 0 || 255 < y || z < 0 || 15 < z) {
             return ""s;
         }
 
         unsigned char section_no = y / 16;
-        nbt::TagCompound *section = get_section(section_no);
+        nbt::tag_compound *section = get_section(section_no);
 
         y %= 16;
 
@@ -161,7 +161,7 @@ namespace pixel_terrain::anvil {
 
         int index = y * 16 * 16 + z * 16 + x;
         vector<int64_t> states = nbt::value<vector<int64_t>>(
-            section->get_as<nbt::TagLongArray, nbt::TAG_LONG_ARRAY>(
+            section->get_as<nbt::tag_long_array, nbt::TAG_LONG_ARRAY>(
                 "BlockStates"s));
         int state = index * bits / 64;
 
@@ -191,7 +191,7 @@ namespace pixel_terrain::anvil {
         return (*palette)[palette_id];
     }
 
-    int Chunk::get_max_height() {
+    int chunk::get_max_height() {
         for (int y = 15; y >= 0; --y) {
             if (palettes[y] != nullptr) {
                 return (y + 1) * 16 - 1;

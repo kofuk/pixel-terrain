@@ -8,10 +8,10 @@
 #include <string>
 
 #include "../../logger/logger.hh"
-#include "PNG.hh"
 #include "blocks.hh"
 #include "color.hh"
 #include "generator.hh"
+#include "png.hh"
 #include "worker.hh"
 
 namespace pixel_terrain::commands::generate {
@@ -44,7 +44,7 @@ namespace pixel_terrain::commands::generate {
         }
 
         shared_ptr<array<PixelState, 256 * 256>>
-        scan_chunk(anvil::Chunk *chunk) {
+        scan_chunk(anvil::chunk *chunk) {
             int max_y = chunk->get_max_height();
             if (option_nether) {
                 if (max_y > 127) max_y = 127;
@@ -226,7 +226,7 @@ namespace pixel_terrain::commands::generate {
         void
         generate_image(int chunk_x, int chunk_z,
                        shared_ptr<array<PixelState, 256 * 256>> pixel_states,
-                       Png &image) {
+                       png &image) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
                     PixelState &pixel_state =
@@ -247,8 +247,8 @@ namespace pixel_terrain::commands::generate {
             }
         }
 
-        void generate_chunk(anvil::Chunk *chunk, int chunk_x, int chunk_z,
-                            Png &image) {
+        void generate_chunk(anvil::chunk *chunk, int chunk_x, int chunk_z,
+                            png &image) {
             shared_ptr<array<PixelState, 256 * 256>> pixel_states =
                 scan_chunk(chunk);
             process_pipeline(pixel_states);
@@ -256,8 +256,8 @@ namespace pixel_terrain::commands::generate {
         }
     } // namespace
 
-    void generate_256(shared_ptr<QueuedItem> item) {
-        anvil::Region *region = item->region->region;
+    void generate_256(shared_ptr<queued_item> item) {
+        anvil::region *region = item->region->region;
         int region_x = item->region->rx;
         int region_z = item->region->rz;
         int off_x = item->off_x;
@@ -271,7 +271,7 @@ namespace pixel_terrain::commands::generate {
         path /= (to_string(region_x * 2 + off_x) + ',' +
                  to_string(region_z * 2 + off_z) + ".png"s);
 
-        Png *image = nullptr;
+        png *image = nullptr;
 
         /* minumum range of chunk update is radius of 3, so we can capture
            all updated chunk with step of 6. but, we set this 4 since
@@ -279,7 +279,7 @@ namespace pixel_terrain::commands::generate {
         for (int chunk_z = 0; chunk_z < 16; chunk_z += 4) {
             int prev_chunk_x = -1;
             for (int chunk_x = 0; chunk_x < 16; ++chunk_x) {
-                anvil::Chunk *chunk;
+                anvil::chunk *chunk;
 
                 try {
                     chunk = region->get_chunk_if_dirty(off_x * 16 + chunk_x,
@@ -298,13 +298,13 @@ namespace pixel_terrain::commands::generate {
                 if (image == nullptr) {
                     if (filesystem::exists(path)) {
                         try {
-                            image = new Png(path.string());
+                            image = new png(path.string());
 
                         } catch (exception const &) {
-                            image = new Png(256, 256);
+                            image = new png(256, 256);
                         }
                     } else {
-                        image = new Png(256, 256);
+                        image = new png(256, 256);
                     }
                 }
 

@@ -29,14 +29,14 @@ namespace pixel_terrain::nbt {
     static constexpr tagtype_t TAG_INT_ARRAY = 11;
     static constexpr tagtype_t TAG_LONG_ARRAY = 12;
 
-    struct Tag {
+    struct tag {
         tagtype_t tag_type;
         string name;
 
-        Tag(tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
+        tag(tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
             size_t &off);
-        Tag(tagtype_t type);
-        virtual ~Tag(){};
+        tag(tagtype_t type);
+        virtual ~tag(){};
 
     protected:
         shared_ptr<unsigned char[]> raw_buf;
@@ -45,16 +45,17 @@ namespace pixel_terrain::nbt {
     };
 
     /* virtual tag type to hold common resource for primitive types */
-    struct TagPrimitive : Tag {
-        TagPrimitive(tagtype_t type, shared_ptr<unsigned char[]> buf,
-                     size_t const len, size_t &off);
+    struct tag_primitive : tag {
+        tag_primitive(tagtype_t type, shared_ptr<unsigned char[]> buf,
+                      size_t const len, size_t &off);
 
     protected:
         bool parsed;
     };
 
-    struct TagByte : TagPrimitive {
-        TagByte(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
+    struct tag_byte : tag_primitive {
+        tag_byte(shared_ptr<unsigned char[]> buf, size_t const len,
+                 size_t &off);
         static inline unsigned char get_value(shared_ptr<unsigned char[]> buf,
                                               size_t const len, size_t &off) {
             unsigned char v = *(buf.get() + off);
@@ -73,9 +74,9 @@ namespace pixel_terrain::nbt {
         unsigned char value;
     };
 
-    struct TagShort : TagPrimitive {
-        TagShort(shared_ptr<unsigned char[]> buf, size_t const len,
-                 size_t &off);
+    struct tag_short : tag_primitive {
+        tag_short(shared_ptr<unsigned char[]> buf, size_t const len,
+                  size_t &off);
         static inline int16_t get_value(shared_ptr<unsigned char[]> buf,
                                         size_t const len, size_t &off) {
             int16_t v = utils::to_host_byte_order(
@@ -94,8 +95,8 @@ namespace pixel_terrain::nbt {
         int16_t value;
     };
 
-    struct TagInt : TagPrimitive {
-        TagInt(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
+    struct tag_int : tag_primitive {
+        tag_int(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
 
         static inline int32_t get_value(shared_ptr<unsigned char[]> buf,
                                         size_t const len, size_t &off) {
@@ -115,8 +116,9 @@ namespace pixel_terrain::nbt {
         int32_t value;
     };
 
-    struct TagLong : TagPrimitive {
-        TagLong(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
+    struct tag_long : tag_primitive {
+        tag_long(shared_ptr<unsigned char[]> buf, size_t const len,
+                 size_t &off);
 
         static inline uint64_t get_value(shared_ptr<unsigned char[]> buf,
                                          size_t const len, size_t &off) {
@@ -137,9 +139,9 @@ namespace pixel_terrain::nbt {
         uint64_t value;
     };
 
-    struct TagFloat : TagPrimitive {
-        TagFloat(shared_ptr<unsigned char[]> buf, size_t const len,
-                 size_t &off);
+    struct tag_float : tag_primitive {
+        tag_float(shared_ptr<unsigned char[]> buf, size_t const len,
+                  size_t &off);
 
         static inline float get_value(shared_ptr<unsigned char[]> buf,
                                       size_t const len, size_t &off) {
@@ -160,9 +162,9 @@ namespace pixel_terrain::nbt {
         float value;
     };
 
-    struct TagDouble : TagPrimitive {
-        TagDouble(shared_ptr<unsigned char[]> buf, size_t const len,
-                  size_t &off);
+    struct tag_double : tag_primitive {
+        tag_double(shared_ptr<unsigned char[]> buf, size_t const len,
+                   size_t &off);
 
         static inline double get_value(shared_ptr<unsigned char[]> buf,
                                        size_t const len, size_t &off) {
@@ -183,51 +185,51 @@ namespace pixel_terrain::nbt {
     };
 
     /* virtual class to hold common resource to array type */
-    struct TagArray : Tag {
-        TagArray(tagtype_t type, shared_ptr<unsigned char[]> buf,
-                 size_t const len, size_t &off);
+    struct tag_array : tag {
+        tag_array(tagtype_t type, shared_ptr<unsigned char[]> buf,
+                  size_t const len, size_t &off);
 
     protected:
         bool parsed;
         int32_t array_len;
     };
 
-    struct TagByteArray : TagArray {
-        TagByteArray(shared_ptr<unsigned char[]> buf, size_t const len,
-                     size_t &off);
+    struct tag_byte_array : tag_array {
+        tag_byte_array(shared_ptr<unsigned char[]> buf, size_t const len,
+                       size_t &off);
         vector<char> operator*();
 
     private:
         vector<char> values;
     };
 
-    struct TagIntArray : TagArray {
-        TagIntArray(shared_ptr<unsigned char[]> buf, size_t const len,
-                    size_t &off);
+    struct tag_int_array : tag_array {
+        tag_int_array(shared_ptr<unsigned char[]> buf, size_t const len,
+                      size_t &off);
         vector<int32_t> operator*();
 
     private:
         vector<int32_t> values;
     };
 
-    struct TagLongArray : TagArray {
-        TagLongArray(shared_ptr<unsigned char[]> buf, size_t const len,
-                     size_t &off);
+    struct tag_long_array : tag_array {
+        tag_long_array(shared_ptr<unsigned char[]> buf, size_t const len,
+                       size_t &off);
         vector<int64_t> operator*();
 
     private:
         vector<int64_t> value;
     };
 
-    struct TagString : Tag {
-        TagString(shared_ptr<unsigned char[]> buf, size_t const len,
-                  size_t &off);
-        ~TagString();
+    struct tag_string : tag {
+        tag_string(shared_ptr<unsigned char[]> buf, size_t const len,
+                   size_t &off);
+        ~tag_string();
         string *operator*();
 
         static inline string *get_value(shared_ptr<unsigned char[]> buf,
                                         size_t const len, size_t &off) {
-            int16_t str_len = TagShort::get_value(buf, len, off);
+            int16_t str_len = tag_short::get_value(buf, len, off);
             string *v = new string(reinterpret_cast<char *>(buf.get() + off),
                                    static_cast<size_t>(str_len));
             off += static_cast<size_t>(str_len);
@@ -244,20 +246,21 @@ namespace pixel_terrain::nbt {
         string *value;
     };
 
-    struct TagList : Tag {
+    struct tag_list : tag {
         tagtype_t payload_type;
 
-        TagList(shared_ptr<unsigned char[]> buf, size_t const len, size_t &off);
-        ~TagList();
+        tag_list(shared_ptr<unsigned char[]> buf, size_t const len,
+                 size_t &off);
+        ~tag_list();
 
         void parse_buffer(shared_ptr<unsigned char[]> buf, size_t const len,
                           size_t &off);
-        vector<nbt::Tag *> &operator*();
+        vector<nbt::tag *> &operator*();
 
     private:
         bool parsed;
         int32_t list_len;
-        vector<nbt::Tag *> tags;
+        vector<nbt::tag *> tags;
     };
 
     template <typename T, class C> T value(C *clazz) {
@@ -268,13 +271,13 @@ namespace pixel_terrain::nbt {
         return **clazz;
     }
 
-    struct TagCompound : Tag {
-        unordered_map<string, nbt::Tag *> tags;
+    struct tag_compound : tag {
+        unordered_map<string, nbt::tag *> tags;
 
-        TagCompound(shared_ptr<unsigned char[]> buf, size_t const len,
-                    size_t &off, bool toplevel);
-        TagCompound();
-        ~TagCompound();
+        tag_compound(shared_ptr<unsigned char[]> buf, size_t const len,
+                     size_t &off, bool toplevel);
+        tag_compound();
+        ~tag_compound();
 
         void parse_buffer(shared_ptr<unsigned char[]> buf, size_t const len,
                           size_t &off);
@@ -301,11 +304,11 @@ namespace pixel_terrain::nbt {
         bool toplevel;
     };
 
-    struct NBTFile : TagCompound {
-        utils::DecompressedData *data;
+    struct nbt_file : tag_compound {
+        utils::decompressed_data *data;
 
-        NBTFile(utils::DecompressedData *data);
-        ~NBTFile();
+        nbt_file(utils::decompressed_data *data);
+        ~nbt_file();
 
         void parse_file();
     };

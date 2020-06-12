@@ -15,25 +15,24 @@
 #include <vector>
 
 #include "../../logger/logger.hh"
-#include "../../nbt/Region.hh"
+#include "../../nbt/region.hh"
 #include "../threaded_worker.hh"
-#include "PNG.hh"
 #include "generator.hh"
 #include "worker.hh"
 
 using namespace std;
 
 namespace pixel_terrain::commands::generate {
-    RegionContainer::RegionContainer(anvil::Region *region, int rx, int rz)
+    region_container::region_container(anvil::region *region, int rx, int rz)
         : region(region), rx(rx), rz(rz) {}
 
-    RegionContainer::~RegionContainer() { delete region; }
+    region_container::~region_container() { delete region; }
 
-    QueuedItem::QueuedItem(shared_ptr<RegionContainer> region, int off_x,
-                           int off_z)
+    queued_item::queued_item(shared_ptr<region_container> region, int off_x,
+                             int off_z)
         : region(move(region)), off_x(off_x), off_z(off_z) {}
 
-    string QueuedItem::debug_string() {
+    string queued_item::debug_string() {
         if (region == nullptr) {
             return "(finishing job)"s;
         }
@@ -43,7 +42,7 @@ namespace pixel_terrain::commands::generate {
     }
 
     namespace {
-        ThreadedWorker<shared_ptr<QueuedItem>> *worker;
+        threaded_worker<shared_ptr<queued_item>> *worker;
     } // namespace
 
     string option_out_dir;
@@ -54,7 +53,7 @@ namespace pixel_terrain::commands::generate {
     bool option_generate_range;
     string option_journal_dir;
 
-    void queue_item(shared_ptr<QueuedItem> item) {
+    void queue_item(shared_ptr<queued_item> item) {
         if (option_verbose) {
             logger::d("trying to queue " + item->debug_string());
         }
@@ -67,8 +66,8 @@ namespace pixel_terrain::commands::generate {
             logger::d("starting worker thread(s) ...");
         }
 
-        worker = new ThreadedWorker<shared_ptr<QueuedItem>>(
-            option_jobs, &generate_256);
+        worker = new threaded_worker<shared_ptr<queued_item>>(option_jobs,
+                                                              &generate_256);
         worker->start();
     }
 

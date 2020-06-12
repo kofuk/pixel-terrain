@@ -13,15 +13,15 @@
 #include <png.h>
 #include <pngconf.h>
 
-#include "PNG.hh"
+#include "png.hh"
 
 namespace pixel_terrain::commands::generate {
-    Png::Png(int width, int height)
+    png::png(int width, int height)
         : width(width), height(height), data(new png_byte[width * height * 4]) {
         fill(data, data + width * height * 4, 0);
     }
 
-    Png::Png(string filename) {
+    png::png(string filename) {
         FILE *in = fopen(filename.c_str(), "rb");
         if (in == nullptr) {
             throw runtime_error(strerror(errno));
@@ -75,9 +75,9 @@ namespace pixel_terrain::commands::generate {
         fclose(in);
     }
 
-    Png::~Png() { delete[] data; }
+    png::~png() { delete[] data; }
 
-    void Png::set_pixel(int x, int y, uint_fast32_t color) {
+    void png::set_pixel(int x, int y, uint_fast32_t color) {
         int base_off = (y * width + x) * 4;
         data[base_off] = (color >> 24) & 0xff;
         data[++base_off] = (color >> 16) & 0xff;
@@ -85,7 +85,7 @@ namespace pixel_terrain::commands::generate {
         data[++base_off] = color & 0xff;
     }
 
-    uint_fast32_t Png::get_pixel(int x, int y) {
+    uint_fast32_t png::get_pixel(int x, int y) {
         int base_off = (y * width + x) * 4;
         uint_fast8_t r = data[base_off];
         uint_fast8_t g = data[++base_off];
@@ -96,11 +96,11 @@ namespace pixel_terrain::commands::generate {
                (a & 0xff);
     }
 
-    int Png::get_width() { return width; }
+    int png::get_width() { return width; }
 
-    int Png::get_height() { return height; }
+    int png::get_height() { return height; }
 
-    void Png::clear(int x, int y) {
+    void png::clear(int x, int y) {
         int base_off = (width * y + x) * 4;
 
         data[base_off] = 0;
@@ -109,7 +109,7 @@ namespace pixel_terrain::commands::generate {
         data[++base_off] = 0;
     }
 
-    bool Png::save(string filename) {
+    bool png::save(string filename) {
         FILE *f = fopen(filename.c_str(), "wb");
         if (f == nullptr) {
             return false;
@@ -172,7 +172,7 @@ namespace pixel_terrain::commands::generate {
         return true;
     }
 
-    bool Png::save() {
+    bool png::save() {
         if (filename.empty()) throw logic_error("filename is empty"s);
 
         return save(filename);

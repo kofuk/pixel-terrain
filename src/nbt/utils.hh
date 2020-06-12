@@ -78,12 +78,12 @@ namespace pixel_terrain::nbt::utils {
         return src;
     }
 
-    struct DecompressedData {
+    struct decompressed_data {
         shared_ptr<unsigned char[]> data;
         size_t len;
     };
 
-    DecompressedData *zlib_decompress(unsigned char *data, size_t const len);
+    decompressed_data *zlib_decompress(unsigned char *data, size_t const len);
 } // namespace pixel_terrain::nbt::utils
 
 #endif

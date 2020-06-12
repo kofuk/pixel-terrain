@@ -16,19 +16,19 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "Region.hh"
 #include "file.hh"
 #include "nbt.hh"
+#include "region.hh"
 #include "utils.hh"
 
 namespace pixel_terrain::anvil {
-    Region::Region(string file_name) {
+    region::region(string file_name) {
         data =
             unique_ptr<file<unsigned char>>(new file<unsigned char>(file_name));
         len = data->size();
     }
 
-    Region::Region(string filename, string journal_dir) {
+    region::region(string filename, string journal_dir) {
         data =
             unique_ptr<file<unsigned char>>(new file<unsigned char>(filename));
         len = data->size();
@@ -40,11 +40,11 @@ namespace pixel_terrain::anvil {
             new file<uint64_t>(journal_path, 1024, "r+"));
     }
 
-    size_t Region::header_offset(int chunk_x, int chunk_z) {
+    size_t region::header_offset(int chunk_x, int chunk_z) {
         return 4 * (chunk_x % 32 + chunk_z % 32 * 32);
     }
 
-    size_t Region::chunk_location_off(int chunk_x, int chunk_z) {
+    size_t region::chunk_location_off(int chunk_x, int chunk_z) {
         size_t b_off = header_offset(chunk_x, chunk_z);
 
         if (b_off + 2 >= len) return 0;
@@ -56,7 +56,7 @@ namespace pixel_terrain::anvil {
             *reinterpret_cast<int32_t *>(buf));
     }
 
-    size_t Region::chunk_location_sectors(int chunk_x, int chunk_z) {
+    size_t region::chunk_location_sectors(int chunk_x, int chunk_z) {
         size_t b_off = header_offset(chunk_x, chunk_z);
 
         if (b_off + 3 >= len) return 0;
@@ -64,7 +64,7 @@ namespace pixel_terrain::anvil {
         return (*data)[b_off + 3];
     }
 
-    nbt::NBTFile *Region::chunk_data(int chunk_x, int chunk_z) {
+    nbt::nbt_file *region::chunk_data(int chunk_x, int chunk_z) {
         size_t location_off = chunk_location_off(chunk_x, chunk_z);
         size_t location_sec = chunk_location_sectors(chunk_x, chunk_z);
         if (location_off == 0 && location_sec == 0) {
@@ -83,40 +83,41 @@ namespace pixel_terrain::anvil {
         int compression = (*data)[location_off + 4];
         if (compression == 1) return nullptr;
 
-        nbt::utils::DecompressedData *decompressed =
+        nbt::utils::decompressed_data *decompressed =
             nbt::utils::zlib_decompress(data->get_raw_data() + location_off + 5,
                                         length - 1);
 
-        return new nbt::NBTFile(decompressed);
+        return new nbt::nbt_file(decompressed);
     }
 
-    Chunk *Region::get_chunk(int chunk_x, int chunk_z) {
-        nbt::NBTFile *nbt = chunk_data(chunk_x, chunk_z);
+    chunk *region::get_chunk(int chunk_x, int chunk_z) {
+        nbt::nbt_file *nbt = chunk_data(chunk_x, chunk_z);
 
         if (nbt == nullptr) return nullptr;
 
-        Chunk *chunk = new Chunk(nbt);
-        chunk->parse_fields();
-        return chunk;
+        chunk *cur_chunk = new chunk(nbt);
+        cur_chunk->parse_fields();
+        return cur_chunk;
     }
 
-    Chunk *Region::get_chunk_if_dirty(int chunk_x, int chunk_z) {
-        nbt::NBTFile *nbt = chunk_data(chunk_x, chunk_z);
+    chunk *region::get_chunk_if_dirty(int chunk_x, int chunk_z) {
+        nbt::nbt_file *nbt = chunk_data(chunk_x, chunk_z);
         if (nbt == nullptr) {
             return nullptr;
         }
 
-        Chunk *chunk = new Chunk(nbt);
+        chunk *cur_chunk = new chunk(nbt);
         if (last_update.get() != nullptr) {
-            if ((*last_update)[chunk_z * 32 + chunk_x] >= chunk->last_update) {
-                delete chunk;
+            if ((*last_update)[chunk_z * 32 + chunk_x] >=
+                cur_chunk->last_update) {
+                delete cur_chunk;
                 return nullptr;
             }
 
-            (*last_update)[chunk_z * 32 + chunk_x] = chunk->last_update;
+            (*last_update)[chunk_z * 32 + chunk_x] = cur_chunk->last_update;
         }
-        chunk->parse_fields();
+        cur_chunk->parse_fields();
 
-        return chunk;
+        return cur_chunk;
     }
 } // namespace pixel_terrain::anvil

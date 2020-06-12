@@ -5,7 +5,7 @@
 
 #include "../../logger/logger.hh"
 #include "../../logger/pretty_printer.hh"
-#include "../../nbt/Region.hh"
+#include "../../nbt/region.hh"
 #include "blocks.hh"
 #include "generate_main.hh"
 #include "generator.hh"
@@ -13,7 +13,6 @@
 
 namespace pixel_terrain::commands::generate {
     namespace {
-        /* TODO: Should move to functions/imagegen */
         void write_range_file(int start_x, int start_z, int end_x, int end_z) {
             filesystem::path out_path(option_out_dir);
             out_path /= "chunk_range.json"s;
@@ -78,12 +77,12 @@ namespace pixel_terrain::commands::generate {
                     if (z > max_z) max_z = z;
                 }
 
-                anvil::Region *r;
+                anvil::region *r;
                 try {
                     if (option_journal_dir.empty()) {
-                        r = new anvil::Region(path.path().string());
+                        r = new anvil::region(path.path().string());
                     } else {
-                        r = new anvil::Region(path.path().string(),
+                        r = new anvil::region(path.path().string(),
                                               option_journal_dir);
                     }
                 } catch (exception const &e) {
@@ -94,12 +93,12 @@ namespace pixel_terrain::commands::generate {
                     continue;
                 }
 
-                shared_ptr<RegionContainer> rc(new RegionContainer(r, x, z));
+                shared_ptr<region_container> rc(new region_container(r, x, z));
 
                 for (int off_x = 0; off_x < 2; ++off_x) {
                     for (int off_z = 0; off_z < 2; ++off_z) {
-                        queue_item(shared_ptr<QueuedItem>(
-                            new QueuedItem(rc, off_x, off_z)));
+                        queue_item(shared_ptr<queued_item>(
+                            new queued_item(rc, off_x, off_z)));
                     }
                 }
 

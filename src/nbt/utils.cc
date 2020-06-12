@@ -10,7 +10,7 @@
 using namespace std;
 
 namespace pixel_terrain::nbt::utils {
-    DecompressedData *zlib_decompress(unsigned char *data, size_t const len) {
+    decompressed_data *zlib_decompress(unsigned char *data, size_t const len) {
         int z_ret;
         z_stream strm;
         strm.zalloc = Z_NULL;
@@ -51,7 +51,7 @@ namespace pixel_terrain::nbt::utils {
 
         inflateEnd(&strm);
 
-        DecompressedData *dd = new DecompressedData;
+        decompressed_data *dd = new decompressed_data;
         unsigned char *dd_out = new unsigned char[all_out.size()];
         copy(begin(all_out), end(all_out), dd_out);
         dd->data = shared_ptr<unsigned char[]>(dd_out);

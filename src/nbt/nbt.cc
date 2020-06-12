@@ -9,67 +9,67 @@
 
 namespace pixel_terrain::nbt {
     namespace {
-        Tag *tag_byte_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_byte_factory(shared_ptr<unsigned char[]> buf, size_t len,
                               size_t &off) {
-            return new TagByte(buf, len, off);
+            return new tag_byte(buf, len, off);
         }
 
-        Tag *tag_short_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_short_factory(shared_ptr<unsigned char[]> buf, size_t len,
                                size_t &off) {
-            return new TagShort(buf, len, off);
+            return new tag_short(buf, len, off);
         }
 
-        Tag *tag_int_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_int_factory(shared_ptr<unsigned char[]> buf, size_t len,
                              size_t &off) {
-            return new TagInt(buf, len, off);
+            return new tag_int(buf, len, off);
         }
 
-        Tag *tag_long_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_long_factory(shared_ptr<unsigned char[]> buf, size_t len,
                               size_t &off) {
-            return new TagLong(buf, len, off);
+            return new tag_long(buf, len, off);
         }
 
-        Tag *tag_float_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_float_factory(shared_ptr<unsigned char[]> buf, size_t len,
                                size_t &off) {
-            return new TagFloat(buf, len, off);
+            return new tag_float(buf, len, off);
         }
 
-        Tag *tag_double_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_double_factory(shared_ptr<unsigned char[]> buf, size_t len,
                                 size_t &off) {
-            return new TagDouble(buf, len, off);
+            return new tag_double(buf, len, off);
         }
 
-        Tag *tag_byte_array_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_byte_array_factory(shared_ptr<unsigned char[]> buf, size_t len,
                                     size_t &off) {
-            return new TagByteArray(buf, len, off);
+            return new tag_byte_array(buf, len, off);
         }
 
-        Tag *tag_string_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_string_factory(shared_ptr<unsigned char[]> buf, size_t len,
                                 size_t &off) {
-            return new TagString(buf, len, off);
+            return new tag_string(buf, len, off);
         }
 
-        Tag *tag_list_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_list_factory(shared_ptr<unsigned char[]> buf, size_t len,
                               size_t &off) {
-            return new TagList(buf, len, off);
+            return new tag_list(buf, len, off);
         }
 
-        Tag *tag_compound_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_compound_factory(shared_ptr<unsigned char[]> buf, size_t len,
                                   size_t &off) {
-            return new TagCompound(buf, len, off, false);
+            return new tag_compound(buf, len, off, false);
         }
 
-        Tag *tag_int_array_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_int_array_factory(shared_ptr<unsigned char[]> buf, size_t len,
                                    size_t &off) {
-            return new TagIntArray(buf, len, off);
+            return new tag_int_array(buf, len, off);
         }
 
-        Tag *tag_long_array_factory(shared_ptr<unsigned char[]> buf, size_t len,
+        tag *tag_long_array_factory(shared_ptr<unsigned char[]> buf, size_t len,
                                     size_t &off) {
-            return new TagLongArray(buf, len, off);
+            return new tag_long_array(buf, len, off);
         }
 
-        function<Tag *(shared_ptr<unsigned char[]> buf, size_t len,
+        function<tag *(shared_ptr<unsigned char[]> buf, size_t len,
                        size_t &off)>
             tag_factories[] = {
                 &tag_byte_factory,       &tag_short_factory,
@@ -80,24 +80,24 @@ namespace pixel_terrain::nbt {
                 &tag_int_array_factory,  &tag_long_array_factory};
     } // namespace
 
-    Tag::Tag(tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
+    tag::tag(tagtype_t type, shared_ptr<unsigned char[]> buf, size_t len,
              size_t &off)
         : tag_type(type), raw_buf(move(buf)), raw_len(len), raw_off(off) {}
 
-    Tag::Tag(tagtype_t type)
+    tag::tag(tagtype_t type)
         : tag_type(type), raw_buf(nullptr), raw_len(0), raw_off(0) {}
 
-    TagPrimitive::TagPrimitive(tagtype_t type, shared_ptr<unsigned char[]> buf,
+    tag_primitive::tag_primitive(tagtype_t type, shared_ptr<unsigned char[]> buf,
                                size_t len, size_t &off)
-        : Tag(type, buf, len, off), parsed(false) {}
+        : tag(type, buf, len, off), parsed(false) {}
 
-    TagByte::TagByte(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_byte::tag_byte(shared_ptr<unsigned char[]> buf, size_t const len,
                      size_t &off)
-        : TagPrimitive(TAG_BYTE, buf, len, off) {
+        : tag_primitive(TAG_BYTE, buf, len, off) {
         ++off;
     }
 
-    unsigned char TagByte::operator*() {
+    unsigned char tag_byte::operator*() {
         if (!parsed) {
             value = get_value(raw_buf, raw_len, raw_off);
             parsed = true;
@@ -105,13 +105,13 @@ namespace pixel_terrain::nbt {
         return value;
     }
 
-    TagShort::TagShort(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_short::tag_short(shared_ptr<unsigned char[]> buf, size_t const len,
                        size_t &off)
-        : TagPrimitive(TAG_SHORT, buf, len, off) {
+        : tag_primitive(TAG_SHORT, buf, len, off) {
         off += 2;
     }
 
-    int16_t TagShort::operator*() {
+    int16_t tag_short::operator*() {
         if (!parsed) {
             value = get_value(raw_buf, raw_len, raw_off);
             parsed = true;
@@ -119,13 +119,13 @@ namespace pixel_terrain::nbt {
         return value;
     }
 
-    TagInt::TagInt(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_int::tag_int(shared_ptr<unsigned char[]> buf, size_t const len,
                    size_t &off)
-        : TagPrimitive(TAG_INT, buf, len, off) {
+        : tag_primitive(TAG_INT, buf, len, off) {
         off += 4;
     }
 
-    int32_t TagInt::operator*() {
+    int32_t tag_int::operator*() {
         if (!parsed) {
             value = get_value(raw_buf, raw_len, raw_off);
             parsed = true;
@@ -133,13 +133,13 @@ namespace pixel_terrain::nbt {
         return value;
     }
 
-    TagLong::TagLong(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_long::tag_long(shared_ptr<unsigned char[]> buf, size_t const len,
                      size_t &off)
-        : TagPrimitive(TAG_LONG, buf, len, off) {
+        : tag_primitive(TAG_LONG, buf, len, off) {
         off += 8;
     }
 
-    uint64_t TagLong::operator*() {
+    uint64_t tag_long::operator*() {
         if (!parsed) {
             value = get_value(raw_buf, raw_len, raw_off);
             parsed = true;
@@ -147,13 +147,13 @@ namespace pixel_terrain::nbt {
         return value;
     }
 
-    TagFloat::TagFloat(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_float::tag_float(shared_ptr<unsigned char[]> buf, size_t const len,
                        size_t &off)
-        : TagPrimitive(TAG_FLOAT, buf, len, off) {
+        : tag_primitive(TAG_FLOAT, buf, len, off) {
         off += 4;
     }
 
-    float TagFloat::operator*() {
+    float tag_float::operator*() {
         if (!parsed) {
             value = get_value(raw_buf, raw_len, raw_off);
             parsed = true;
@@ -161,13 +161,13 @@ namespace pixel_terrain::nbt {
         return value;
     }
 
-    TagDouble::TagDouble(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_double::tag_double(shared_ptr<unsigned char[]> buf, size_t const len,
                          size_t &off)
-        : TagPrimitive(TAG_DOUBLE, buf, len, off) {
+        : tag_primitive(TAG_DOUBLE, buf, len, off) {
         off += 8;
     }
 
-    double TagDouble::operator*() {
+    double tag_double::operator*() {
         if (!parsed) {
             value = get_value(raw_buf, raw_len, raw_off);
             parsed = true;
@@ -175,19 +175,19 @@ namespace pixel_terrain::nbt {
         return value;
     }
 
-    TagArray::TagArray(tagtype_t type, shared_ptr<unsigned char[]> buf,
+    tag_array::tag_array(tagtype_t type, shared_ptr<unsigned char[]> buf,
                        size_t const len, size_t &off)
-        : Tag(type, buf, len, off), parsed(false) {}
+        : tag(type, buf, len, off), parsed(false) {}
 
-    TagByteArray::TagByteArray(shared_ptr<unsigned char[]> buf,
+    tag_byte_array::tag_byte_array(shared_ptr<unsigned char[]> buf,
                                size_t const len, size_t &off)
-        : TagArray(TAG_BYTE_ARRAY, buf, len, off) {
-        array_len = TagInt::get_value(buf, len, off);
+        : tag_array(TAG_BYTE_ARRAY, buf, len, off) {
+        array_len = tag_int::get_value(buf, len, off);
         raw_off = off;
         off += array_len;
     }
 
-    vector<char> TagByteArray::operator*() {
+    vector<char> tag_byte_array::operator*() {
         if (!parsed) {
             for (int32_t i = 0; i < array_len; ++i) {
                 values.push_back(*(raw_buf.get() + raw_off));
@@ -202,46 +202,46 @@ namespace pixel_terrain::nbt {
         return values;
     }
 
-    TagIntArray::TagIntArray(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_int_array::tag_int_array(shared_ptr<unsigned char[]> buf, size_t const len,
                              size_t &off)
-        : TagArray(TAG_INT_ARRAY, buf, len, off) {
-        array_len = TagInt::get_value(buf, len, off);
+        : tag_array(TAG_INT_ARRAY, buf, len, off) {
+        array_len = tag_int::get_value(buf, len, off);
         raw_off = off;
         off += array_len * 4;
     }
 
-    vector<int32_t> TagIntArray::operator*() {
+    vector<int32_t> tag_int_array::operator*() {
         if (!parsed) {
             for (int32_t i = 0; i < array_len; ++i) {
-                values.push_back(TagInt::get_value(raw_buf, raw_len, raw_off));
+                values.push_back(tag_int::get_value(raw_buf, raw_len, raw_off));
             }
             parsed = true;
         }
         return values;
     }
 
-    TagLongArray::TagLongArray(shared_ptr<unsigned char[]> buf,
+    tag_long_array::tag_long_array(shared_ptr<unsigned char[]> buf,
                                size_t const len, size_t &off)
-        : TagArray(TAG_LONG_ARRAY, buf, len, off) {
-        array_len = TagInt::get_value(buf, len, off);
+        : tag_array(TAG_LONG_ARRAY, buf, len, off) {
+        array_len = tag_int::get_value(buf, len, off);
         raw_off = off;
         off += array_len * 8;
     }
 
-    vector<int64_t> TagLongArray::operator*() {
+    vector<int64_t> tag_long_array::operator*() {
         if (!parsed) {
             for (int32_t i = 0; i < array_len; ++i) {
-                value.push_back(TagLong::get_value(raw_buf, raw_len, raw_off));
+                value.push_back(tag_long::get_value(raw_buf, raw_len, raw_off));
             }
             parsed = true;
         }
         return value;
     }
 
-    TagString::TagString(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_string::tag_string(shared_ptr<unsigned char[]> buf, size_t const len,
                          size_t &off)
-        : Tag(TAG_STRING, buf, len, off), value(nullptr) {
-        str_len = TagShort::get_value(buf, len, off);
+        : tag(TAG_STRING, buf, len, off), value(nullptr) {
+        str_len = tag_short::get_value(buf, len, off);
         raw_off = off;
         off += static_cast<size_t>(str_len);
         if (off >= len) {
@@ -249,9 +249,9 @@ namespace pixel_terrain::nbt {
         }
     }
 
-    TagString::~TagString() { delete value; }
+    tag_string::~tag_string() { delete value; }
 
-    string *TagString::operator*() {
+    string *tag_string::operator*() {
         if (value == nullptr) {
             value =
                 new string(reinterpret_cast<char *>(raw_buf.get() + raw_off),
@@ -260,11 +260,11 @@ namespace pixel_terrain::nbt {
         return value;
     }
 
-    TagList::TagList(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_list::tag_list(shared_ptr<unsigned char[]> buf, size_t const len,
                      size_t &off)
-        : Tag(TAG_LIST, buf, len, off), parsed(false) {
-        payload_type = TagByte::get_value(buf, len, off);
-        list_len = TagInt::get_value(buf, len, off);
+        : tag(TAG_LIST, buf, len, off), parsed(false) {
+        payload_type = tag_byte::get_value(buf, len, off);
+        list_len = tag_int::get_value(buf, len, off);
 
         if (list_len == 0) {
             parsed = true;
@@ -302,7 +302,7 @@ namespace pixel_terrain::nbt {
         off += size * list_len;
     }
 
-    TagList::~TagList() {
+    tag_list::~tag_list() {
         if (!parsed) return;
 
         for (auto itr = std::begin(tags); itr != std::end(tags); ++itr) {
@@ -310,9 +310,9 @@ namespace pixel_terrain::nbt {
         }
     }
 
-    void TagList::parse_buffer(shared_ptr<unsigned char[]> buf,
+    void tag_list::parse_buffer(shared_ptr<unsigned char[]> buf,
                                size_t const len, size_t &off) {
-        Tag *tag;
+        tag *tag;
         for (int32_t i = 0; i < list_len; ++i) {
             if (payload_type > 12) {
                 throw runtime_error("Unknown type of tag: " +
@@ -325,7 +325,7 @@ namespace pixel_terrain::nbt {
         }
     }
 
-    vector<nbt::Tag *> &TagList::operator*() {
+    vector<nbt::tag *> &tag_list::operator*() {
         if (!parsed) {
             parse_buffer(raw_buf, raw_len, raw_off);
             parsed = true;
@@ -333,35 +333,35 @@ namespace pixel_terrain::nbt {
         return tags;
     }
 
-    TagCompound::TagCompound(shared_ptr<unsigned char[]> buf, size_t const len,
+    tag_compound::tag_compound(shared_ptr<unsigned char[]> buf, size_t const len,
                              size_t &off, bool toplevel)
-        : Tag(TAG_COMPOUND, buf, len, off), toplevel(toplevel) {
+        : tag(TAG_COMPOUND, buf, len, off), toplevel(toplevel) {
         if (!toplevel) parse_buffer(buf, len, off);
     }
 
-    TagCompound::TagCompound() : Tag(TAG_COMPOUND), toplevel(false) {}
+    tag_compound::tag_compound() : tag(TAG_COMPOUND), toplevel(false) {}
 
-    TagCompound::~TagCompound() {
+    tag_compound::~tag_compound() {
         for (auto itr = std::begin(tags); itr != std::end(tags); ++itr) {
             delete itr->second;
         }
     }
 
-    void TagCompound::parse_buffer(shared_ptr<unsigned char[]> buf,
+    void tag_compound::parse_buffer(shared_ptr<unsigned char[]> buf,
                                    size_t const len, size_t &off) {
         for (;;) {
-            tagtype_t type = TagByte::get_value(buf, len, off);
+            tagtype_t type = tag_byte::get_value(buf, len, off);
 
             if (type == TAG_END) break;
 
-            string *name = TagString::get_value(buf, len, off);
-            Tag *tag;
+            string *name = tag_string::get_value(buf, len, off);
+            tag *tag;
             bool next_toplevel = *name == "Level";
             if (next_toplevel) {
                 /* for performance reason, it assumes that there is only one
                    Level tag in one chunk and no trailing tag after that.
                    it is dangerous but works correctly for now. */
-                tag = new TagCompound(buf, len, off, true);
+                tag = new tag_compound(buf, len, off, true);
             } else {
                 if (type > 12) {
                     throw runtime_error("unknown type of tag: " +
@@ -381,24 +381,24 @@ namespace pixel_terrain::nbt {
         }
     }
 
-    void TagCompound::parse_until(string &tag_name) {
+    void tag_compound::parse_until(string &tag_name) {
         for (;;) {
-            tagtype_t type = TagByte::get_value(raw_buf, raw_len, raw_off);
+            tagtype_t type = tag_byte::get_value(raw_buf, raw_len, raw_off);
 
             if (type == TAG_END) {
                 toplevel = false;
                 break;
             }
 
-            string *name = TagString::get_value(raw_buf, raw_len, raw_off);
+            string *name = tag_string::get_value(raw_buf, raw_len, raw_off);
 
             if (type > 12) {
                 throw runtime_error("unknown type of tag: " + to_string(type));
             }
 
-            Tag *tag = (tag_factories[type - 1])(raw_buf, raw_len, raw_off);
+            tag *cur_tag = (tag_factories[type - 1])(raw_buf, raw_len, raw_off);
 
-            tags[*name] = tag;
+            tags[*name] = cur_tag;
 
             if (*name == tag_name) {
                 delete name;
@@ -414,23 +414,23 @@ namespace pixel_terrain::nbt {
         }
     }
 
-    NBTFile::NBTFile(utils::DecompressedData *data)
-        : TagCompound(), data(data) {
+    nbt_file::nbt_file(utils::decompressed_data *data)
+        : tag_compound(), data(data) {
         parse_file();
     }
 
-    NBTFile::~NBTFile() { delete data; }
+    nbt_file::~nbt_file() { delete data; }
 
-    void NBTFile::parse_file() {
+    void nbt_file::parse_file() {
         size_t off = 0;
 
-        tagtype_t type = TagByte::get_value(data->data, data->len, off);
+        tagtype_t type = tag_byte::get_value(data->data, data->len, off);
 
         if (type != tag_type) {
             throw invalid_argument("corrupted data file");
         }
 
-        name = *TagString::get_value(data->data, data->len, off);
+        name = *tag_string::get_value(data->data, data->len, off);
         parse_buffer(data->data, data->len, off);
     }
 } // namespace pixel_terrain::nbt

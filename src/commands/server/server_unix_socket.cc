@@ -19,7 +19,7 @@
 
 namespace pixel_terrain::commands::server {
     namespace {
-        ThreadedWorker<int> *worker;
+        threaded_worker<int> *worker;
         mutex worker_mutex;
 
         void terminate_server() {
@@ -85,7 +85,7 @@ namespace pixel_terrain::commands::server {
         }
 
         prepare_signel_handle_thread();
-        worker = new ThreadedWorker<int>(thread::hardware_concurrency(),
+        worker = new threaded_worker<int>(thread::hardware_concurrency(),
                                          &handle_request_unix);
         worker->start();
 

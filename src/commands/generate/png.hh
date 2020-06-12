@@ -8,16 +8,16 @@
 using namespace std;
 
 namespace pixel_terrain::commands::generate {
-    class Png {
+    class png {
         int width;
         int height;
         string filename;
         png_bytep data;
 
     public:
-        Png(int width, int height);
-        Png(string filename);
-        ~Png();
+        png(int width, int height);
+        png(string filename);
+        ~png();
 
         int get_width();
         int get_height();

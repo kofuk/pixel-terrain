@@ -4,26 +4,26 @@
 #include <mutex>
 #include <utility>
 
-#include "../../nbt/Region.hh"
+#include "../../nbt/region.hh"
 
 using namespace std;
 
 namespace pixel_terrain::commands::generate {
-    struct RegionContainer {
-        anvil::Region *region;
+    struct region_container {
+        anvil::region *region;
         int rx;
         int rz;
 
-        RegionContainer(anvil::Region *region, int rx, int rz);
-        ~RegionContainer();
+        region_container(anvil::region *region, int rx, int rz);
+        ~region_container();
     };
 
-    struct QueuedItem {
-        shared_ptr<RegionContainer> region;
+    struct queued_item {
+        shared_ptr<region_container> region;
         int off_x;
         int off_z;
 
-        QueuedItem(shared_ptr<RegionContainer> region, int off_x, int off_z);
+        queued_item(shared_ptr<region_container> region, int off_x, int off_z);
 
         string debug_string();
     };
@@ -35,8 +35,8 @@ namespace pixel_terrain::commands::generate {
     extern bool option_generate_range;
     extern string option_journal_dir;
 
-    QueuedItem *fetch_item();
-    void queue_item(shared_ptr<QueuedItem> item);
+    queued_item *fetch_item();
+    void queue_item(shared_ptr<queued_item> item);
     void start_worker();
     void wait_for_worker();
     void finish_worker();

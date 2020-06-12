@@ -31,20 +31,20 @@ using namespace std;
 
 namespace pixel_terrain {
     namespace {
-        enum class SignalType { JOB, TERMINATE };
+        enum class signal_type { JOB, TERMINATE };
 
-        template <typename T> struct WorkerSignal {
-            SignalType type;
+        template <typename T> struct worker_signal {
+            signal_type type;
             T data;
 
-            WorkerSignal(SignalType type, T data) : type(type), data(data) {}
+            worker_signal(signal_type type, T data) : type(type), data(data) {}
 
-            WorkerSignal(SignalType type) : type(type) {}
+            worker_signal(signal_type type) : type(type) {}
         };
     } // namespace
 
-    template <typename T> class ThreadedWorker {
-        queue<WorkerSignal<T> *> job_queue;
+    template <typename T> class threaded_worker {
+        queue<worker_signal<T> *> job_queue;
         mutex queue_mutex;
         condition_variable queue_cond;
         mutex cond_mutex;
@@ -57,7 +57,7 @@ namespace pixel_terrain {
         bool finished = false;
         bool waited = false;
 
-        WorkerSignal<T> *fetch_job() {
+        worker_signal<T> *fetch_job() {
             for (;;) {
                 unique_lock<mutex> lock(queue_mutex);
                 if (job_queue.empty()) {
@@ -78,7 +78,7 @@ namespace pixel_terrain {
                     continue;
                 }
 
-                WorkerSignal<T> *job = job_queue.front();
+                worker_signal<T> *job = job_queue.front();
                 job_queue.pop();
                 queue_cap_cond.notify_one();
                 return job;
@@ -87,8 +87,8 @@ namespace pixel_terrain {
 
         void run_worker() {
             for (;;) {
-                WorkerSignal<T> *job = fetch_job();
-                if (job->type == SignalType::TERMINATE) {
+                worker_signal<T> *job = fetch_job();
+                if (job->type == signal_type::TERMINATE) {
                     delete job;
                     break;
                 }
@@ -98,7 +98,7 @@ namespace pixel_terrain {
             }
         }
 
-        void internal_queue_job(WorkerSignal<T> *sig) {
+        void internal_queue_job(worker_signal<T> *sig) {
             for (;;) {
                 unique_lock<mutex> lock(queue_mutex);
                 if (job_queue.size() < static_cast<size_t>(jobs * 2)) {
@@ -113,11 +113,11 @@ namespace pixel_terrain {
             }
         }
 
-        ThreadedWorker(ThreadedWorker<T> const &) = delete;
-        ThreadedWorker<T> operator=(ThreadedWorker<T> const &) = delete;
+        threaded_worker(threaded_worker<T> const &) = delete;
+        threaded_worker<T> operator=(threaded_worker<T> const &) = delete;
 
     public:
-        ThreadedWorker(int jobs, function<void(T)> handler)
+        threaded_worker(int jobs, function<void(T)> handler)
             : jobs(jobs), handler(handler) {
             if (jobs < 1) {
                 throw logic_error("JOBS must be greater than 0"s);
@@ -126,7 +126,7 @@ namespace pixel_terrain {
             threads.reserve(jobs);
         }
 
-        ~ThreadedWorker() {
+        ~threaded_worker() {
             if (!finished) {
                 finish();
             }
@@ -144,7 +144,7 @@ namespace pixel_terrain {
             try {
                 for (int i = 0; i < jobs; ++i) {
                     threads.push_back(
-                        new thread(&ThreadedWorker::run_worker, this));
+                        new thread(&threaded_worker::run_worker, this));
                 }
             } catch (system_error const &e) {
 #ifndef NDEBUG
@@ -162,7 +162,8 @@ namespace pixel_terrain {
                 cerr << "worker is not started" << endl;
             }
 #endif
-            WorkerSignal<T> *sig = new WorkerSignal<T>(SignalType::JOB, item);
+            worker_signal<T> *sig =
+                new worker_signal<T>(signal_type::JOB, item);
             internal_queue_job(sig);
         }
 
@@ -194,8 +195,8 @@ namespace pixel_terrain {
             }
 #endif
             for (int i = 0; i < jobs; ++i) {
-                WorkerSignal<T> *sig =
-                    new WorkerSignal<T>(SignalType::TERMINATE);
+                worker_signal<T> *sig =
+                    new worker_signal<T>(signal_type::TERMINATE);
                 internal_queue_job(sig);
             }
 

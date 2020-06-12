@@ -19,7 +19,7 @@
 #include <optlib/optlib.h>
 
 #include "../../logger/logger.hh"
-#include "../../nbt/Region.hh"
+#include "../../nbt/region.hh"
 #include "request.hh"
 #include "server.hh"
 #include "server_unix_socket.hh"
@@ -64,19 +64,19 @@ namespace pixel_terrain::commands::server {
     string end_dir;
 
     namespace {
-        class Response {
+        class response {
             int response_code = 500;
             int altitude = 0;
             string block;
             bool response_wrote = false;
 
-            Response(Response const &) = delete;
-            Response operator=(Response const &) = delete;
+            response(response const &) = delete;
+            response operator=(response const &) = delete;
 
         public:
-            Response() {}
+            response() {}
 
-            ~Response() {
+            ~response() {
                 if (!response_wrote) {
                     logger::e(
                         "BUG: Response object discarded without writing its data"s);
@@ -99,17 +99,17 @@ namespace pixel_terrain::commands::server {
                 w->write_data("\r\n");
             }
 
-            Response *set_response_code(int code) {
+            response *set_response_code(int code) {
                 response_code = code;
                 return this;
             }
 
-            Response *set_altitude(int altitide) {
+            response *set_altitude(int altitide) {
                 this->altitude = altitide;
                 return this;
             }
 
-            Response *set_block(string const &block) {
+            response *set_block(string const &block) {
                 this->block = block;
                 return this;
             }
@@ -148,7 +148,7 @@ namespace pixel_terrain::commands::server {
 
             if (dimen == "nether"s) {
                 if (nether_dir.empty()) {
-                    Response().set_response_code(404)->write_to(w);
+                    response().set_response_code(404)->write_to(w);
 
                     return;
                 }
@@ -156,7 +156,7 @@ namespace pixel_terrain::commands::server {
                 region_file = nether_dir;
             } else if (dimen == "end"s) {
                 if (end_dir.empty()) {
-                    Response().set_response_code(404)->write_to(w);
+                    response().set_response_code(404)->write_to(w);
 
                     return;
                 }
@@ -164,7 +164,7 @@ namespace pixel_terrain::commands::server {
                 region_file = end_dir;
             } else {
                 if (overworld_dir.empty()) {
-                    Response().set_response_code(404)->write_to(w);
+                    response().set_response_code(404)->write_to(w);
 
                     return;
                 }
@@ -175,15 +175,15 @@ namespace pixel_terrain::commands::server {
             region_file /= "r."s + to_string(region_x) + "."s +
                            to_string(region_z) + ".mca"s;
             if (!filesystem::exists(region_file)) {
-                Response().set_response_code(404)->write_to(w);
+                response().set_response_code(404)->write_to(w);
 
                 return;
             }
 
-            anvil::Region *r = new anvil::Region(region_file.string());
-            anvil::Chunk *chunk = r->get_chunk(chunk_x, chunk_z);
+            anvil::region *r = new anvil::region(region_file.string());
+            anvil::chunk *chunk = r->get_chunk(chunk_x, chunk_z);
             if (chunk == nullptr) {
-                Response().set_response_code(404)->write_to(w);
+                response().set_response_code(404)->write_to(w);
 
                 return;
             }
@@ -195,7 +195,7 @@ namespace pixel_terrain::commands::server {
                         block == "minecraft:cave_air"s ||
                         block == "minecraft:void_air"s) {
                         if (y == 0) {
-                            Response().set_response_code(404)->write_to(w);
+                            response().set_response_code(404)->write_to(w);
 
                             break;
                         }
@@ -207,7 +207,7 @@ namespace pixel_terrain::commands::server {
 
                     if (!air_found) {
                         if (y == 0) {
-                            Response().set_response_code(404)->write_to(w);
+                            response().set_response_code(404)->write_to(w);
 
                             break;
                         }
@@ -215,9 +215,9 @@ namespace pixel_terrain::commands::server {
                     }
 
                     if (block.empty()) {
-                        Response().set_response_code(404)->write_to(w);
+                        response().set_response_code(404)->write_to(w);
                     } else {
-                        Response()
+                        response()
                             .set_response_code(200)
                             ->set_altitude(y)
                             ->set_block(block)
@@ -233,7 +233,7 @@ namespace pixel_terrain::commands::server {
                         block == "minecraft:cave_air"s ||
                         block == "minecraft:void_air"s) {
                         if (y == 0) {
-                            Response().set_response_code(404)->write_to(w);
+                            response().set_response_code(404)->write_to(w);
 
                             break;
                         }
@@ -242,9 +242,9 @@ namespace pixel_terrain::commands::server {
                     }
 
                     if (block.empty()) {
-                        Response().set_response_code(404)->write_to(w);
+                        response().set_response_code(404)->write_to(w);
                     } else {
-                        Response()
+                        response()
                             .set_response_code(200)
                             ->set_altitude(y)
                             ->set_block(block)
@@ -270,13 +270,13 @@ namespace pixel_terrain::commands::server {
 
         if (req->get_method() != "GET" || req->get_protocol() != "MMP" ||
             req->get_version() != "1.0") {
-            Response().set_response_code(400)->write_to(w);
+            response().set_response_code(400)->write_to(w);
             return;
         }
 
         string dimen = req->get_request_field("Dimension");
         if (!(dimen == "overworld" || dimen == "nether" || dimen == "end")) {
-            Response().set_response_code(400)->write_to(w);
+            response().set_response_code(400)->write_to(w);
             return;
         }
 
@@ -286,10 +286,10 @@ namespace pixel_terrain::commands::server {
             x = stoi(req->get_request_field("Coord-X"));
             z = stoi(req->get_request_field("Coord-Z"));
         } catch (invalid_argument const &) {
-            Response().set_response_code(400)->write_to(w);
+            response().set_response_code(400)->write_to(w);
             return;
         } catch (out_of_range const &) {
-            Response().set_response_code(400)->write_to(w);
+            response().set_response_code(400)->write_to(w);
             return;
         }
 

@@ -18,8 +18,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <optlib/optlib.h>
-
 #include "commands/generate/generate_main.hh"
 #include "commands/server/server.hh"
 
