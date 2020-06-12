@@ -1,5 +1,5 @@
 /*
- * Entry point for minecraft-image-generator.
+ * Entry point for pixel-terrain.
  * Parse option and all call specific function.
  */
 

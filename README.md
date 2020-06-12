@@ -1,4 +1,4 @@
-# Minecraft Image Generator
+# Pixel Terrain
 
 ![Sample Image](images/sample.png)
 
@@ -38,6 +38,11 @@ After that, you'll get executable in `build/src/`.
 If you want the executable to be in your binary directory,
 you can also do `make install`.
 I'm sure that CMake installs the executable in `/usr/local/bin` by default, on Unix.
+
+## Legal Information
+
+- Minecraft is a trademark of Mojang Studios.
+- Neither this software nor its author is NOT affiliated with Mojang Studios.
 
 ## License
 

@@ -1,1 +1,1 @@
-target_sources(mcmap PRIVATE logger.cc pretty_printer.cc)
+target_sources(pixel-terrain PRIVATE logger.cc pretty_printer.cc)
