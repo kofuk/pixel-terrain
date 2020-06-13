@@ -8,7 +8,7 @@ function(add_boost_test target_name test_name)
     return()
   endif()
 
-  add_executable(${target_name} ${ARGN})
+  add_executable(${target_name} EXCLUDE_FROM_ALL ${ARGN})
   target_include_directories(${target_name} PRIVATE SYSTEM ${Boost_INCLUDE_DIRS})
   target_compile_definitions(${target_name} PRIVATE "BOOST_TEST_DYN_LINK=1")
   target_compile_definitions(${target_name} PRIVATE "BOOST_TEST_MAIN")
