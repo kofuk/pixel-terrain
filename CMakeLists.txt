@@ -25,15 +25,33 @@ find_package(Threads REQUIRED)
 
 include(cmake/test_utils.cmake)
 
-string(JOIN "\" \"" LIBS_INCLUDE_DIRS_DIR_LOCALS ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS})
-configure_file(src/dir-locals.el.in ${PROJECT_SOURCE_DIR}/src/.dir-locals.el @ONLY)
-unset(LIBS_INCLUDE_DIRS_DIR_LOCALS)
+add_custom_target(generate_editor_aux DEPENDS
+  ${PROJECT_SOURCE_DIR}/compile_flags.txt
+  ${PROJECT_SOURCE_DIR}/src/.dir-locals.el)
 
-string(JOIN "\n-I" COMPILE_FLAGS_TXT_CFLAGS
-  -I${CMAKE_SOURCE_DIR}/external/include
-  ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})
-configure_file(compile_flags.txt.in ${PROJECT_SOURCE_DIR}/compile_flags.txt @ONLY)
-unset(COMPILE_FLAGS_TXT_CFLAGS)
+add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/compile_flags.txt
+  COMMAND tools/editor-aux/editor-aux compile_flags.txt ${PROJECT_SOURCE_DIR}/compile_flags.txt
+  ${CMAKE_SOURCE_DIR}/external/include ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
+  DEPENDS editor-aux
+  COMMENT "Generating compile_flags.txt"
+  VERBATIM)
+add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
+  COMMAND  tools/editor-aux/editor-aux .dir-locals.el ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
+  ${CMAKE_SOURCE_DIR}/external/include ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
+  DEPENDS editor-aux
+  COMMENT "Generating src/.dir-locals.el"
+  VERBATIM)
+
+# string(JOIN "\" \"" LIBS_INCLUDE_DIRS_DIR_LOCALS ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS})
+# configure_file(src/dir-locals.el.in ${PROJECT_SOURCE_DIR}/src/.dir-locals.el @ONLY)
+# unset(LIBS_INCLUDE_DIRS_DIR_LOCALS)
+
+# string(JOIN "\n-I" COMPILE_FLAGS_TXT_CFLAGS
+#   -I${CMAKE_SOURCE_DIR}/external/include
+#   ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})
+# configure_file(compile_flags.txt.in ${PROJECT_SOURCE_DIR}/compile_flags.txt @ONLY)
+# unset(COMPILE_FLAGS_TXT_CFLAGS)
 
 add_subdirectory(block)
 add_subdirectory(src)
+add_subdirectory(tools/editor-aux)
