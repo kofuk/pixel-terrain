@@ -42,16 +42,6 @@ add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
   COMMENT "Generating src/.dir-locals.el"
   VERBATIM)
 
-# string(JOIN "\" \"" LIBS_INCLUDE_DIRS_DIR_LOCALS ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS})
-# configure_file(src/dir-locals.el.in ${PROJECT_SOURCE_DIR}/src/.dir-locals.el @ONLY)
-# unset(LIBS_INCLUDE_DIRS_DIR_LOCALS)
-
-# string(JOIN "\n-I" COMPILE_FLAGS_TXT_CFLAGS
-#   -I${CMAKE_SOURCE_DIR}/external/include
-#   ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})
-# configure_file(compile_flags.txt.in ${PROJECT_SOURCE_DIR}/compile_flags.txt @ONLY)
-# unset(COMPILE_FLAGS_TXT_CFLAGS)
-
 add_subdirectory(block)
 add_subdirectory(src)
 add_subdirectory(tools/editor-aux)
