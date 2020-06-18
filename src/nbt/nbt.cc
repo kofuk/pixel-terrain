@@ -1,8 +1,10 @@
 /* NBT parser based on twoolie/NBT. */
 
+#include <functional>
 #include <cstdint>
 #include <iterator>
 #include <stdexcept>
+#include <string>
 
 #include "nbt.hh"
 #include "utils.hh"

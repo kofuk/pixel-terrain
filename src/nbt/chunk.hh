@@ -1,6 +1,7 @@
 #ifndef CHUNK_HH
 #define CHUNK_HH
 
+#include <array>
 #include <cstdint>
 #include <vector>
 

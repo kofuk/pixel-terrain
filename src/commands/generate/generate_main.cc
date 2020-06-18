@@ -194,7 +194,7 @@ namespace pixel_terrain::commands::generate {
             }
         }
 
-        if (optind != argc - 1) {
+        if (parser->optind != argc - 1) {
             optlib_print_help(parser, stdout);
             optlib_parser_free(parser);
             exit(1);
@@ -202,7 +202,7 @@ namespace pixel_terrain::commands::generate {
 
         init_block_list();
 
-        generate_all(argv[optind]);
+        generate_all(argv[parser->optind]);
 
         return 0;
     }

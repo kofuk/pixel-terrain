@@ -12,11 +12,15 @@
 #include <stdexcept>
 #include <vector>
 
+#ifdef _WIN32
+#include <fstream>
+#else
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#endif
 
 using namespace std;
 
@@ -25,10 +29,34 @@ namespace pixel_terrain {
         bool mmapped = false;
         size_t data_len = 0;
         T *data;
+#ifdef _WIN32
+        string filename;
+        bool write_mode = false;
+#endif
 
     public:
         /* open specified file in read-only mode. */
         file(filesystem::path const &filename) {
+#ifdef _WIN32
+            ifstream ifs(filename, std::ios::binary);
+            if (!ifs) {
+                throw runtime_error("Unable to open file");
+            }
+
+            vector<T> d;
+            T buf[1024];
+            do {
+                ifs.read(reinterpret_cast<char *>(buf), sizeof(T) * 1024);
+                if (ifs.gcount() % sizeof(T) != 0) {
+                    throw runtime_error("Corrupted data.");
+                }
+                d.insert(d.end(), buf, buf + ifs.gcount() / sizeof(T));
+            } while (!ifs.eof());
+
+            data = new T[d.size()];
+            copy(d.begin(), d.end(), data);
+            data_len = d.size() / sizeof(T);
+#else
             int fd = open(filename.c_str(), O_RDONLY);
             if (fd < 0) {
                 throw runtime_error(strerror(errno));
@@ -67,6 +95,7 @@ namespace pixel_terrain {
                 data = new T[content.size()];
                 copy(begin(content), end(content), data);
             }
+#endif
         }
 
         file(filesystem::path const &filename, size_t nmemb, string const &mode)
@@ -89,6 +118,35 @@ namespace pixel_terrain {
                 }
             }
 
+#ifdef _WIN32
+            write_mode = writable;
+            this->filename = filename.string();
+            ifstream ifs(filename, std::ios::binary);
+            if (!ifs) {
+                if (writable) {
+                    data = new T[data_len / sizeof(T)];
+                } else {
+                    throw runtime_error("Unable to open file");
+                }
+                return;
+            }
+
+            vector<T> d;
+            T buf[1024];
+            do {
+                ifs.read(reinterpret_cast<char *>(buf), sizeof(T) * 1024);
+                if (ifs.gcount() % sizeof(T) != 0) {
+                    throw runtime_error("Corrupted data.");
+                }
+                d.insert(d.end(), buf, buf + ifs.gcount() / sizeof(T));
+            } while (!ifs.eof());
+            if (d.size() > data_len / sizeof(T)) {
+                throw runtime_error("File too long");
+            }
+
+            data = new T[d.size()];
+            copy(d.begin(), d.end(), data);
+#else
             int omode = 0;
             if (readable && writable) {
                 omode = O_RDWR;
@@ -124,14 +182,29 @@ namespace pixel_terrain {
                 throw runtime_error(strerror(errsave));
             }
             data = reinterpret_cast<T *>(mem);
+#endif
         }
 
         ~file() {
+#ifdef _WIN32
+            if (write_mode) {
+                ofstream ofs(filename);
+                if (!ofs) {
+                    delete[] data;
+                    return;
+                }
+
+                ofs.write(reinterpret_cast<char *>(data), data_len);
+                /* TODO: check if ofstream::write success. */
+            }
+            delete[] data;
+#else
             if (mmapped) {
                 munmap(data, data_len);
             } else {
                 delete[] data;
             }
+#endif
         }
 
         T &operator[](size_t off) { return data[off]; }

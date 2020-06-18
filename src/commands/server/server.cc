@@ -10,7 +10,6 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
-#include <pthread.h>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -22,7 +21,11 @@
 #include "../../nbt/region.hh"
 #include "request.hh"
 #include "server.hh"
+#if _WIN32
+#include "server_generic.hh"
+#else
 #include "server_unix_socket.hh"
+#endif
 #include "writer.hh"
 
 using namespace std;
@@ -260,7 +263,14 @@ namespace pixel_terrain::commands::server {
         }
 
         void launch_server(bool daemon_mode) {
+#ifdef _WIN32
+            if (daemon_mode) {
+                cout << "Warning: Daemon mode has no effect on Windows." << endl;
+            }
+            server_base *s = new server_generic();
+#else
             server_base *s = new server_unix_socket(daemon_mode);
+#endif
             s->start_server();
         }
     } // namespace
@@ -345,7 +355,7 @@ namespace pixel_terrain::commands::server {
             }
         }
 
-        if (argc - optind == 0) {
+        if (argc - parser->optind == 0) {
             optlib_parser_free(parser);
             launch_server(daemon_mode);
         } else {

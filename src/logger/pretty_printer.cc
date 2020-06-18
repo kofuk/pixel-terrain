@@ -4,8 +4,10 @@
 #include <iostream>
 #include <mutex>
 
+#ifndef _WIN32
 #include <sys/ioctl.h>
 #include <unistd.h>
+#endif
 
 #include "pretty_printer.hh"
 
@@ -46,11 +48,15 @@ namespace pixel_terrain::pretty_printer {
     void set_total(int total) {
         total_count = total;
 
+#ifdef _WIN32
+        term_width = 40;
+#else
         if (isatty(STDERR_FILENO)) {
             struct winsize w;
             ioctl(2, TIOCGWINSZ, &w);
             term_width = w.ws_col;
         }
+#endif
     }
 
     void increment_progress_bar() {

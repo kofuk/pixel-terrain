@@ -9,20 +9,25 @@ if(NOT PNG_FOUND)
   if(ZLIB_USE_EXTERNAL_PROJECT)
     add_dependencies(png_project zlib_project)
   endif()
+  set(PNG_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/external/include)
+  set(PNG_LIBRARIES png)
   add_library(png IMPORTED STATIC)
   set_target_properties(png_project PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${ZLIB_INCLUDE_DIRS}
     INTERFACE_LINK_LIBRARIES ${ZLIB_LIBRARIES})
-
-  if(MSVC)
-    set_target_properties(png PROPERTIES
-      IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/png.lib)
+    if(MSVC)
+    if(CMAKE_BUILD_TYPE MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
+      set_target_properties(png PROPERTIES
+        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/libpng16_staticd.lib)
+    else()
+      set_target_properties(png PROPERTIES
+        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/libpng16_static.lib)
+    endif()
   else()
     set_target_properties(png PROPERTIES
       IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/libpng.a)
   endif()
-  set(PNG_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/external/include)
-  set(PNG_LIBRARIES png)
+
   set(PNG_USE_EXTERNAL_PROJECT YES)
 else()
   set(PNG_USE_EXTERNAL_PROJECT NO)
