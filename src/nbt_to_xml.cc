@@ -2,8 +2,8 @@
 #include <exception>
 #include <iostream>
 
-#include "file.hh"
-#include "nbt_pull_parser.hh"
+#include "nbt/file.hh"
+#include "nbt/pull_parser/nbt_pull_parser.hh"
 
 namespace {
     void print_usage() { std::cout << "usage: nbt2xml nbt_file" << std::endl; }
@@ -26,50 +26,53 @@ namespace {
                 break;
 
             case nbt::parser_event::TAG_START:
-                std::cout << "<tag";
                 switch (p.get_tag_type()) {
                 case nbt::TAG_BYTE:
-                    std::cout << " type=\"TAG_Byte\"";
+                    std::cout << "<Byte";
                     break;
 
                 case nbt::TAG_SHORT:
-                    std::cout << " type=\"TAG_Short\"";
+                    std::cout << "<Short";
                     break;
 
                 case nbt::TAG_INT:
-                    std::cout << " type=\"TAG_Int\"";
+                    std::cout << "<Int";
                     break;
 
                 case nbt::TAG_LONG:
-                    std::cout << " type=\"TAG_Long\"";
+                    std::cout << "<Long";
                     break;
 
                 case nbt::TAG_FLOAT:
-                    std::cout << " type=\"TAG_Float\"";
+                    std::cout << "<Float";
                     break;
 
                 case nbt::TAG_DOUBLE:
-                    std::cout << " type=\"TAG_Double\"";
+                    std::cout << "<Double";
                     break;
 
                 case nbt::TAG_BYTE_ARRAY:
-                    std::cout << " type=\"TAG_Byte_Array\"";
+                    std::cout << "<ByteArray";
                     break;
 
                 case nbt::TAG_STRING:
-                    std::cout << " type=\"TAG_String\"";
+                    std::cout << "<String";
                     break;
 
                 case nbt::TAG_LIST:
-                    std::cout << " type=\"TAG_List\"";
+                    std::cout << "<List";
                     break;
 
                 case nbt::TAG_INT_ARRAY:
-                    std::cout << " type=\"TAG_Int_Array\"";
+                    std::cout << "<IntArray";
                     break;
 
                 case nbt::TAG_LONG_ARRAY:
-                    std::cout << " type=\"TAG_Long_Array\"";
+                    std::cout << "<LongArray";
+                    break;
+
+                case nbt::TAG_COMPOUND:
+                    std::cout << "<Compound";
                     break;
                 }
 
@@ -123,8 +126,56 @@ namespace {
                 break;
 
             case nbt::parser_event::TAG_END:
-                std::cout << "</tag>" << std::endl;
-                break;
+                switch (p.get_tag_type()) {
+                case nbt::TAG_BYTE:
+                    std::cout << "</Byte>";
+                    break;
+
+                case nbt::TAG_SHORT:
+                    std::cout << "</Short>";
+                    break;
+
+                case nbt::TAG_INT:
+                    std::cout << "</Int>";
+                    break;
+
+                case nbt::TAG_LONG:
+                    std::cout << "</Long>";
+                    break;
+
+                case nbt::TAG_FLOAT:
+                    std::cout << "</Float>";
+                    break;
+
+                case nbt::TAG_DOUBLE:
+                    std::cout << "</Double>";
+                    break;
+
+                case nbt::TAG_BYTE_ARRAY:
+                    std::cout << "</ByteArray>";
+                    break;
+
+                case nbt::TAG_STRING:
+                    std::cout << "</String>";
+                    break;
+
+                case nbt::TAG_LIST:
+                    std::cout << "</List>";
+                    break;
+
+                case nbt::TAG_INT_ARRAY:
+                    std::cout << "</IntArray>";
+                    break;
+
+                case nbt::TAG_LONG_ARRAY:
+                    std::cout << "</LongArray>";
+                    break;
+
+                case nbt::TAG_COMPOUND:
+                    std::cout << "</Compound>";
+                    break;
+                }
+                std::cout << std::endl;
 
             default:
                 break;

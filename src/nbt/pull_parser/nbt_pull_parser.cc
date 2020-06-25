@@ -1,7 +1,7 @@
 #include <stdexcept>
 
+#include "../utils.hh"
 #include "nbt_pull_parser.hh"
-#include "utils.hh"
 
 namespace pixel_terrain::nbt {
     namespace {
@@ -153,10 +153,12 @@ namespace pixel_terrain::nbt {
     }
 
     void nbt_pull_parser::handle_tag_end() {
+        last_tag_name = names.top();
         names.pop();
         if (!types.empty() && types.top() == TAG_STRING) {
             delete tag_data.string_data;
         }
+        last_tag_type = types.top();
         types.pop();
         end_emitted = true;
     }
@@ -363,6 +365,9 @@ namespace pixel_terrain::nbt {
     }
 
     std::string nbt_pull_parser::get_tag_name() {
+        if (current_event == parser_event::TAG_END) {
+            return last_tag_name;
+        }
         if (names.empty()) {
             throw std::logic_error("parser have not parsed any header");
         }
@@ -370,6 +375,10 @@ namespace pixel_terrain::nbt {
     }
 
     unsigned char nbt_pull_parser::get_tag_type() {
+        if (current_event == parser_event::TAG_END) {
+            return last_tag_type;
+        }
+
         if (types.empty()) {
             throw std::logic_error("parser have not parsed any header");
         }

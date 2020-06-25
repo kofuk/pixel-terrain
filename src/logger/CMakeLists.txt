@@ -1,1 +1,1 @@
-target_sources(pixel-terrain PRIVATE logger.cc pretty_printer.cc)
+add_library(logger STATIC logger.cc pretty_printer.cc)

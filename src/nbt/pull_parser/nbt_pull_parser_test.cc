@@ -40,8 +40,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_byte) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_BYTE);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_short) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_SHORT);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -114,8 +114,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_int) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_INT);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_long) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_LONG);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -190,8 +190,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_float) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_FLOAT);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -231,8 +231,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_double) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_DOUBLE);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -271,8 +271,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_byte_array) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_BYTE_ARRAY);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -308,8 +308,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_string) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_STRING);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -350,13 +350,14 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_list_int) {
 
         ev = p.next();
         BOOST_TEST(ev == parser_event::TAG_END);
+        BOOST_TEST(p.get_tag_type() == TAG_INT);
     }
 
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_LIST);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -430,8 +431,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_int_array) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_INT_ARRAY);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");
@@ -471,8 +472,8 @@ BOOST_AUTO_TEST_CASE(parser_single_tag_long_array) {
     BOOST_TEST_CHECKPOINT("parsing TAG_END");
     ev = p.next();
     BOOST_TEST(ev == parser_event::TAG_END);
-    BOOST_CHECK_THROW(p.get_tag_type(), std::logic_error);
-    BOOST_CHECK_THROW(p.get_tag_name(), std::logic_error);
+    BOOST_TEST(p.get_tag_type() == TAG_LONG_ARRAY);
+    BOOST_TEST(p.get_tag_name() == "foo");
     BOOST_TEST(p.get_event_type() == parser_event::TAG_END);
 
     BOOST_TEST_CHECKPOINT("parsing DOCUMENT_END");

@@ -31,42 +31,42 @@
 using namespace std;
 
 namespace pixel_terrain::commands::server {
-    void print_help(optlib_parser *opt) {
-        cout << "usage: mcmap server [OPTIONS...]" << endl;
-
-        cout << "Possible options are:" << endl;
-        optlib_print_help(opt, stderr);
-
-        cout << "Help for block info server's protocol and config" << endl
-             << endl;
-
-        cout << "PROTOCOL:" << endl;
-        cout << " example request and response;" << endl;
-        cout << " `>' means request and `<' means response" << endl;
-        cout << "  >GET MMP/1.0" << endl;
-        cout << "  >Dimension: overworld" << endl;
-        cout << "  >Coord-X: 1" << endl;
-        cout << "  >Coord-Z: 1" << endl;
-        cout << "  >" << endl;
-        cout << "  <MMP/1.0 200" << endl;
-        cout << "  <" << endl;
-        cout << R"(  <{"altitude": 63, "block": "minecraft:dirt"})" << endl
-             << endl;
-        cout << " Response Codes:" << endl;
-        cout << "  200  OK. The request is handled properly and" << endl
-             << "       altitude returned" << endl;
-        cout << "  400  Bad Request. Probably request parse error" << endl;
-        cout << "  404  Out of Range. No chunk existing on specified "
-                "corrdinate"
-             << endl;
-        cout << "  500  Internal Server Error. Serverside error" << endl;
-    }
-
     string overworld_dir;
     string nether_dir;
     string end_dir;
 
     namespace {
+        void print_help(optlib_parser *opt) {
+            cout << "usage: mcmap server [OPTIONS...]" << endl;
+
+            cout << "Possible options are:" << endl;
+            optlib_print_help(opt, stderr);
+
+            cout << "Help for block info server's protocol and config" << endl
+                 << endl;
+
+            cout << "PROTOCOL:" << endl;
+            cout << " example request and response;" << endl;
+            cout << " `>' means request and `<' means response" << endl;
+            cout << "  >GET MMP/1.0" << endl;
+            cout << "  >Dimension: overworld" << endl;
+            cout << "  >Coord-X: 1" << endl;
+            cout << "  >Coord-Z: 1" << endl;
+            cout << "  >" << endl;
+            cout << "  <MMP/1.0 200" << endl;
+            cout << "  <" << endl;
+            cout << R"(  <{"altitude": 63, "block": "minecraft:dirt"})" << endl
+                 << endl;
+            cout << " Response Codes:" << endl;
+            cout << "  200  OK. The request is handled properly and" << endl
+                 << "       altitude returned" << endl;
+            cout << "  400  Bad Request. Probably request parse error" << endl;
+            cout << "  404  Out of Range. No chunk existing on specified "
+                    "corrdinate"
+                 << endl;
+            cout << "  500  Internal Server Error. Serverside error" << endl;
+        }
+
         class response {
             int response_code = 500;
             int altitude = 0;
@@ -265,7 +265,8 @@ namespace pixel_terrain::commands::server {
         void launch_server(bool daemon_mode) {
 #ifdef _WIN32
             if (daemon_mode) {
-                cout << "Warning: Daemon mode has no effect on Windows." << endl;
+                cout << "Warning: Daemon mode has no effect on Windows."
+                     << endl;
             }
             server_base *s = new server_generic();
 #else

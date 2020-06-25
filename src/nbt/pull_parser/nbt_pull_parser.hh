@@ -50,6 +50,8 @@ namespace pixel_terrain::nbt {
             tag_data_container() {}
             ~tag_data_container() {}
         };
+        std::string last_tag_name;
+        unsigned char last_tag_type;
 
         tag_data_container tag_data;
 
