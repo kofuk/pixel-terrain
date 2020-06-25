@@ -44,4 +44,4 @@ add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
 
 add_subdirectory(block)
 add_subdirectory(src)
-add_subdirectory(tools/editor-aux)
+add_subdirectory(tools)
