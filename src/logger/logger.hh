@@ -3,12 +3,10 @@
 
 #include <string>
 
-using namespace std;
-
 namespace pixel_terrain::logger {
-    void d(string message);
-    void e(string message);
-    void i(string message);
+    void d(std::string message);
+    void e(std::string message);
+    void i(std::string message);
 } // namespace pixel_terrain::logger
 
 #endif

@@ -18,19 +18,19 @@
 namespace pixel_terrain::commands::generate {
     png::png(int width, int height)
         : width(width), height(height), data(new png_byte[width * height * 4]) {
-        fill(data, data + width * height * 4, 0);
+        std::fill(data, data + width * height * 4, 0);
     }
 
-    png::png(string filename) {
-        FILE *in = fopen(filename.c_str(), "rb");
+    png::png(std::string filename) {
+        std::FILE *in = fopen(filename.c_str(), "rb");
         if (in == nullptr) {
-            throw runtime_error(strerror(errno));
+            throw std::runtime_error(strerror(errno));
         }
 
         unsigned char sig[8];
-        fread(sig, 1, 8, in);
+        std::fread(sig, 1, 8, in);
         if (!png_check_sig(sig, 8)) {
-            throw runtime_error("corrupted png file"s);
+            throw std::runtime_error("corrupted png file");
         }
 
         png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
@@ -40,7 +40,7 @@ namespace pixel_terrain::commands::generate {
         if (setjmp(png_jmpbuf(png))) {
             png_destroy_read_struct(&png, &png_info, nullptr);
 
-            throw runtime_error("error reading png"s);
+            throw std::runtime_error("error reading png");
         }
         png_init_io(png, in);
         png_set_sig_bytes(png, 8);
@@ -55,7 +55,7 @@ namespace pixel_terrain::commands::generate {
         if (bit_depth != 8 || color_type != PNG_COLOR_TYPE_RGBA) {
             png_destroy_read_struct(&png, &png_info, nullptr);
 
-            throw runtime_error("unsupported format"s);
+            throw std::runtime_error("unsupported format");
         }
 
         data = new png_byte[width * height * 4];
@@ -72,12 +72,12 @@ namespace pixel_terrain::commands::generate {
 
         png_destroy_read_struct(&png, &png_info, nullptr);
 
-        fclose(in);
+        std::fclose(in);
     }
 
     png::~png() { delete[] data; }
 
-    void png::set_pixel(int x, int y, uint_fast32_t color) {
+    void png::set_pixel(int x, int y, std::uint_fast32_t color) {
         int base_off = (y * width + x) * 4;
         data[base_off] = (color >> 24) & 0xff;
         data[++base_off] = (color >> 16) & 0xff;
@@ -85,12 +85,12 @@ namespace pixel_terrain::commands::generate {
         data[++base_off] = color & 0xff;
     }
 
-    uint_fast32_t png::get_pixel(int x, int y) {
+    std::uint_fast32_t png::get_pixel(int x, int y) {
         int base_off = (y * width + x) * 4;
-        uint_fast8_t r = data[base_off];
-        uint_fast8_t g = data[++base_off];
-        uint_fast8_t b = data[++base_off];
-        uint_fast8_t a = data[++base_off];
+        std::uint_fast8_t r = data[base_off];
+        std::uint_fast8_t g = data[++base_off];
+        std::uint_fast8_t b = data[++base_off];
+        std::uint_fast8_t a = data[++base_off];
 
         return ((r & 0xff) << 24) | ((g & 0xff) << 16) | ((b & 0xff) << 8) |
                (a & 0xff);
@@ -109,8 +109,8 @@ namespace pixel_terrain::commands::generate {
         data[++base_off] = 0;
     }
 
-    bool png::save(string filename) {
-        FILE *f = fopen(filename.c_str(), "wb");
+    bool png::save(std::string filename) {
+        std::FILE *f = fopen(filename.c_str(), "wb");
         if (f == nullptr) {
             return false;
         }
@@ -167,13 +167,13 @@ namespace pixel_terrain::commands::generate {
 
         png_destroy_write_struct(&png, &info);
 
-        fclose(f);
+        std::fclose(f);
 
         return true;
     }
 
     bool png::save() {
-        if (filename.empty()) throw logic_error("filename is empty"s);
+        if (filename.empty()) throw std::logic_error("filename is empty");
 
         return save(filename);
     }

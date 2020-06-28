@@ -20,40 +20,39 @@
 #include "generator.hh"
 #include "worker.hh"
 
-using namespace std;
-
 namespace pixel_terrain::commands::generate {
     region_container::region_container(anvil::region *region, int rx, int rz)
         : region(region), rx(rx), rz(rz) {}
 
     region_container::~region_container() { delete region; }
 
-    queued_item::queued_item(shared_ptr<region_container> region, int off_x,
-                             int off_z)
+    queued_item::queued_item(std::shared_ptr<region_container> region,
+                             int off_x, int off_z)
         : region(move(region)), off_x(off_x), off_z(off_z) {}
 
-    string queued_item::debug_string() {
+    std::string queued_item::debug_string() {
         if (region == nullptr) {
-            return "(finishing job)"s;
+            return "(finishing job)";
         }
 
-        return "("s + to_string(region->rx) + "+"s + to_string(off_x) + ", "s +
-               to_string(region->rz) + "+"s + to_string(off_z) + ")"s;
+        return "(" + std::to_string(region->rx) + "+" + std::to_string(off_x) +
+               ", " + std::to_string(region->rz) + "+" + std::to_string(off_z) +
+               ")";
     }
 
     namespace {
-        threaded_worker<shared_ptr<queued_item>> *worker;
+        threaded_worker<std::shared_ptr<queued_item>> *worker;
     } // namespace
 
-    string option_out_dir;
+    std::string option_out_dir;
     bool option_verbose;
     int option_jobs;
     bool option_nether;
     bool option_generate_progress;
     bool option_generate_range;
-    string option_journal_dir;
+    std::string option_journal_dir;
 
-    void queue_item(shared_ptr<queued_item> item) {
+    void queue_item(std::shared_ptr<queued_item> item) {
         if (option_verbose) {
             logger::d("trying to queue " + item->debug_string());
         }
@@ -66,8 +65,8 @@ namespace pixel_terrain::commands::generate {
             logger::d("starting worker thread(s) ...");
         }
 
-        worker = new threaded_worker<shared_ptr<queued_item>>(option_jobs,
-                                                              &generate_256);
+        worker = new threaded_worker<std::shared_ptr<queued_item>>(
+            option_jobs, &generate_256);
         worker->start();
     }
 

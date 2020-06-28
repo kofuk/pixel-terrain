@@ -12,13 +12,13 @@
 
 namespace pixel_terrain::anvil {
     chunk::chunk(nbt::nbt_file *nbt_data) : nbt_file(nbt_data) {
-        data = nbt_data->get_as<nbt::tag_compound, nbt::TAG_COMPOUND>("Level"s);
+        data = nbt_data->get_as<nbt::tag_compound, nbt::TAG_COMPOUND>("Level");
         if (data == nullptr) {
-            throw runtime_error("Level tag not found in chunk"s);
+            throw std::runtime_error("Level tag not found in chunk");
         }
 
         last_update = nbt::value<uint64_t>(
-            data->get_as<nbt::tag_long, nbt::TAG_LONG>("LastUpdate"s));
+            data->get_as<nbt::tag_long, nbt::TAG_LONG>("LastUpdate"));
 
         palettes.fill(nullptr);
     }
@@ -28,22 +28,23 @@ namespace pixel_terrain::anvil {
     void chunk::parse_fields() {
         palettes.fill(nullptr);
         nbt::tag_list *section =
-            data->get_as<nbt::tag_list, nbt::TAG_LIST>("Sections"s);
+            data->get_as<nbt::tag_list, nbt::TAG_LIST>("Sections");
         if (section == nullptr) {
-            throw runtime_error("Sections tag not found in Level"s);
+            throw std::runtime_error("Sections tag not found in Level");
         }
 
         for (auto itr = begin(**section); itr != end(**section); ++itr) {
             if ((*itr)->tag_type != nbt::TAG_COMPOUND) {
-                throw runtime_error("Sections' payload is not TAG_COMPOUND"s);
+                throw std::runtime_error(
+                    "Sections' payload is not TAG_COMPOUND");
             }
 
             unsigned char tag_y;
             try {
                 tag_y = nbt::value<unsigned char>(
                     (static_cast<nbt::tag_compound *>(*itr))
-                        ->get_as<nbt::tag_byte, nbt::TAG_BYTE>("Y"s));
-            } catch (runtime_error const &) {
+                        ->get_as<nbt::tag_byte, nbt::TAG_BYTE>("Y"));
+            } catch (std::runtime_error const &) {
                 continue;
             }
             if (15 < tag_y) {
@@ -55,7 +56,7 @@ namespace pixel_terrain::anvil {
         }
 
         nbt::tag_int_array *biomes_tag =
-            data->get_as<nbt::tag_int_array, nbt::TAG_INT_ARRAY>("Biomes"s);
+            data->get_as<nbt::tag_int_array, nbt::TAG_INT_ARRAY>("Biomes");
         if (biomes_tag != nullptr) {
             biomes = **biomes_tag;
         }
@@ -67,22 +68,23 @@ namespace pixel_terrain::anvil {
         }
 
         nbt::tag_list *section =
-            data->get_as<nbt::tag_list, nbt::TAG_LIST>("Sections"s);
+            data->get_as<nbt::tag_list, nbt::TAG_LIST>("Sections");
         if (section == nullptr) {
-            throw runtime_error("Sections tag not found in Level"s);
+            throw std::runtime_error("Sections tag not found in Level");
         }
 
         for (auto itr = begin(**section); itr != end(**section); ++itr) {
             if ((*itr)->tag_type != nbt::TAG_COMPOUND) {
-                throw runtime_error("Sections' payload is not TAG_COMPOUND"s);
+                throw std::runtime_error(
+                    "Sections' payload is not TAG_COMPOUND");
             }
 
             unsigned char tag_y;
             try {
                 tag_y = nbt::value<unsigned char>(
                     (static_cast<nbt::tag_compound *>(*itr))
-                        ->get_as<nbt::tag_byte, nbt::TAG_BYTE>("Y"s));
-            } catch (runtime_error const &) {
+                        ->get_as<nbt::tag_byte, nbt::TAG_BYTE>("Y"));
+            } catch (std::runtime_error const &) {
                 continue;
             }
 
@@ -92,25 +94,25 @@ namespace pixel_terrain::anvil {
         return nullptr;
     }
 
-    vector<string> *chunk::get_palette(nbt::tag_compound *section) {
-        vector<string> *palette = new vector<string>;
+    std::vector<std::string> *chunk::get_palette(nbt::tag_compound *section) {
+        std::vector<std::string> *palette = new std::vector<std::string>;
 
         nbt::tag_list *palette_tag_list =
-            section->get_as<nbt::tag_list, nbt::TAG_LIST>("Palette"s);
+            section->get_as<nbt::tag_list, nbt::TAG_LIST>("Palette");
         if (palette_tag_list == nullptr) {
             return nullptr;
         }
         if (palette_tag_list->payload_type != nbt::TAG_COMPOUND) {
-            throw runtime_error(
-                "corrupted data (payload type != TAG_COMPOUND)"s);
+            throw std::runtime_error(
+                "corrupted data (payload type != TAG_COMPOUND)");
         }
 
         for (auto itr = begin(**palette_tag_list);
              itr != end(**palette_tag_list); ++itr) {
             nbt::tag_compound *tag = static_cast<nbt::tag_compound *>(*itr);
 
-            string *name = nbt::value<string *>(
-                tag->get_as<nbt::tag_string, nbt::TAG_STRING>("Name"s));
+            std::string *name = nbt::value<std::string *>(
+                tag->get_as<nbt::tag_string, nbt::TAG_STRING>("Name"));
 
             palette->push_back(*name);
         }
@@ -127,9 +129,9 @@ namespace pixel_terrain::anvil {
         return 0;
     }
 
-    string chunk::get_block(int32_t x, int32_t y, int32_t z) {
+    std::string chunk::get_block(int32_t x, int32_t y, int32_t z) {
         if (x < 0 || 15 < x || y < 0 || 255 < y || z < 0 || 15 < z) {
-            return ""s;
+            return "";
         }
 
         unsigned char section_no = y / 16;
@@ -137,9 +139,9 @@ namespace pixel_terrain::anvil {
 
         y %= 16;
 
-        vector<string> *palette = palettes[section_no];
+        std::vector<std::string> *palette = palettes[section_no];
         if (palette == nullptr) {
-            return "minecraft:air"s;
+            return "minecraft:air";
         }
 
         int bits = 4;
@@ -160,33 +162,34 @@ namespace pixel_terrain::anvil {
         }
 
         int index = y * 16 * 16 + z * 16 + x;
-        vector<int64_t> states = nbt::value<vector<int64_t>>(
-            section->get_as<nbt::tag_long_array, nbt::TAG_LONG_ARRAY>(
-                "BlockStates"s));
+        std::vector<std::int64_t> states =
+            nbt::value<std::vector<std::int64_t>>(
+                section->get_as<nbt::tag_long_array, nbt::TAG_LONG_ARRAY>(
+                    "BlockStates"));
         int state = index * bits / 64;
 
-        if (static_cast<uint64_t>(state) >= states.size())
-            return "minecraft:air"s;
+        if (static_cast<std::uint64_t>(state) >= states.size())
+            return "minecraft:air";
 
-        uint64_t data = states[state];
+        std::uint64_t data = states[state];
 
-        uint64_t shifted_data = data >> ((bits * index) % 64);
+        std::uint64_t shifted_data = data >> ((bits * index) % 64);
 
         if (64 - ((bits * index) % 64) < bits) {
             data = states[state + 1];
             int leftover = (bits - ((state + 1) * 64 % bits)) % bits;
             shifted_data =
-                ((data & (static_cast<int64_t>(pow(2, leftover)) - 1))
+                ((data & (static_cast<std::int64_t>(pow(2, leftover)) - 1))
                  << (bits - leftover)) |
                 shifted_data;
         }
 
-        int64_t palette_id =
-            shifted_data & (static_cast<int64_t>(pow(2, bits)) - 1);
+        std::int64_t palette_id =
+            shifted_data & (static_cast<std::int64_t>(pow(2, bits)) - 1);
 
         if (palette_id <= 0 ||
-            (*palette).size() <= static_cast<size_t>(palette_id))
-            return "minecraft:air"s;
+            (*palette).size() <= static_cast<std::size_t>(palette_id))
+            return "minecraft:air";
 
         return (*palette)[palette_id];
     }

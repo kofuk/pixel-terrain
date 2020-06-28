@@ -10,6 +10,7 @@
 #include <mutex>
 #include <queue>
 #include <stdexcept>
+#include <string>
 #include <system_error>
 #include <thread>
 #include <vector>
@@ -19,8 +20,6 @@
 #endif
 
 #include "../logger/logger.hh"
-
-using namespace std;
 
 /* XXX */
 /*
@@ -44,22 +43,22 @@ namespace pixel_terrain {
     } // namespace
 
     template <typename T> class threaded_worker {
-        queue<worker_signal<T> *> job_queue;
-        mutex queue_mutex;
-        condition_variable queue_cond;
-        mutex cond_mutex;
-        condition_variable queue_cap_cond;
-        mutex queue_cap_cond_mutex;
+        std::queue<worker_signal<T> *> job_queue;
+        std::mutex queue_mutex;
+        std::condition_variable queue_cond;
+        std::mutex cond_mutex;
+        std::condition_variable queue_cap_cond;
+        std::mutex queue_cap_cond_mutex;
         int jobs;
-        function<void(T)> handler;
-        vector<thread *> threads;
+        std::function<void(T)> handler;
+        std::vector<std::thread *> threads;
 
         bool finished = false;
         bool waited = false;
 
         worker_signal<T> *fetch_job() {
             for (;;) {
-                unique_lock<mutex> lock(queue_mutex);
+                std::unique_lock<std::mutex> lock(queue_mutex);
                 if (job_queue.empty()) {
                     lock.unlock();
 
@@ -68,12 +67,12 @@ namespace pixel_terrain {
                      * timeout. */
 #ifndef NDEBUG
                     if (!job_queue.empty()) {
-                        cerr << "BUG: race" << endl;
+                        std::cerr << "BUG: race" << std::endl;
                     }
 #endif
 
-                    unique_lock<mutex> lock(cond_mutex);
-                    queue_cond.wait_for(lock, chrono::milliseconds(500));
+                    std::unique_lock<std::mutex> lock(cond_mutex);
+                    queue_cond.wait_for(lock, std::chrono::milliseconds(500));
 
                     continue;
                 }
@@ -100,15 +99,16 @@ namespace pixel_terrain {
 
         void internal_queue_job(worker_signal<T> *sig) {
             for (;;) {
-                unique_lock<mutex> lock(queue_mutex);
+                std::unique_lock<std::mutex> lock(queue_mutex);
                 if (job_queue.size() < static_cast<size_t>(jobs * 2)) {
                     job_queue.push(sig);
                     queue_cond.notify_one();
                     break;
                 } else {
                     lock.unlock();
-                    unique_lock<mutex> lock(queue_cap_cond_mutex);
-                    queue_cap_cond.wait_for(lock, chrono::milliseconds(500));
+                    std::unique_lock<std::mutex> lock(queue_cap_cond_mutex);
+                    queue_cap_cond.wait_for(lock,
+                                            std::chrono::milliseconds(500));
                 }
             }
         }
@@ -117,10 +117,10 @@ namespace pixel_terrain {
         threaded_worker<T> operator=(threaded_worker<T> const &) = delete;
 
     public:
-        threaded_worker(int jobs, function<void(T)> handler)
+        threaded_worker(int jobs, std::function<void(T)> handler)
             : jobs(jobs), handler(handler) {
             if (jobs < 1) {
-                throw logic_error("JOBS must be greater than 0"s);
+                throw std::logic_error("JOBS must be greater than 0");
             }
 
             threads.reserve(jobs);
@@ -138,17 +138,17 @@ namespace pixel_terrain {
         void start() {
 #ifndef NDEBUG
             if (threads.size()) {
-                throw logic_error("Tried to start worker already started");
+                throw std::logic_error("Tried to start worker already started");
             }
 #endif
             try {
                 for (int i = 0; i < jobs; ++i) {
                     threads.push_back(
-                        new thread(&threaded_worker::run_worker, this));
+                        new std::thread(&threaded_worker::run_worker, this));
                 }
-            } catch (system_error const &e) {
+            } catch (std::system_error const &e) {
 #ifndef NDEBUG
-                cerr << "some thread(s) cannot be launched" << endl;
+                std::cerr << "some thread(s) cannot be launched" << std::endl;
 #endif
             }
         }
@@ -156,10 +156,10 @@ namespace pixel_terrain {
         void queue_job(T item) {
 #ifndef NDEBUG
             if (finished) {
-                throw logic_error("Tried to queue job on finished worker");
+                throw std::logic_error("Tried to queue job on finished worker");
             }
             if (!threads.size()) {
-                cerr << "worker is not started" << endl;
+                std::cerr << "worker is not started" << std::endl;
             }
 #endif
             worker_signal<T> *sig =
@@ -170,13 +170,13 @@ namespace pixel_terrain {
         void wait() {
 #ifndef NDEBUG
             if (waited) {
-                throw logic_error("The worker already waited");
+                throw std::logic_error("The worker already waited");
             }
             if (!threads.size()) {
-                throw logic_error("worker is not started");
+                throw std::logic_error("worker is not started");
             }
 #endif
-            for (thread *t : threads) {
+            for (std::thread *t : threads) {
                 if (t->joinable()) {
                     t->join();
                 }
@@ -188,10 +188,10 @@ namespace pixel_terrain {
         void finish() {
 #ifndef NDEBUG
             if (finished) {
-                throw logic_error("Tried to finish on finished worker");
+                throw std::logic_error("Tried to finish on finished worker");
             }
             if (!threads.size()) {
-                throw logic_error("worker is not started");
+                throw std::logic_error("worker is not started");
             }
 #endif
             for (int i = 0; i < jobs; ++i) {

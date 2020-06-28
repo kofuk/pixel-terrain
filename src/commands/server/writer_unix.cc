@@ -9,7 +9,7 @@ namespace pixel_terrain::commands::server {
 
     writer_unix::~writer_unix() { write(fd, buf, off); }
 
-    void writer_unix::write_data(string const &data) {
+    void writer_unix::write_data(std::string const &data) {
         for (char const c : data) {
             if (off >= buf_size) {
                 write(fd, buf, buf_size);
@@ -19,7 +19,7 @@ namespace pixel_terrain::commands::server {
         }
     }
 
-    void writer_unix::write_data(int const num) { write_data(to_string(num)); }
+    void writer_unix::write_data(int const num) { write_data(std::to_string(num)); }
 
     char const *writer_unix::get_current_buffer() { return buf; }
 

@@ -18,30 +18,30 @@
 #include "utils.hh"
 
 namespace pixel_terrain::anvil {
-    region::region(string file_name) {
-        data =
-            unique_ptr<file<unsigned char>>(new file<unsigned char>(file_name));
+    region::region(std::string file_name) {
+        data = std::unique_ptr<file<unsigned char>>(
+            new file<unsigned char>(file_name));
         len = data->size();
     }
 
-    region::region(string filename, string journal_dir) {
-        data =
-            unique_ptr<file<unsigned char>>(new file<unsigned char>(filename));
+    region::region(std::string filename, std::string journal_dir) {
+        data = std::unique_ptr<file<unsigned char>>(
+            new file<unsigned char>(filename));
         len = data->size();
 
-        filesystem::path journal_path(journal_dir);
+        std::filesystem::path journal_path(journal_dir);
         journal_path /=
-            filesystem::path(filename).filename().string() + ".journal"s;
-        last_update = unique_ptr<file<uint64_t>>(
-            new file<uint64_t>(journal_path, 1024, "r+"));
+            std::filesystem::path(filename).filename().string() + ".journal";
+        last_update = std::unique_ptr<file<uint64_t>>(
+            new file<std::uint64_t>(journal_path, 1024, "r+"));
     }
 
-    size_t region::header_offset(int chunk_x, int chunk_z) {
+    std::size_t region::header_offset(int chunk_x, int chunk_z) {
         return 4 * (chunk_x % 32 + chunk_z % 32 * 32);
     }
 
-    size_t region::chunk_location_off(int chunk_x, int chunk_z) {
-        size_t b_off = header_offset(chunk_x, chunk_z);
+    std::size_t region::chunk_location_off(int chunk_x, int chunk_z) {
+        std::size_t b_off = header_offset(chunk_x, chunk_z);
 
         if (b_off + 2 >= len) return 0;
 
@@ -49,11 +49,11 @@ namespace pixel_terrain::anvil {
                                (*data)[b_off + 2]};
 
         return nbt::utils::to_host_byte_order(
-            *reinterpret_cast<int32_t *>(buf));
+            *reinterpret_cast<std::int32_t *>(buf));
     }
 
-    size_t region::chunk_location_sectors(int chunk_x, int chunk_z) {
-        size_t b_off = header_offset(chunk_x, chunk_z);
+    std::size_t region::chunk_location_sectors(int chunk_x, int chunk_z) {
+        std::size_t b_off = header_offset(chunk_x, chunk_z);
 
         if (b_off + 3 >= len) return 0;
 
@@ -61,8 +61,8 @@ namespace pixel_terrain::anvil {
     }
 
     nbt::nbt_file *region::chunk_data(int chunk_x, int chunk_z) {
-        size_t location_off = chunk_location_off(chunk_x, chunk_z);
-        size_t location_sec = chunk_location_sectors(chunk_x, chunk_z);
+        std::size_t location_off = chunk_location_off(chunk_x, chunk_z);
+        std::size_t location_sec = chunk_location_sectors(chunk_x, chunk_z);
         if (location_off == 0 && location_sec == 0) {
             return nullptr;
         }
@@ -71,8 +71,9 @@ namespace pixel_terrain::anvil {
 
         if (location_off + 4 >= len) return nullptr;
 
-        int32_t length = nbt::utils::to_host_byte_order(
-            *reinterpret_cast<int32_t *>(data->get_raw_data() + location_off));
+        std::int32_t length =
+            nbt::utils::to_host_byte_order(*reinterpret_cast<std::int32_t *>(
+                data->get_raw_data() + location_off));
 
         if (location_off + 5 + length - 1 > len) return nullptr;
 

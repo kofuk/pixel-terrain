@@ -11,37 +11,35 @@
 
 #include "pretty_printer.hh"
 
-using namespace std;
-
 namespace pixel_terrain::pretty_printer {
     namespace {
         int total_count;
         int current_count;
         int term_width;
 
-        mutex printer_mutex;
+        std::mutex printer_mutex;
 
         void update_progress_bar() {
             if (term_width < 4 || !total_count) return;
 
             int percent = current_count * 100 / total_count;
 
-            cerr << "\r";
-            cerr << setw(3) << percent << '%';
+            std::cerr << "\r";
+            std::cerr << std::setw(3) << percent << '%';
             if (term_width - 8 <= 0) {
                 return;
             }
             int n_white =
                 (term_width - 8) * (static_cast<float>(percent) / 100);
-            cerr << " [";
+            std::cerr << " [";
             for (int i = 0; i < n_white; ++i) {
-                cerr << '=';
+                std::cerr << '=';
             }
             for (int i = n_white; i < term_width - 8; ++i) {
-                cerr << ' ';
+                std::cerr << ' ';
             }
-            cerr << "] ";
-            cerr << flush;
+            std::cerr << "] ";
+            std::cerr << std::flush;
         }
     } // namespace
 
@@ -60,7 +58,7 @@ namespace pixel_terrain::pretty_printer {
     }
 
     void increment_progress_bar() {
-        unique_lock<mutex> lock(printer_mutex);
+        std::unique_lock<std::mutex> lock(printer_mutex);
         ++current_count;
         update_progress_bar();
     }

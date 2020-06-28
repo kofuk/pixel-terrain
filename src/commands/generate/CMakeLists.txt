@@ -4,6 +4,7 @@ target_include_directories(image_generator PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/
 target_include_directories(image_generator PRIVATE ${CMAKE_BINARY_DIR})
 target_link_libraries(image_generator INTERFACE ${PNG_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} optlib)
 target_link_libraries(image_generator PRIVATE optlib)
+add_dependencies(image_generator block_colors_data)
 
 add_boost_test(color_test imagegen_color color_test.cc)
 if(TARGET color_test)

@@ -5,8 +5,6 @@
 
 #include "reader.hh"
 
-using namespace std;
-
 namespace pixel_terrain::commands::server {
     class reader_unix : public reader {
         int fd;
@@ -14,7 +12,7 @@ namespace pixel_terrain::commands::server {
     public:
         reader_unix(int fd);
 
-        long int fill_buffer(char *buf, size_t len, size_t off);
+        long int fill_buffer(char *buf, std::size_t len, std::size_t off);
     };
 } // namespace pixel_terrain::commands::server
 

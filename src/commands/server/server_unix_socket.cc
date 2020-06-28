@@ -13,14 +13,14 @@
 #include "reader_unix.hh"
 #include "request.hh"
 #include "server.hh"
-#include "writer_unix.hh"
 #include "server_unix_socket.hh"
 #include "writer.hh"
+#include "writer_unix.hh"
 
 namespace pixel_terrain::commands::server {
     namespace {
         threaded_worker<int> *worker;
-        mutex worker_mutex;
+        std::mutex worker_mutex;
 
         void terminate_server() {
             unlink("/tmp/mcmap.sock");
@@ -34,7 +34,7 @@ namespace pixel_terrain::commands::server {
                     exit(1);
                 }
 
-                unique_lock<mutex> lock(worker_mutex);
+                std::unique_lock<std::mutex> lock(worker_mutex);
                 if (sig == SIGUSR1) {
                     if (worker != nullptr) {
                         worker->finish();
@@ -54,7 +54,7 @@ namespace pixel_terrain::commands::server {
             sigaddset(&sigs, SIGINT);
             pthread_sigmask(SIG_BLOCK, &sigs, nullptr);
 
-            thread t(&handle_signals, &sigs);
+            std::thread t(&handle_signals, &sigs);
             t.detach();
         }
 
@@ -78,15 +78,15 @@ namespace pixel_terrain::commands::server {
     void server_unix_socket::start_server() {
         if (daemon_mode) {
             if (daemon(0, 0) == -1) {
-                cerr << "cannot run in daemon mode" << endl;
+                std::cerr << "cannot run in daemon mode" << std::endl;
 
                 exit(1);
             }
         }
 
         prepare_signel_handle_thread();
-        worker = new threaded_worker<int>(thread::hardware_concurrency(),
-                                         &handle_request_unix);
+        worker = new threaded_worker<int>(std::thread::hardware_concurrency(),
+                                          &handle_request_unix);
         worker->start();
 
         int ssock;
@@ -125,7 +125,7 @@ namespace pixel_terrain::commands::server {
             int fd;
             if ((fd = accept(ssock, reinterpret_cast<sockaddr *>(&sa_peer),
                              &addr_len)) > 0) {
-                unique_lock<mutex> lock(worker_mutex);
+                std::unique_lock<std::mutex> lock(worker_mutex);
                 worker->queue_job(fd);
             }
         }

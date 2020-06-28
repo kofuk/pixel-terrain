@@ -3,9 +3,9 @@
 namespace pixel_terrain::commands::server {
     request::request(reader *r) : request_reader(r) {}
 
-    bool request::parse_sig(string const &line) {
-        size_t start = 0;
-        size_t end;
+    bool request::parse_sig(std::string const &line) {
+        std::size_t start = 0;
+        std::size_t end;
         for (end = start; end < line.size() && isalpha(line[end]); ++end) {
         }
         if (end == line.size() || line[end] != ' ') return false;
@@ -30,8 +30,8 @@ namespace pixel_terrain::commands::server {
         return true;
     }
 
-    string const request::read_request_line(bool *ok) {
-        size_t end = 0;
+    std::string const request::read_request_line(bool *ok) {
+        std::size_t end = 0;
         bool has_cr = false;
     read_until_cr:
         for (; end < n_in_buf; ++end) {
@@ -69,9 +69,9 @@ namespace pixel_terrain::commands::server {
             *ok = false;
             return "";
         }
-        string result(int_buf, int_buf + end - 1);
+        std::string result(int_buf, int_buf + end - 1);
 
-        move(int_buf + end + 1, int_buf + 2048, int_buf);
+        std::move(int_buf + end + 1, int_buf + 2048, int_buf);
         n_in_buf -= end + 1;
 
         *ok = true;
@@ -81,21 +81,21 @@ namespace pixel_terrain::commands::server {
 
     bool request::parse_all() {
         bool ok;
-        string line = read_request_line(&ok);
+        std::string line = read_request_line(&ok);
         if (!ok || !parse_sig(line)) {
             return false;
         }
 
         line = read_request_line(&ok);
         for (; ok && line.size(); line = read_request_line(&ok)) {
-            size_t pos_colon = line.find(':');
-            string key = line.substr(0, pos_colon);
+            std::size_t pos_colon = line.find(':');
+            std::string key = line.substr(0, pos_colon);
             if (key.size() == 0) return false;
 
             if (pos_colon + 1 < line.size() && line[pos_colon + 1] == ' ') {
                 ++pos_colon;
             }
-            string val = line.substr(pos_colon + 1);
+            std::string val = line.substr(pos_colon + 1);
             fields[key] = val;
 
             /* should be replaced by better way to avoid attack */
@@ -107,15 +107,20 @@ namespace pixel_terrain::commands::server {
         return true;
     }
 
-    string const request::get_method() const noexcept { return method; }
+    std::string const request::get_method() const noexcept { return method; }
 
-    string const request::get_protocol() const noexcept { return protocol; }
+    std::string const request::get_protocol() const noexcept {
+        return protocol;
+    }
 
-    string const request::get_version() const noexcept { return version; }
+    std::string const request::get_version() const noexcept { return version; }
 
-    size_t request::get_field_count() const noexcept { return fields.size(); }
+    std::size_t request::get_field_count() const noexcept {
+        return fields.size();
+    }
 
-    string const request::get_request_field(string const &key) noexcept {
+    std::string const
+    request::get_request_field(std::string const &key) noexcept {
         return fields[key];
     }
 

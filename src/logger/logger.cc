@@ -5,25 +5,23 @@
 
 #include "logger.hh"
 
-using namespace std;
-
 namespace pixel_terrain::logger {
     namespace {
-        mutex m;
+        std::mutex m;
     }
 
-    void d(string message) {
-        unique_lock<mutex> lock(m);
-        cerr << message << endl;
+    void d(std::string message) {
+        std::unique_lock<std::mutex> lock(m);
+        std::cerr << message << std::endl;
     }
 
-    void e(string message) {
-        unique_lock<mutex> lock(m);
-        cerr << message << endl;
+    void e(std::string message) {
+        std::unique_lock<std::mutex> lock(m);
+        std::cerr << message << std::endl;
     }
 
-    void i(string message) {
-        unique_lock<mutex> lock(m);
-        cout << message << endl;
+    void i(std::string message) {
+        std::unique_lock<std::mutex> lock(m);
+        std::cout << message << std::endl;
     }
 } // namespace pixel_terrain::logger

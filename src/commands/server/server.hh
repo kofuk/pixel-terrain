@@ -6,12 +6,10 @@
 #include "request.hh"
 #include "writer.hh"
 
-using namespace std;
-
 namespace pixel_terrain::commands::server {
-    extern string overworld_dir;
-    extern string nether_dir;
-    extern string end_dir;
+    extern std::string overworld_dir;
+    extern std::string nether_dir;
+    extern std::string end_dir;
 
     void handle_request(request *req, writer *w);
     int main(int argc, char **argv);

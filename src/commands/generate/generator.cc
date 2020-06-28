@@ -16,65 +16,65 @@
 
 namespace pixel_terrain::commands::generate {
     struct PixelState {
-        uint_fast32_t flags;
-        uint_fast8_t top_height;
-        uint_fast8_t mid_height;
-        uint_fast8_t opaque_height;
-        uint_fast32_t fg_color;
-        uint_fast32_t mid_color;
-        uint_fast32_t bg_color;
-        int32_t top_biome;
+        std::uint_fast32_t flags;
+        std::uint_fast8_t top_height;
+        std::uint_fast8_t mid_height;
+        std::uint_fast8_t opaque_height;
+        std::uint_fast32_t fg_color;
+        std::uint_fast32_t mid_color;
+        std::uint_fast32_t bg_color;
+        std::int32_t top_biome;
 
         PixelState()
             : flags(0), top_height(0), mid_height(0), opaque_height(0),
               fg_color(0x00000000), mid_color(0x00000000), bg_color(0x00000000),
               top_biome(0) {}
-        void add_flags(int_fast32_t flags) { this->flags |= flags; }
-        bool get_flag(int_fast32_t field) { return this->flags & field; }
+        void add_flags(std::int_fast32_t flags) { this->flags |= flags; }
+        bool get_flag(std::int_fast32_t field) { return this->flags & field; }
     };
 
     namespace {
-        constexpr int32_t PS_IS_TRANSPARENT = 1;
-        constexpr int32_t PS_BIOME_OVERRIDDEN = 1 << 1;
+        constexpr std::int32_t PS_IS_TRANSPARENT = 1;
+        constexpr std::int32_t PS_BIOME_OVERRIDDEN = 1 << 1;
 
-        inline PixelState &
-        get_pixel_state(shared_ptr<array<PixelState, 256 * 256>> pixel_state,
-                        int x, int y) {
+        inline PixelState &get_pixel_state(
+            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_state,
+            int x, int y) {
             return (*pixel_state)[y * 256 + x];
         }
 
-        shared_ptr<array<PixelState, 256 * 256>>
+        std::shared_ptr<std::array<PixelState, 256 * 256>>
         scan_chunk(anvil::chunk *chunk) {
             int max_y = chunk->get_max_height();
             if (option_nether) {
                 if (max_y > 127) max_y = 127;
             }
 
-            shared_ptr<array<PixelState, 256 * 256>> pixel_states(
-                new array<PixelState, 256 * 256>);
+            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states(
+                new std::array<PixelState, 256 * 256>);
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
                     bool air_found = false;
-                    string prev_block;
+                    std::string prev_block;
 
                     PixelState &pixel_state =
                         get_pixel_state(pixel_states, x, z);
 
                     for (int y = max_y; y >= 0; --y) {
-                        string block;
+                        std::string block;
                         try {
                             block = chunk->get_block(x, y, z);
-                        } catch (exception const &e) {
+                        } catch (std::exception const &e) {
                             logger::e(
-                                "Warning: error occurred while obtaining block"s);
+                                "Warning: error occurred while obtaining block");
                             logger::e(e.what());
 
                             continue;
                         }
 
-                        if (block == "minecraft:air"sv ||
-                            block == "minecraft:cave_air"sv ||
-                            block == "minecraft:void_air"sv) {
+                        if (block == "minecraft:air" ||
+                            block == "minecraft:cave_air" ||
+                            block == "minecraft:void_air") {
                             air_found = true;
                             prev_block = block;
                             continue;
@@ -92,9 +92,9 @@ namespace pixel_terrain::commands::generate {
 
                         auto color_itr = colors.find(block);
                         if (color_itr == end(colors)) {
-                            logger::i(R"(colors[")"s + block + R"("] = ???)"s);
+                            logger::i(R"(colors[")" + block + R"("] = ???)");
                         } else {
-                            uint_fast32_t color = color_itr->second;
+                            std::uint_fast32_t color = color_itr->second;
 
                             if (pixel_state.fg_color == 0x00000000) {
                                 pixel_state.fg_color = color;
@@ -145,21 +145,21 @@ namespace pixel_terrain::commands::generate {
             return pixel_states;
         }
 
-        void
-        handle_biomes(shared_ptr<array<PixelState, 256 * 256>> pixel_states) {
+        void handle_biomes(
+            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states) {
             /* process biome color overrides */
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
                     PixelState &pixel_state =
                         get_pixel_state(pixel_states, x, z);
                     if (pixel_state.get_flag(PS_BIOME_OVERRIDDEN)) {
-                        uint_fast32_t *color;
+                        std::uint_fast32_t *color;
                         if (pixel_state.fg_color != 0x00000000) {
                             color = &(pixel_state.fg_color);
                         } else {
                             color = &(pixel_state.bg_color);
                         }
-                        int32_t biome = pixel_state.top_biome;
+                        std::int32_t biome = pixel_state.top_biome;
                         if (biome == 6 || biome == 134) {
                             *color = blend_color(*color, 0x665956ff, 0.5);
                         } else if (biome == 21 || biome == 149 || biome == 23 ||
@@ -174,7 +174,7 @@ namespace pixel_terrain::commands::generate {
         }
 
         void handle_inclination(
-            shared_ptr<array<PixelState, 256 * 256>> pixel_states) {
+            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 1; x < 16; ++x) {
                     PixelState &left = get_pixel_state(pixel_states, x - 1, z);
@@ -218,24 +218,24 @@ namespace pixel_terrain::commands::generate {
         }
 
         void process_pipeline(
-            shared_ptr<array<PixelState, 256 * 256>> pixel_states) {
+            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states) {
             handle_biomes(pixel_states);
             handle_inclination(pixel_states);
         }
 
-        void
-        generate_image(int chunk_x, int chunk_z,
-                       shared_ptr<array<PixelState, 256 * 256>> pixel_states,
-                       png &image) {
+        void generate_image(
+            int chunk_x, int chunk_z,
+            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states,
+            png &image) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
                     PixelState &pixel_state =
                         get_pixel_state(pixel_states, x, z);
 
-                    uint_fast32_t bg_color = increase_brightness(
+                    std::uint_fast32_t bg_color = increase_brightness(
                         pixel_state.mid_color,
                         (pixel_state.mid_height - pixel_state.top_height) * 3);
-                    uint_fast32_t color =
+                    std::uint_fast32_t color =
                         blend_color(pixel_state.fg_color, bg_color);
                     bg_color = increase_brightness(
                         pixel_state.bg_color,
@@ -249,14 +249,14 @@ namespace pixel_terrain::commands::generate {
 
         void generate_chunk(anvil::chunk *chunk, int chunk_x, int chunk_z,
                             png &image) {
-            shared_ptr<array<PixelState, 256 * 256>> pixel_states =
+            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states =
                 scan_chunk(chunk);
             process_pipeline(pixel_states);
             generate_image(chunk_x, chunk_z, pixel_states, image);
         }
     } // namespace
 
-    void generate_256(shared_ptr<queued_item> item) {
+    void generate_256(std::shared_ptr<queued_item> item) {
         anvil::region *region = item->region->region;
         int region_x = item->region->rx;
         int region_z = item->region->rz;
@@ -264,12 +264,12 @@ namespace pixel_terrain::commands::generate {
         int off_z = item->off_z;
 
         if (option_verbose) {
-            logger::d("generating "s + item->debug_string() + " ..."s);
+            logger::d("generating " + item->debug_string() + " ...");
         }
 
-        filesystem::path path = option_out_dir;
-        path /= (to_string(region_x * 2 + off_x) + ',' +
-                 to_string(region_z * 2 + off_z) + ".png"s);
+        std::filesystem::path path = option_out_dir;
+        path /= (std::to_string(region_x * 2 + off_x) + ',' +
+                 std::to_string(region_z * 2 + off_z) + ".png");
 
         png *image = nullptr;
 
@@ -284,8 +284,8 @@ namespace pixel_terrain::commands::generate {
                 try {
                     chunk = region->get_chunk_if_dirty(off_x * 16 + chunk_x,
                                                        off_z * 16 + chunk_z);
-                } catch (exception const &e) {
-                    logger::e("Warning: parse error in "s +
+                } catch (std::exception const &e) {
+                    logger::e("Warning: parse error in " +
                               item->debug_string());
                     logger::e(e.what());
                     continue;
@@ -296,11 +296,11 @@ namespace pixel_terrain::commands::generate {
                 }
 
                 if (image == nullptr) {
-                    if (filesystem::exists(path)) {
+                    if (std::filesystem::exists(path)) {
                         try {
                             image = new png(path.string());
 
-                        } catch (exception const &) {
+                        } catch (std::exception const &) {
                             image = new png(256, 256);
                         }
                     } else {
@@ -322,8 +322,8 @@ namespace pixel_terrain::commands::generate {
                         try {
                             chunk = region->get_chunk_if_dirty(
                                 off_x * 16 + t_chunk_x, off_z * 16 + t_chunk_z);
-                        } catch (exception const &e) {
-                            logger::e("Warning: parse error in "s +
+                        } catch (std::exception const &e) {
+                            logger::e("Warning: parse error in " +
                                       item->debug_string());
                             logger::e(e.what());
                             continue;
@@ -344,7 +344,7 @@ namespace pixel_terrain::commands::generate {
 
         if (image == nullptr) {
             if (option_verbose) {
-                logger::d("exiting without generating; any chunk changed in "s +
+                logger::d("exiting without generating; any chunk changed in " +
                           item->debug_string());
             }
 
@@ -355,7 +355,7 @@ namespace pixel_terrain::commands::generate {
         delete image;
 
         if (option_verbose) {
-            logger::d("generated "s + item->debug_string());
+            logger::d("generated " + item->debug_string());
         }
     }
 

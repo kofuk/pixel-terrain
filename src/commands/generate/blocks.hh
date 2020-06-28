@@ -6,13 +6,11 @@
 #include <string_view>
 #include <unordered_map>
 
-using namespace std;
-
 namespace pixel_terrain::commands::generate {
-    extern unordered_map<string_view, uint32_t> colors;
+    extern std::unordered_map<std::string_view, std::uint32_t> colors;
 
     void init_block_list();
-    bool is_biome_overridden(string const &block);
+    bool is_biome_overridden(std::string const &block);
 } // namespace pixel_terrain::commands::generate
 
 #endif

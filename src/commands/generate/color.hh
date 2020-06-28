@@ -4,10 +4,12 @@
 #include <cstdint>
 
 namespace pixel_terrain::commands::generate {
-    uint_fast32_t blend_color(uint_fast32_t fg, uint_fast32_t bg);
-    uint_fast32_t blend_color(uint_fast32_t source, uint_fast32_t overlay,
-                              float opacity);
-    uint_fast32_t increase_brightness(uint_fast32_t color, int amount);
+    std::uint_fast32_t blend_color(std::uint_fast32_t fg,
+                                   std::uint_fast32_t bg);
+    std::uint_fast32_t blend_color(std::uint_fast32_t source,
+                                   std::uint_fast32_t overlay, float opacity);
+    std::uint_fast32_t increase_brightness(std::uint_fast32_t color,
+                                           int amount);
 } // namespace pixel_terrain::commands::generate
 
 #endif

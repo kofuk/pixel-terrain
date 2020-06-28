@@ -28,49 +28,53 @@
 #endif
 #include "writer.hh"
 
-using namespace std;
-
 namespace pixel_terrain::commands::server {
-    string overworld_dir;
-    string nether_dir;
-    string end_dir;
+    std::string overworld_dir;
+    std::string nether_dir;
+    std::string end_dir;
 
     namespace {
         void print_help(optlib_parser *opt) {
-            cout << "usage: mcmap server [OPTIONS...]" << endl;
+            std::cout << "usage: mcmap server [OPTIONS...]" << std::endl;
 
-            cout << "Possible options are:" << endl;
+            std::cout << "Possible options are:" << std::endl;
             optlib_print_help(opt, stderr);
 
-            cout << "Help for block info server's protocol and config" << endl
-                 << endl;
+            std::cout << "Help for block info server's protocol and config"
+                      << std::endl
+                      << std::endl;
 
-            cout << "PROTOCOL:" << endl;
-            cout << " example request and response;" << endl;
-            cout << " `>' means request and `<' means response" << endl;
-            cout << "  >GET MMP/1.0" << endl;
-            cout << "  >Dimension: overworld" << endl;
-            cout << "  >Coord-X: 1" << endl;
-            cout << "  >Coord-Z: 1" << endl;
-            cout << "  >" << endl;
-            cout << "  <MMP/1.0 200" << endl;
-            cout << "  <" << endl;
-            cout << R"(  <{"altitude": 63, "block": "minecraft:dirt"})" << endl
-                 << endl;
-            cout << " Response Codes:" << endl;
-            cout << "  200  OK. The request is handled properly and" << endl
-                 << "       altitude returned" << endl;
-            cout << "  400  Bad Request. Probably request parse error" << endl;
-            cout << "  404  Out of Range. No chunk existing on specified "
-                    "corrdinate"
-                 << endl;
-            cout << "  500  Internal Server Error. Serverside error" << endl;
+            std::cout << "PROTOCOL:" << std::endl;
+            std::cout << " example request and response;" << std::endl;
+            std::cout << " `>' means request and `<' means response"
+                      << std::endl;
+            std::cout << "  >GET MMP/1.0" << std::endl;
+            std::cout << "  >Dimension: overworld" << std::endl;
+            std::cout << "  >Coord-X: 1" << std::endl;
+            std::cout << "  >Coord-Z: 1" << std::endl;
+            std::cout << "  >" << std::endl;
+            std::cout << "  <MMP/1.0 200" << std::endl;
+            std::cout << "  <" << std::endl;
+            std::cout << R"(  <{"altitude": 63, "block": "minecraft:dirt"})"
+                      << std::endl
+                      << std::endl;
+            std::cout << " Response Codes:" << std::endl;
+            std::cout << "  200  OK. The request is handled properly and"
+                      << std::endl
+                      << "       altitude returned" << std::endl;
+            std::cout << "  400  Bad Request. Probably request parse error"
+                      << std::endl;
+            std::cout << "  404  Out of Range. No chunk existing on specified "
+                         "corrdinate"
+                      << std::endl;
+            std::cout << "  500  Internal Server Error. Serverside error"
+                      << std::endl;
         }
 
         class response {
             int response_code = 500;
             int altitude = 0;
-            string block;
+            std::string block;
             bool response_wrote = false;
 
             response(response const &) = delete;
@@ -82,7 +86,7 @@ namespace pixel_terrain::commands::server {
             ~response() {
                 if (!response_wrote) {
                     logger::e(
-                        "BUG: Response object discarded without writing its data"s);
+                        "BUG: Response object discarded without writing its data");
                 }
             }
 
@@ -112,7 +116,7 @@ namespace pixel_terrain::commands::server {
                 return this;
             }
 
-            response *set_block(string const &block) {
+            response *set_block(std::string const &block) {
                 this->block = block;
                 return this;
             }
@@ -125,7 +129,7 @@ namespace pixel_terrain::commands::server {
             return mod;
         }
 
-        void resolve_block(writer *w, string dimen, long long int x,
+        void resolve_block(writer *w, std::string dimen, long long int x,
                            long long int z) {
             int region_x;
             int region_z;
@@ -147,9 +151,9 @@ namespace pixel_terrain::commands::server {
             int x_in_chunk = positive_mod(x, 512) % 16;
             int z_in_chunk = positive_mod(x, 512) % 16;
 
-            filesystem::path region_file;
+            std::filesystem::path region_file;
 
-            if (dimen == "nether"s) {
+            if (dimen == "nether") {
                 if (nether_dir.empty()) {
                     response().set_response_code(404)->write_to(w);
 
@@ -157,7 +161,7 @@ namespace pixel_terrain::commands::server {
                 }
 
                 region_file = nether_dir;
-            } else if (dimen == "end"s) {
+            } else if (dimen == "end") {
                 if (end_dir.empty()) {
                     response().set_response_code(404)->write_to(w);
 
@@ -175,9 +179,9 @@ namespace pixel_terrain::commands::server {
                 region_file = overworld_dir;
             }
 
-            region_file /= "r."s + to_string(region_x) + "."s +
-                           to_string(region_z) + ".mca"s;
-            if (!filesystem::exists(region_file)) {
+            region_file /= "r." + std::to_string(region_x) + "." +
+                           std::to_string(region_z) + ".mca";
+            if (!std::filesystem::exists(region_file)) {
                 response().set_response_code(404)->write_to(w);
 
                 return;
@@ -190,13 +194,14 @@ namespace pixel_terrain::commands::server {
 
                 return;
             }
-            if (dimen == "nether"s) {
+            if (dimen == "nether") {
                 bool air_found = false;
                 for (int y = 127; y >= 0; --y) {
-                    string block = chunk->get_block(x_in_chunk, y, z_in_chunk);
-                    if (block == "minecraft:air"s ||
-                        block == "minecraft:cave_air"s ||
-                        block == "minecraft:void_air"s) {
+                    std::string block =
+                        chunk->get_block(x_in_chunk, y, z_in_chunk);
+                    if (block == "minecraft:air" ||
+                        block == "minecraft:cave_air" ||
+                        block == "minecraft:void_air") {
                         if (y == 0) {
                             response().set_response_code(404)->write_to(w);
 
@@ -231,10 +236,11 @@ namespace pixel_terrain::commands::server {
                 }
             } else {
                 for (int y = 255; y >= 0; --y) {
-                    string block = chunk->get_block(x_in_chunk, y, z_in_chunk);
-                    if (block == "minecraft:air"s ||
-                        block == "minecraft:cave_air"s ||
-                        block == "minecraft:void_air"s) {
+                    std::string block =
+                        chunk->get_block(x_in_chunk, y, z_in_chunk);
+                    if (block == "minecraft:air" ||
+                        block == "minecraft:cave_air" ||
+                        block == "minecraft:void_air") {
                         if (y == 0) {
                             response().set_response_code(404)->write_to(w);
 
@@ -285,7 +291,7 @@ namespace pixel_terrain::commands::server {
             return;
         }
 
-        string dimen = req->get_request_field("Dimension");
+        std::string dimen = req->get_request_field("Dimension");
         if (!(dimen == "overworld" || dimen == "nether" || dimen == "end")) {
             response().set_response_code(400)->write_to(w);
             return;
@@ -296,10 +302,10 @@ namespace pixel_terrain::commands::server {
         try {
             x = stoi(req->get_request_field("Coord-X"));
             z = stoi(req->get_request_field("Coord-Z"));
-        } catch (invalid_argument const &) {
+        } catch (std::invalid_argument const &) {
             response().set_response_code(400)->write_to(w);
             return;
-        } catch (out_of_range const &) {
+        } catch (std::out_of_range const &) {
             response().set_response_code(400)->write_to(w);
             return;
         }

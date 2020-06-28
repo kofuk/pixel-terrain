@@ -7,7 +7,6 @@
 
 #include "request.hh"
 
-using namespace std;
 using namespace pixel_terrain::commands::server;
 
 char const *test_request[] = {"GET MMP/1.0\r\n"
@@ -64,16 +63,16 @@ char const *test_request[] = {"GET MMP/1.0\r\n"
                               ""};
 
 class test_reader : public reader {
-    size_t off = 0;
+    std::size_t off = 0;
     char const *test_data;
 
 public:
     test_reader(int index) { test_data = test_request[index]; }
 
-    long int fill_buffer(char *buf, size_t len, size_t off) {
+    long int fill_buffer(char *buf, std::size_t len, std::size_t off) {
         if (!test_data[this->off]) return -1;
-        size_t N = min(len - off, (size_t)5);
-        for (size_t i = 0; i < N; ++i) {
+        std::size_t N = std::min(len - off, (std::size_t)5);
+        for (std::size_t i = 0; i < N; ++i) {
             if (!test_data[this->off]) {
                 return i;
             }

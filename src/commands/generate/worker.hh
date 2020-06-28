@@ -6,8 +6,6 @@
 
 #include "../../nbt/region.hh"
 
-using namespace std;
-
 namespace pixel_terrain::commands::generate {
     struct region_container {
         anvil::region *region;
@@ -19,24 +17,25 @@ namespace pixel_terrain::commands::generate {
     };
 
     struct queued_item {
-        shared_ptr<region_container> region;
+        std::shared_ptr<region_container> region;
         int off_x;
         int off_z;
 
-        queued_item(shared_ptr<region_container> region, int off_x, int off_z);
+        queued_item(std::shared_ptr<region_container> region, int off_x,
+                    int off_z);
 
-        string debug_string();
+        std::string debug_string();
     };
 
-    extern string option_out_dir;
+    extern std::string option_out_dir;
     extern bool option_verbose;
     extern int option_jobs;
     extern bool option_nether;
     extern bool option_generate_range;
-    extern string option_journal_dir;
+    extern std::string option_journal_dir;
 
     queued_item *fetch_item();
-    void queue_item(shared_ptr<queued_item> item);
+    void queue_item(std::shared_ptr<queued_item> item);
     void start_worker();
     void wait_for_worker();
     void finish_worker();

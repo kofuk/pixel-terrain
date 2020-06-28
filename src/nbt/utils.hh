@@ -5,8 +5,6 @@
 #include <cstdint>
 #include <memory>
 
-using namespace std;
-
 namespace pixel_terrain::nbt::utils {
     static inline void swap_chars(unsigned char *a, unsigned char *b) {
         *a ^= *b;
@@ -79,11 +77,12 @@ namespace pixel_terrain::nbt::utils {
     }
 
     struct decompressed_data {
-        shared_ptr<unsigned char[]> data;
-        size_t len;
+        std::shared_ptr<unsigned char[]> data;
+        std::size_t len;
     };
 
-    decompressed_data *zlib_decompress(unsigned char *data, size_t const len);
+    decompressed_data *zlib_decompress(unsigned char *data,
+                                       std::size_t const len);
 } // namespace pixel_terrain::nbt::utils
 
 #endif

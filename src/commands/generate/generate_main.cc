@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <string>
 #include <thread>
 
 #include <optlib/optlib.h>
@@ -14,22 +15,23 @@
 namespace pixel_terrain::commands::generate {
     namespace {
         void write_range_file(int start_x, int start_z, int end_x, int end_z) {
-            filesystem::path out_path(option_out_dir);
-            out_path /= "chunk_range.json"s;
+            std::filesystem::path out_path(option_out_dir);
+            out_path /= "chunk_range.json";
 
-            ofstream out(out_path.string());
+            std::ofstream out(out_path.string());
             if (!out) return;
 
             out << "[" << start_x << ", " << start_z << ", " << end_x << ", "
-                << end_z << "]" << endl;
+                << end_z << "]" << std::endl;
         }
 
         /* TODO: Should move to functions/imagegen */
-        void generate_all(string src_dir) {
+        void generate_all(std::string src_dir) {
             if (!option_journal_dir.empty()) {
                 try {
-                    filesystem::create_directories(option_journal_dir);
-                } catch (filesystem::filesystem_error const &e) {
+                    std::filesystem::create_directories(option_journal_dir);
+                } catch (std::filesystem::filesystem_error const &e) {
+                    using namespace std::literals::string_literals;
                     logger::e("cannot create journal directory: "s + e.what());
 
                     exit(1);
@@ -38,23 +40,23 @@ namespace pixel_terrain::commands::generate {
 
             start_worker();
 
-            filesystem::directory_iterator dirents(src_dir);
-            int nfiles = distance(begin(dirents), end(dirents));
+            std::filesystem::directory_iterator dirents(src_dir);
+            int nfiles = std::distance(begin(dirents), end(dirents));
             pretty_printer::set_total(nfiles);
 
-            int min_x = numeric_limits<int>::max();
-            int min_z = numeric_limits<int>::max();
-            int max_x = numeric_limits<int>::min();
-            int max_z = numeric_limits<int>::min();
+            int min_x = std::numeric_limits<int>::max();
+            int min_z = std::numeric_limits<int>::max();
+            int max_x = std::numeric_limits<int>::min();
+            int max_z = std::numeric_limits<int>::min();
 
-            for (filesystem::directory_entry const &path :
-                 filesystem::directory_iterator(src_dir)) {
+            for (std::filesystem::directory_entry const &path :
+                 std::filesystem::directory_iterator(src_dir)) {
                 if (path.is_directory()) continue;
 
-                string name = path.path().filename().string();
+                std::string name = path.path().filename().string();
 
                 if (name[0] != 'r' || name[1] != '.') continue;
-                size_t i = 2;
+                std::size_t i = 2;
                 while (i < name.size() &&
                        (name[i] == '-' || ('0' <= name[i] && name[i] <= '9')))
                     ++i;
@@ -62,7 +64,7 @@ namespace pixel_terrain::commands::generate {
                 if (name[i] == '.' && i + 1 >= name.size()) continue;
                 ++i;
 
-                size_t start_z = i;
+                std::size_t start_z = i;
                 while (i < name.size() &&
                        (name[i] == '-' || ('0' <= name[i] && name[i] <= '9')))
                     ++i;
@@ -85,19 +87,19 @@ namespace pixel_terrain::commands::generate {
                         r = new anvil::region(path.path().string(),
                                               option_journal_dir);
                     }
-                } catch (exception const &e) {
-                    logger::e("failed to read region: "s +
-                              path.path().string());
+                } catch (std::exception const &e) {
+                    logger::e("failed to read region: " + path.path().string());
                     logger::e(e.what());
 
                     continue;
                 }
 
-                shared_ptr<region_container> rc(new region_container(r, x, z));
+                std::shared_ptr<region_container> rc(
+                    new region_container(r, x, z));
 
                 for (int off_x = 0; off_x < 2; ++off_x) {
                     for (int off_z = 0; off_z < 2; ++off_z) {
-                        queue_item(shared_ptr<queued_item>(
+                        queue_item(std::shared_ptr<queued_item>(
                             new queued_item(rc, off_x, off_z)));
                     }
                 }
@@ -122,7 +124,7 @@ namespace pixel_terrain::commands::generate {
     } // namespace
 
     int main(int argc, char **argv) {
-        option_jobs = thread::hardware_concurrency();
+        option_jobs = std::thread::hardware_concurrency();
         option_out_dir = ".";
 
         optlib_parser *parser = optlib_parser_new(argc, argv);
@@ -160,19 +162,20 @@ namespace pixel_terrain::commands::generate {
 
             case 'j':
                 try {
-                    option_jobs = stoi(opt->argval);
+                    option_jobs = std::stoi(opt->argval);
                     if (option_jobs <= 0) {
-                        throw out_of_range("concurrency is negative");
+                        throw std::out_of_range("concurrency is negative");
                     }
-                } catch (invalid_argument const &e) {
-                    cout << "Invalid concurrency." << endl;
+                } catch (std::invalid_argument const &e) {
+                    std::cout << "Invalid concurrency." << std::endl;
                     optlib_print_help(parser, stdout);
                     optlib_parser_free(parser);
-                    exit(1);
-                } catch (out_of_range const &e) {
-                    cout << "Concurrency is out of permitted range." << endl;
+                    std::exit(1);
+                } catch (std::out_of_range const &e) {
+                    std::cout << "Concurrency is out of permitted range."
+                              << std::endl;
                     optlib_parser_free(parser);
-                    exit(1);
+                    std::exit(1);
                 }
                 break;
 
@@ -197,7 +200,7 @@ namespace pixel_terrain::commands::generate {
         if (parser->optind != argc - 1) {
             optlib_print_help(parser, stdout);
             optlib_parser_free(parser);
-            exit(1);
+            std::exit(1);
         }
 
         init_block_list();
