@@ -20,6 +20,7 @@
 
 #include "commands/generate/generate_main.hh"
 #include "commands/server/server.hh"
+#include "version.hh"
 
 namespace pixel_terrain {
     namespace {
@@ -35,15 +36,15 @@ namespace pixel_terrain {
         }
 
         void print_version() {
-            std::cout << "mcmap 3.0" << std::endl;
-            std::cout << "Copyright (C) 2020, Koki Fukuda." << std::endl;
-            std::cout
-                << "This program includes C++ re-implementation of" << std::endl
-                << "anvil-parser, originally written in Python."
-                << std::endl
-                << "Visit https://github.com/kofuk/minecraft-image-gemerator"
-                << std::endl
-                << "for more information and the source code." << std::endl;
+            std::cout << "pixel-terrain (" PROJECT_NAME " " VERSION_MAJOR
+                         "." VERSION_MINOR "." VERSION_REVISION ")"
+                      << std::endl;
+            std::cout << R"(
+Copyright (C) 2020  Koki Fukuda.
+This program includes C++ re-implementation of anvil-parser, originally written
+in Python.  Visit  https://github.com/kofuk/minecraft-image-gemerator  for more
+information and the source code.
+)";
         }
 
         void handle_commands(int argc, char **argv) {

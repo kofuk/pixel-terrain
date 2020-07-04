@@ -4,9 +4,20 @@
 
 #include "nbt/file.hh"
 #include "nbt/pull_parser/nbt_pull_parser.hh"
+#include "version.hh"
 
 namespace {
     void print_usage() { std::cout << "usage: nbt2xml nbt_file" << std::endl; }
+
+    void print_version() {
+                    std::cout << "nbt2xml (" PROJECT_NAME " " VERSION_MAJOR
+                         "." VERSION_MINOR "." VERSION_REVISION ")"
+                      << std::endl;
+            std::cout << R"(
+Copyright (C) 2020  Koki Fukuda.
+Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
+)";
+    }
 
     bool handle_file(const std::string &file) {
         using namespace pixel_terrain;
@@ -200,6 +211,9 @@ int main(int argc, char **argv) {
     }
     if (!strcmp(argv[1], "--help")) {
         print_usage();
+        return 0;
+    } else if (!strcmp(argv[1], "--version")) {
+        print_version();
         return 0;
     }
 
