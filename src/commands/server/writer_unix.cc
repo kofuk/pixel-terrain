@@ -19,7 +19,9 @@ namespace pixel_terrain::commands::server {
         }
     }
 
-    void writer_unix::write_data(int const num) { write_data(std::to_string(num)); }
+    void writer_unix::write_data(int const num) {
+        write_data(std::to_string(num));
+    }
 
     char const *writer_unix::get_current_buffer() { return buf; }
 

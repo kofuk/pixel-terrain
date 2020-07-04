@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "server_generic.hh"
 #include "reader_generic.hh"
 #include "request.hh"
 #include "server.hh"
+#include "server_generic.hh"
 #include "writer_generic.hh"
 
 namespace pixel_terrain::commands::server {

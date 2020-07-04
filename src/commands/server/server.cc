@@ -85,8 +85,8 @@ namespace pixel_terrain::commands::server {
 
             ~response() {
                 if (!response_wrote) {
-                    logger::e(
-                        "BUG: Response object discarded without writing its data");
+                    logger::e("BUG: Response object discarded without writing "
+                              "its data");
                 }
             }
 

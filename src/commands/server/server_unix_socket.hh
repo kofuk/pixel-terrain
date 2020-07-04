@@ -6,6 +6,7 @@
 namespace pixel_terrain::commands::server {
     class server_unix_socket : public server_base {
         bool daemon_mode;
+
     public:
         server_unix_socket(bool const daemon);
         void start_server();
