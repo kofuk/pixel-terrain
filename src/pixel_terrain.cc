@@ -39,7 +39,7 @@ namespace pixel_terrain {
             std::cout << "Copyright (C) 2020, Koki Fukuda." << std::endl;
             std::cout
                 << "This program includes C++ re-implementation of" << std::endl
-                << "anvil-parser and nbt, originally written in Python."
+                << "anvil-parser, originally written in Python."
                 << std::endl
                 << "Visit https://github.com/kofuk/minecraft-image-gemerator"
                 << std::endl

@@ -3,10 +3,10 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "chunk.hh"
 #include "file.hh"
-#include "nbt.hh"
 
 namespace pixel_terrain::anvil {
     class region {
@@ -17,7 +17,8 @@ namespace pixel_terrain::anvil {
         std::size_t header_offset(int chunk_x, int chunk_z);
         std::size_t chunk_location_off(int chunk_x, int chunk_z);
         std::size_t chunk_location_sectors(int chunk_x, int chunk_z);
-        nbt::nbt_file *chunk_data(int chunk_x, int chunk_z);
+        std::pair<std::shared_ptr<unsigned char[]>, std::size_t>
+        chunk_data(int chunk_x, int chunk_z);
 
     public:
         /* Construct new region object from given buffer of *.mca file content

@@ -66,7 +66,7 @@ namespace pixel_terrain {
 
             if ((statbuf.st_mode & S_IFMT) == S_IFREG) {
                 void *mem = mmap(nullptr, statbuf.st_size,
-                                   PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+                                 PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
                 close(fd);
                 if (mem == MAP_FAILED) {
                     throw std::runtime_error(strerror(errno));
@@ -156,7 +156,7 @@ namespace pixel_terrain {
             }
             omode |= O_CREAT;
             int fd = open(filename.c_str(), omode,
-                            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                          S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
             if (fd < 0) {
                 throw std::runtime_error(strerror(errno));
             }

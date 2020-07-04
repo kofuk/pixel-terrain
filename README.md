@@ -4,8 +4,7 @@
 
 This generates map images from your Minecraft save data considering tilt and biomes.
 
-This software contains C++ re-implementation of [matcool/anvil-parser](https://github.com/matcool/anvil-parser)
-and [twoolie/NBT](https://github.com/twoolie/NBT).
+This software contains C++ re-implementation of [matcool/anvil-parser](https://github.com/matcool/anvil-parser).
 
 ## Features
 

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <memory>
+#include <utility>
 
 namespace pixel_terrain::nbt::utils {
     static inline void swap_chars(unsigned char *a, unsigned char *b) {
@@ -46,19 +47,22 @@ namespace pixel_terrain::nbt::utils {
 #endif
     }
 
-    [[maybe_unused]] static inline int64_t to_host_byte_order(int64_t src) {
+    [[maybe_unused]] static inline std::uint64_t
+    to_host_byte_order(std::uint64_t src) {
         reorder_8((unsigned char *)&src);
 
         return src;
     }
 
-    [[maybe_unused]] static inline int32_t to_host_byte_order(int32_t src) {
+    [[maybe_unused]] static inline std::int32_t
+    to_host_byte_order(std::int32_t src) {
         reorder_4((unsigned char *)&src);
 
         return src;
     }
 
-    [[maybe_unused]] static inline int16_t to_host_byte_order(int16_t src) {
+    [[maybe_unused]] static inline std::int16_t
+    to_host_byte_order(std::int16_t src) {
         reorder_2((unsigned char *)&src);
 
         return src;
@@ -76,13 +80,8 @@ namespace pixel_terrain::nbt::utils {
         return src;
     }
 
-    struct decompressed_data {
-        std::shared_ptr<unsigned char[]> data;
-        std::size_t len;
-    };
-
-    decompressed_data *zlib_decompress(unsigned char *data,
-                                       std::size_t const len);
+    std::pair<std::shared_ptr<unsigned char[]>, std::size_t>
+    zlib_decompress(unsigned char *data, std::size_t const len);
 } // namespace pixel_terrain::nbt::utils
 
 #endif

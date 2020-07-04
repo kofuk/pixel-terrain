@@ -22,7 +22,13 @@ namespace pixel_terrain::nbt {
     static constexpr unsigned char TAG_INT_ARRAY = 11;
     static constexpr unsigned char TAG_LONG_ARRAY = 12;
 
-    enum class parser_event { DOCUMENT_START, TAG_START, DATA, TAG_END, DOCUMENT_END };
+    enum class parser_event {
+        DOCUMENT_START,
+        TAG_START,
+        DATA,
+        TAG_END,
+        DOCUMENT_END
+    };
 
     class nbt_pull_parser {
         unsigned char *data;
@@ -42,7 +48,7 @@ namespace pixel_terrain::nbt {
             unsigned char byte_data;
             std::int16_t short_data;
             std::int32_t int_data;
-            std::int64_t long_data;
+            std::uint64_t long_data;
             float float_data;
             double double_data;
             std::string *string_data;
@@ -64,8 +70,7 @@ namespace pixel_terrain::nbt {
     public:
         nbt_pull_parser(std::shared_ptr<unsigned char[]> data,
                         const size_t length);
-        nbt_pull_parser(unsigned char *data,
-                        const size_t length);
+        nbt_pull_parser(unsigned char *data, const size_t length);
 
         parser_event next() noexcept(false);
 
@@ -76,7 +81,7 @@ namespace pixel_terrain::nbt {
         unsigned char get_byte() const;
         std::int16_t get_short() const;
         std::int32_t get_int() const;
-        std::int64_t get_long() const;
+        std::uint64_t get_long() const;
         float get_float() const;
         double get_double() const;
         std::string get_string() const;

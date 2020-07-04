@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include <zlib.h>
@@ -8,7 +9,8 @@
 #include "utils.hh"
 
 namespace pixel_terrain::nbt::utils {
-    decompressed_data *zlib_decompress(unsigned char *data, std::size_t const len) {
+    std::pair<std::shared_ptr<unsigned char[]>, std::size_t>
+    zlib_decompress(unsigned char *data, std::size_t const len) {
         int z_ret;
         z_stream strm;
         strm.zalloc = Z_NULL;
@@ -19,7 +21,7 @@ namespace pixel_terrain::nbt::utils {
         unsigned char out[1024];
 
         z_ret = inflateInit(&strm);
-        if (z_ret != Z_OK) return nullptr;
+        if (z_ret != Z_OK) return std::make_pair(nullptr, 0);
 
         std::vector<unsigned char> all_out;
         all_out.reserve(len * 2);
@@ -37,24 +39,25 @@ namespace pixel_terrain::nbt::utils {
                 z_ret == Z_DATA_ERROR || z_ret == Z_MEM_ERROR) {
                 inflateEnd(&strm);
 
-                return nullptr;
+                return std::make_pair(nullptr, 0);
             }
 
             all_out.insert(end(all_out), out, out + 1024 - strm.avail_out);
         } while (strm.avail_out == 0);
 
         if (z_ret != Z_STREAM_END) {
-            throw std::out_of_range("buffer exausted before stream end of zlib");
+            throw std::out_of_range(
+                "buffer exausted before stream end of zlib");
         }
 
         inflateEnd(&strm);
 
-        decompressed_data *dd = new decompressed_data;
         unsigned char *dd_out = new unsigned char[all_out.size()];
         copy(begin(all_out), end(all_out), dd_out);
-        dd->data = std::shared_ptr<unsigned char[]>(dd_out);
-        dd->len = all_out.size();
 
-        return dd;
+        return std::make_pair(
+            std::shared_ptr<unsigned char[]>(
+                dd_out, [](unsigned char *data) { delete[] data; }),
+            all_out.size());
     }
 } // namespace pixel_terrain::nbt::utils

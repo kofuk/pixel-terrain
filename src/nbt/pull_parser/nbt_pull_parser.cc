@@ -25,9 +25,9 @@ namespace pixel_terrain::nbt {
             return d;
         }
 
-        inline std::int64_t read_long(unsigned char *data, size_t *offset) {
-            std::int32_t d = utils::to_host_byte_order(
-                *reinterpret_cast<std::int64_t *>(data + *offset));
+        inline std::uint64_t read_long(unsigned char *data, size_t *offset) {
+            std::uint64_t d = utils::to_host_byte_order(
+                *reinterpret_cast<std::uint64_t *>(data + *offset));
             *offset += 8;
             return d;
         }
@@ -421,7 +421,7 @@ namespace pixel_terrain::nbt {
         return tag_data.int_data;
     }
 
-    std::int64_t nbt_pull_parser::get_long() const {
+    std::uint64_t nbt_pull_parser::get_long() const {
         if (types.empty()) {
             throw std::logic_error(
                 "You tried to get long, but parser is not in any tags");

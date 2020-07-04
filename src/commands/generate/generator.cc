@@ -65,8 +65,8 @@ namespace pixel_terrain::commands::generate {
                         try {
                             block = chunk->get_block(x, y, z);
                         } catch (std::exception const &e) {
-                            logger::e(
-                                "Warning: error occurred while obtaining block");
+                            logger::e("Warning: error occurred while obtaining "
+                                      "block");
                             logger::e(e.what());
 
                             continue;
