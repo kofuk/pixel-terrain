@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "../logger/logger.hh"
+#include "../utils/logger/logger.hh"
 #include "chunk.hh"
 #include "pull_parser/nbt_pull_parser.hh"
 
