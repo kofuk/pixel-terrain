@@ -1,12 +1,14 @@
 id	r	g	b	a
 minecraft:ancient_debris	65	47	40	ff
 minecraft:basalt	3a	3b	48	ff
+minecraft:blackstone	1f	12	1b	ff
 minecraft:blackstone_slab	1f	12	1b	ff
 minecraft:blackstone_stairs	1f	12	1b	ff
 minecraft:blackstone_wall	1f	12	1b	ff
 minecraft:chain	3e	44	53	55
 minecraft:chiseled_nether_bricks	3e	1e	24	ff
 minecraft:cracked_nether_bricks	44	24	2a	ff
+minecraft:cracked_polished_blackstone_bricks	1f	12	1b	ff
 minecraft:crimson_button	7e	3a	56	ff
 minecraft:crimson_fungus	a4	24	29	10
 minecraft:crimson_hyphae	4b	27	37	ff
@@ -27,6 +29,7 @@ minecraft:polished_basalt	3a	3b	48	ff
 minecraft:polished_blackstone_brick_slab	1f	12	1b	ff
 minecraft:polished_blackstone_brick_stairs	1f	12	1b	ff
 minecraft:polished_blackstone_brick_wall	1f	12	1b	ff
+minecraft:polished_blackstone_bricks	1f	12	1b	ff
 minecraft:polished_blackstone_button	1f	12	1b	ff
 minecraft:polished_blackstone_pressure_plate	1f	12	1b	ff
 minecraft:polished_blackstone_slab	1f	12	1b	ff
