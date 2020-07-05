@@ -16,12 +16,14 @@ namespace pixel_terrain::anvil {
         std::array<std::vector<std::uint64_t> *, 16> block_states;
         std::vector<std::int32_t> biomes;
         std::uint64_t last_update;
+        std::int32_t data_version;
         unsigned char loaded_fields = 0;
         std::vector<std::string> tag_structure;
 
         static constexpr unsigned char FIELD_SECTIONS = 1;
         static constexpr unsigned char FIELD_LAST_UPDATE = 1 << 1;
         static constexpr unsigned char FIELD_BIOMES = 1 << 2;
+        static constexpr unsigned char FIELD_DATA_VERSION = 1 << 3;
 
         void parse_fields();
         void parse_sections();

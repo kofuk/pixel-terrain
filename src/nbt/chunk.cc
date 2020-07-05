@@ -132,8 +132,8 @@ namespace pixel_terrain::anvil {
                     if (ev != nbt::parser_event::TAG_END) {
                         ev = parser.next();
                         y = parser.get_byte();
+                        ev = parser.next();
                     }
-                    ev = parser.next();
                 } else {
                     /* skip others because they aren't needed. */
                     for (int i = 1; i != 0;) {
@@ -175,6 +175,7 @@ namespace pixel_terrain::anvil {
                 tag_structure.push_back(parser.get_tag_name());
 
                 unsigned char f = current_field();
+
                 if (f == FIELD_SECTIONS) {
                     parse_sections();
 
@@ -198,6 +199,17 @@ namespace pixel_terrain::anvil {
                     }
 
                     return;
+                } else if (f == FIELD_DATA_VERSION) {
+                    ev = parser.next();
+                    if (ev != nbt::parser_event::DATA ||
+                        parser.get_tag_type() != nbt::TAG_INT) {
+                        throw std::runtime_error(
+                            "DataVersion is not TAG_Int_Array");
+                    }
+                    data_version = parser.get_int();
+
+                    parser.next();
+                    return;
                 }
             } else if (ev == nbt::parser_event::TAG_END) {
                 tag_structure.pop_back();
@@ -216,31 +228,34 @@ namespace pixel_terrain::anvil {
                          nbt::parser_event::DOCUMENT_END);
 
             if (!(loaded_fields & field)) {
-                throw std::runtime_error("No tag not found: " +
+                throw std::runtime_error("Tag not found: " +
                                          std::to_string(field));
             }
         }
     }
 
     unsigned char chunk::current_field() {
-        if (tag_structure.size() < 3) {
+        if (tag_structure.size() < 2 || tag_structure[0] != "") {
             return 0;
         }
 
-        if (tag_structure[0] == "" && tag_structure[1] == "Level") {
+        unsigned char result = 0;
+
+        if (tag_structure[1] == "DataVersion") {
+            result = FIELD_DATA_VERSION;
+        } else if (tag_structure.size() >= 3 && tag_structure[0] == "" &&
+                   tag_structure[1] == "Level") {
             if (tag_structure[2] == "Sections") {
-                loaded_fields |= FIELD_SECTIONS;
-                return FIELD_SECTIONS;
+                result = FIELD_SECTIONS;
             } else if (tag_structure[2] == "LastUpdate") {
-                loaded_fields |= FIELD_LAST_UPDATE;
-                return FIELD_LAST_UPDATE;
+                result = FIELD_LAST_UPDATE;
             } else if (tag_structure[2] == "Biomes") {
-                loaded_fields |= FIELD_BIOMES;
-                return FIELD_BIOMES;
+                result = FIELD_BIOMES;
             }
         }
+        loaded_fields |= result;
 
-        return 0;
+        return result;
     }
 
     std::vector<std::string> *chunk::get_palette(unsigned char y) {
@@ -269,12 +284,14 @@ namespace pixel_terrain::anvil {
             return "";
         }
 
+        make_sure_field_parsed(FIELD_DATA_VERSION);
+
         unsigned char section_no = y / 16;
 
         y %= 16;
 
         std::vector<std::string> *palette = palettes[section_no];
-        if (palette == nullptr) {
+        if (palette == nullptr || palette->size() == 0) {
             return "minecraft:air";
         }
 
@@ -298,17 +315,29 @@ namespace pixel_terrain::anvil {
         int index = y * 16 * 16 + z * 16 + x;
         make_sure_field_parsed(FIELD_SECTIONS);
         std::vector<std::uint64_t> *states = block_states[section_no];
-        int state = index * bits / 64;
+        int state;
+        bool stretches = data_version < 2529;
+        if (stretches) {
+            state = index * bits / 64;
+        } else {
+            state = index / (64 / bits);
+        }
 
         if (static_cast<std::uint64_t>(state) >= states->size())
             return "minecraft:air";
 
         std::uint64_t data = (*states)[state];
 
-        std::uint64_t shifted_data = data >> ((bits * index) % 64);
+        std::uint64_t shifted_data;
+        if (stretches) {
+            shifted_data = data >> ((bits * index) % 64);
+        } else {
+            shifted_data = data >> (index % (64 / bits) * bits);
+        }
 
-        if (64 - ((bits * index) % 64) < bits) {
+        if (stretches && 64 - ((bits * index) % 64) < bits) {
             data = (*states)[state + 1];
+
             int leftover = (bits - ((state + 1) * 64 % bits)) % bits;
             shifted_data =
                 ((data & (static_cast<std::int64_t>(pow(2, leftover)) - 1))
