@@ -19,20 +19,17 @@ namespace pixel_terrain::anvil {
         block_states.fill(nullptr);
     }
 
-    chunk::~chunk() {}
+    chunk::~chunk() {
+        for (std::vector<std::string> *e : palettes) {
+            delete e;
+        }
+        for (std::vector<std::uint64_t> *e : block_states) {
+            delete e;
+        }
+    }
 
     std::uint64_t chunk::get_last_update() noexcept(false) {
-        if (!(loaded_fields & FIELD_LAST_UPDATE)) {
-            do {
-                parse_fields();
-            } while ((loaded_fields & FIELD_LAST_UPDATE) ||
-                     parser.get_event_type() ==
-                         nbt::parser_event::DOCUMENT_END);
-
-            if (!(loaded_fields & FIELD_LAST_UPDATE)) {
-                throw std::runtime_error("No LastUpdate tag");
-            }
-        }
+        make_sure_field_parsed(FIELD_LAST_UPDATE);
 
         return last_update;
     }
