@@ -237,7 +237,7 @@ namespace pixel_terrain::server {
     void launch_server(bool daemon_mode) {
 #ifdef _WIN32
         if (daemon_mode) {
-            cout << "Warning: Daemon mode has no effect on Windows." << endl;
+            cout << "Warning: Daemon mode has no effect on Windows.\n";
         }
         server_base *s = new server_generic();
 #else

@@ -148,7 +148,7 @@ namespace pixel_terrain {
                 }
             } catch (std::system_error const &e) {
 #ifndef NDEBUG
-                std::cerr << "some thread(s) cannot be launched" << std::endl;
+                std::cerr << "some thread(s) cannot be launched\n";
 #endif
             }
         }
@@ -159,7 +159,7 @@ namespace pixel_terrain {
                 throw std::logic_error("Tried to queue job on finished worker");
             }
             if (!threads.size()) {
-                std::cerr << "worker is not started" << std::endl;
+                std::cerr << "worker is not started\n";
             }
 #endif
             worker_signal<T> *sig =

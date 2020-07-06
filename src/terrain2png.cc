@@ -20,10 +20,9 @@ namespace pixel_terrain::image {
             if (!out) return;
 
             out << "[" << start_x << ", " << start_z << ", " << end_x << ", "
-                << end_z << "]" << std::endl;
+                << end_z << "]\n";
         }
 
-        /* TODO: Should move to functions/imagegen */
         void generate_all(std::string src_dir) {
             if (!option_journal_dir.empty()) {
                 try {
@@ -124,15 +123,14 @@ namespace pixel_terrain::image {
 
 namespace {
     void print_usage(::optlib_parser *parser) {
-        std::cout << "usage: terrain2png [OPTION]... DIR" << std::endl;
+        std::cout << "usage: terrain2png [OPTION]... DIR\n";
         std::cout << "Load save data in DIR, and generate image." << std::endl;
         ::optlib_print_help(parser, stdout);
     }
 
     void print_version() {
         std::cout << "terrain2png (" PROJECT_NAME " " VERSION_MAJOR
-                     "." VERSION_MINOR "." VERSION_REVISION ")"
-                  << std::endl;
+                     "." VERSION_MINOR "." VERSION_REVISION ")\n";
         std::cout << R"(
 Copyright (C) 2020  Koki Fukuda.
 This program includes C++ re-implementation of anvil-parser, originally written
@@ -189,13 +187,12 @@ int main(int argc, char **argv) {
                     throw std::out_of_range("concurrency is negative");
                 }
             } catch (std::invalid_argument const &e) {
-                std::cout << "Invalid concurrency." << std::endl;
+                std::cout << "Invalid concurrency.\n";
                 optlib_print_help(parser, stdout);
                 optlib_parser_free(parser);
                 std::exit(1);
             } catch (std::out_of_range const &e) {
-                std::cout << "Concurrency is out of permitted range."
-                          << std::endl;
+                std::cout << "Concurrency is out of permitted range.\n";
                 optlib_parser_free(parser);
                 std::exit(1);
             }

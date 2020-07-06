@@ -79,7 +79,7 @@ namespace pixel_terrain::server {
     void server_unix_socket::start_server() {
         if (daemon_mode) {
             if (daemon(0, 0) == -1) {
-                std::cerr << "cannot run in daemon mode" << std::endl;
+                std::cerr << "cannot run in daemon mode\n";
 
                 exit(1);
             }

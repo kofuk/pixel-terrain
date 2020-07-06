@@ -8,45 +8,38 @@
 
 namespace {
     void print_usage(optlib_parser *opt) {
-        std::cout << "usage: blockd [OPTIONS...]" << std::endl;
+        std::cout << "usage: blockd [OPTIONS...]\n";
 
         std::cout << "Possible options are:" << std::endl;
         optlib_print_help(opt, stderr);
 
-        std::cout << "Help for block info server's protocol and config"
-                  << std::endl
-                  << std::endl;
+        std::cout << R"(
+Help for block info server's protocol and config
 
-        std::cout << "PROTOCOL:" << std::endl;
-        std::cout << " example request and response;" << std::endl;
-        std::cout << " `>' means request and `<' means response" << std::endl;
-        std::cout << "  >GET MMP/1.0" << std::endl;
-        std::cout << "  >Dimension: overworld" << std::endl;
-        std::cout << "  >Coord-X: 1" << std::endl;
-        std::cout << "  >Coord-Z: 1" << std::endl;
-        std::cout << "  >" << std::endl;
-        std::cout << "  <MMP/1.0 200" << std::endl;
-        std::cout << "  <" << std::endl;
-        std::cout << R"(  <{"altitude": 63, "block": "minecraft:dirt"})"
-                  << std::endl
-                  << std::endl;
-        std::cout << " Response Codes:" << std::endl;
-        std::cout << "  200  OK. The request is handled properly and"
-                  << std::endl
-                  << "       altitude returned" << std::endl;
-        std::cout << "  400  Bad Request. Probably request parse error"
-                  << std::endl;
-        std::cout << "  404  Out of Range. No chunk existing on specified "
-                     "corrdinate"
-                  << std::endl;
-        std::cout << "  500  Internal Server Error. Serverside error"
-                  << std::endl;
+PROTOCOL:
+ example request and response:
+ `>' means request and `<' means response
+  >GET MMP/1.0
+  >Dimension: overworld
+  >Coord-X: 1
+  >Coord-Z: 1
+  >
+  <MMP/1.0 200
+  <
+  <{"altitude": 63, "block": "minecraft:dirt"}
+
+
+ Response Codes:
+  200  OK. The request is handled properly and altitude returned.
+  400  Bad Request. Probably request parse error
+  404  Out of Range. No chunk existing on specified corrdinate.
+  500  Internal Server Error. Serverside error
+)";
     }
 
     void print_version() {
         std::cout << "blockd (" PROJECT_NAME " " VERSION_MAJOR "." VERSION_MINOR
-                     "." VERSION_REVISION ")"
-                  << std::endl;
+                     "." VERSION_REVISION ")\n";
         std::cout << R"(
 Copyright (C) 2020  Koki Fukuda.
 This program includes C++ re-implementation of anvil-parser, originally written

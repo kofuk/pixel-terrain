@@ -12,16 +12,16 @@ namespace pixel_terrain::logger {
 
     void d(std::string message) {
         std::unique_lock<std::mutex> lock(m);
-        std::cerr << message << std::endl;
+        std::cerr << message << '\n';
     }
 
     void e(std::string message) {
         std::unique_lock<std::mutex> lock(m);
-        std::cerr << message << std::endl;
+        std::cerr << message << '\n';
     }
 
     void i(std::string message) {
         std::unique_lock<std::mutex> lock(m);
-        std::cout << message << std::endl;
+        std::cout << message << '\n';
     }
 } // namespace pixel_terrain::logger

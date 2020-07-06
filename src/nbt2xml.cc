@@ -7,12 +7,11 @@
 #include "version.hh"
 
 namespace {
-    void print_usage() { std::cout << "usage: nbt2xml nbt_file" << std::endl; }
+    void print_usage() { std::cout << "usage: nbt2xml nbt_file\n"; }
 
     void print_version() {
         std::cout << "nbt2xml (" PROJECT_NAME " " VERSION_MAJOR
-                     "." VERSION_MINOR "." VERSION_REVISION ")"
-                  << std::endl;
+                     "." VERSION_MINOR "." VERSION_REVISION ")\n";
         std::cout << R"(
 Copyright (C) 2020  Koki Fukuda.
 Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
@@ -32,8 +31,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
         while (ev != nbt::parser_event::DOCUMENT_END) {
             switch (ev) {
             case nbt::parser_event::DOCUMENT_START:
-                std::cout << "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
-                          << std::endl;
+                std::cout << "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
                 break;
 
             case nbt::parser_event::TAG_START:
@@ -186,7 +184,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                     std::cout << "</Compound>";
                     break;
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
 
             default:
                 break;
@@ -196,7 +194,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                 ev = p.next();
             } catch (const std::exception &e) {
                 std::cerr << "Fatal: Broken NBT data: " << e.what()
-                          << std::endl;
+                          << '\n';
                 return false;
             }
         }
