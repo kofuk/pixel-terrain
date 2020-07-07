@@ -27,6 +27,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
 
         nbt::nbt_pull_parser p(data, size);
         nbt::parser_event ev = p.get_event_type();
+        int indent = 0;
 
         while (ev != nbt::parser_event::DOCUMENT_END) {
             switch (ev) {
@@ -35,6 +36,9 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                 break;
 
             case nbt::parser_event::TAG_START:
+                for (int i = 0; i < indent; ++i) {
+                    std::cout << ' ';
+                }
                 switch (p.get_tag_type()) {
                 case nbt::TAG_BYTE:
                     std::cout << "<Byte";
@@ -88,10 +92,15 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                 if (!p.get_tag_name().empty()) {
                     std::cout << " name=\"" << p.get_tag_name() << "\"";
                 }
-                std::cout << ">";
+                std::cout << ">\n";
+
+                indent += 2;
                 break;
 
             case nbt::parser_event::DATA:
+                for (int i = 0; i < indent; ++i) {
+                    std::cout << ' ';
+                }
                 switch (p.get_tag_type()) {
                 case nbt::TAG_BYTE:
                     std::cout << +p.get_byte();
@@ -132,9 +141,14 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                 case nbt::TAG_LONG_ARRAY:
                     std::cout << "<item>" << p.get_long() << "</item>";
                 }
+                std::cout << '\n';
                 break;
 
             case nbt::parser_event::TAG_END:
+                indent -= 2;
+                for (int i = 0; i < indent; ++i) {
+                    std::cout << ' ';
+                }
                 switch (p.get_tag_type()) {
                 case nbt::TAG_BYTE:
                     std::cout << "</Byte>";
