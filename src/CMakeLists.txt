@@ -27,6 +27,13 @@ add_executable(nbt2xml nbt2xml.cc)
 target_link_libraries(nbt2xml nbt_pull_parser)
 install(TARGETS nbt2xml DESTINATION bin)
 
+add_executable(dumpnbt dumpnbt.cc)
+add_dependencies(dumpnbt optlib)
+target_include_directories(dumpnbt PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/external/include)
+target_link_libraries(dumpnbt region_parser)
+target_link_libraries(dumpnbt optlib)
+install(TARGETS dumpnbt DESTINATION bin)
+
 add_subdirectory(image)
 add_subdirectory(nbt)
 add_subdirectory(server)
