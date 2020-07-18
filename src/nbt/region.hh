@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 
+#include "../utils/path_hack.hh"
 #include "chunk.hh"
 #include "file.hh"
 
@@ -21,8 +22,9 @@ namespace pixel_terrain::anvil {
     public:
         /* Construct new region object from given buffer of *.mca file content
          */
-        region(std::string file_name);
-        region(std::string file_name, std::string journal_dir);
+        region(std::filesystem::path filename);
+        region(std::filesystem::path filename,
+               std::filesystem::path journal_dir);
         std::pair<std::shared_ptr<unsigned char[]>, std::size_t>
         chunk_data(int chunk_x, int chunk_z);
         chunk *get_chunk(int chunk_x, int chunk_z);

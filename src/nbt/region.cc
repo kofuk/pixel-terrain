@@ -2,7 +2,6 @@
    Implementation is based on matcool/anvil-parser. */
 
 #include <algorithm>
-#include <bits/c++config.h>
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
@@ -19,13 +18,14 @@
 #include "utils.hh"
 
 namespace pixel_terrain::anvil {
-    region::region(std::string file_name) {
+    region::region(std::filesystem::path filename) {
         data = std::unique_ptr<file<unsigned char>>(
-            new file<unsigned char>(file_name));
+            new file<unsigned char>(filename));
         len = data->size();
     }
 
-    region::region(std::string filename, std::string journal_dir) {
+    region::region(std::filesystem::path filename,
+                   std::filesystem::path journal_dir) {
         data = std::unique_ptr<file<unsigned char>>(
             new file<unsigned char>(filename));
         len = data->size();

@@ -268,8 +268,16 @@ namespace pixel_terrain::image {
         }
 
         std::filesystem::path path = option_out_dir;
-        path /= (std::to_string(region_x * 2 + off_x) + ',' +
-                 std::to_string(region_z * 2 + off_z) + ".png");
+        {
+            path_string name;
+            name.append(
+                std::filesystem::path(std::to_string(region_x * 2 + off_x)));
+            name.append(PATH_STR_LITERAL(","));
+            name.append(
+                std::filesystem::path(std::to_string(region_z * 2 + off_z)));
+            name.append(PATH_STR_LITERAL(".png"));
+            path /= name;
+        }
 
         png *image = nullptr;
 
@@ -298,7 +306,7 @@ namespace pixel_terrain::image {
                 if (image == nullptr) {
                     if (std::filesystem::exists(path)) {
                         try {
-                            image = new png(path.string());
+                            image = new png(path);
 
                         } catch (std::exception const &) {
                             image = new png(256, 256);
@@ -351,7 +359,7 @@ namespace pixel_terrain::image {
             return;
         }
 
-        image->save(path.string());
+        image->save(path);
         delete image;
 
         if (option_verbose) {

@@ -22,13 +22,15 @@
 #include <unistd.h>
 #endif
 
+#include "../utils/path_hack.hh"
+
 namespace pixel_terrain {
     template <typename T> class file {
         bool mmapped = false;
         std::size_t data_len = 0;
         T *data;
 #ifdef _WIN32
-        std::string filename;
+        path_string filename;
         bool write_mode = false;
 #endif
 
@@ -46,7 +48,7 @@ namespace pixel_terrain {
             do {
                 ifs.read(reinterpret_cast<char *>(buf), sizeof(T) * 1024);
                 if (ifs.gcount() % sizeof(T) != 0) {
-                    throw runtime_error("Corrupted data.");
+                    throw std::runtime_error("Corrupted data.");
                 }
                 d.insert(d.end(), buf, buf + ifs.gcount() / sizeof(T));
             } while (!ifs.eof());
@@ -119,7 +121,7 @@ namespace pixel_terrain {
 
 #ifdef _WIN32
             write_mode = writable;
-            this->filename = filename.string();
+            this->filename = filename;
             std::ifstream ifs(filename, std::ios::binary);
             if (!ifs) {
                 if (writable) {
@@ -130,7 +132,7 @@ namespace pixel_terrain {
                 return;
             }
 
-            vector<T> d;
+            std::vector<T> d;
             T buf[1024];
             do {
                 ifs.read(reinterpret_cast<char *>(buf), sizeof(T) * 1024);

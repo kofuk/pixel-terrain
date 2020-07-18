@@ -27,12 +27,12 @@ namespace pixel_terrain::image {
         std::string debug_string();
     };
 
-    extern std::string option_out_dir;
+    extern std::filesystem::path option_out_dir;
     extern bool option_verbose;
     extern int option_jobs;
     extern bool option_nether;
     extern bool option_generate_range;
-    extern std::string option_journal_dir;
+    extern std::filesystem::path option_journal_dir;
 
     queued_item *fetch_item();
     void queue_item(std::shared_ptr<queued_item> item);

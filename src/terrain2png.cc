@@ -8,15 +8,16 @@
 #include "image/worker.hh"
 #include "utils/logger/logger.hh"
 #include "utils/logger/pretty_printer.hh"
+#include "utils/path_hack.hh"
 #include "version.hh"
 
 namespace pixel_terrain::image {
     namespace {
         void write_range_file(int start_x, int start_z, int end_x, int end_z) {
             std::filesystem::path out_path(option_out_dir);
-            out_path /= "chunk_range.json";
+            out_path /= PATH_STR_LITERAL("chunk_range.json");
 
-            std::ofstream out(out_path.string());
+            std::ofstream out(out_path);
             if (!out) return;
 
             out << "[" << start_x << ", " << start_z << ", " << end_x << ", "
@@ -79,10 +80,9 @@ namespace pixel_terrain::image {
                 anvil::region *r;
                 try {
                     if (option_journal_dir.empty()) {
-                        r = new anvil::region(path.path().string());
+                        r = new anvil::region(path.path());
                     } else {
-                        r = new anvil::region(path.path().string(),
-                                              option_journal_dir);
+                        r = new anvil::region(path.path(), option_journal_dir);
                     }
                 } catch (std::exception const &e) {
                     logger::e("failed to read region: " + path.path().string());
@@ -142,7 +142,7 @@ information and the source code.
 
 int main(int argc, char **argv) {
     pixel_terrain::image::option_jobs = std::thread::hardware_concurrency();
-    pixel_terrain::image::option_out_dir = ".";
+    pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
 
     optlib_parser *parser = optlib_parser_new(argc, argv);
     optlib_parser_add_option(parser, "jobs", 'j', true,

@@ -10,14 +10,16 @@
 #include <optlib/optlib.h>
 
 #include "nbt/region.hh"
+#include "utils/path_hack.hh"
 #include "version.hh"
 
 namespace {
     bool dump_coord(const std::string &filename, const std::string &outfmt,
                     int x, int z) {
         std::filesystem::path p(filename);
-        std::string in_filename = p.filename();
-        if (in_filename.size() > 4 && in_filename.find(".mca") == in_filename.size() - 4) {
+        std::string in_filename = p.filename().string();
+        if (in_filename.size() > 4 &&
+            in_filename.find(".mca") == in_filename.size() - 4) {
             in_filename.erase(in_filename.end() - 4, in_filename.end());
         }
 
@@ -31,7 +33,7 @@ namespace {
             case '1':
                 outname.erase(i, i + 2);
                 outname.insert(i, in_filename.begin(), in_filename.end());
-                i += filename.size();
+                i += in_filename.size();
                 break;
 
             case '2': {
@@ -53,11 +55,13 @@ namespace {
         }
 
         try {
+            std::filesystem::path infile(filename);
             pixel_terrain::anvil::region r =
-                pixel_terrain::anvil::region(filename);
+                pixel_terrain::anvil::region(infile);
             auto [data, len] = r.chunk_data(x, z);
 
-            std::ofstream out(outname, std::ios::binary);
+            std::filesystem::path outfile(outname);
+            std::ofstream out(outfile, std::ios::binary);
             if (!out) {
                 std::cerr << outname << ": unable to open output file\n";
                 return false;
@@ -106,7 +110,7 @@ int main(int argc, char **argv) {
     ::optlib_parser_add_option(p, "version", 'v', false,
                                "Print version then exit.");
 
-    std::string outfmt = "%1+%2+%3.nbt";
+    const char *outfmt = "%1+%2+%3.nbt";
     std::vector<std::pair<int, int>> coords;
 
     for (;;) {

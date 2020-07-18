@@ -44,13 +44,13 @@ namespace pixel_terrain::image {
         threaded_worker<std::shared_ptr<queued_item>> *worker;
     } // namespace
 
-    std::string option_out_dir;
+    std::filesystem::path option_out_dir;
     bool option_verbose;
     int option_jobs;
     bool option_nether;
     bool option_generate_progress;
     bool option_generate_range;
-    std::string option_journal_dir;
+    std::filesystem::path option_journal_dir;
 
     void queue_item(std::shared_ptr<queued_item> item) {
         if (option_verbose) {

@@ -4,6 +4,7 @@
 
 #include "nbt/file.hh"
 #include "nbt/pull_parser/nbt_pull_parser.hh"
+#include "utils/path_hack.hh"
 #include "version.hh"
 
 namespace {
@@ -18,7 +19,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
 )";
     }
 
-    bool handle_file(const std::string &file) {
+    bool handle_file(const std::filesystem::path &file) {
         using namespace pixel_terrain;
 
         pixel_terrain::file<unsigned char> f(file);
@@ -32,7 +33,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
         while (ev != nbt::parser_event::DOCUMENT_END) {
             switch (ev) {
             case nbt::parser_event::DOCUMENT_START:
-                std::cout << "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
+                std::cout << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
                 break;
 
             case nbt::parser_event::TAG_START:
@@ -207,8 +208,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
             try {
                 ev = p.next();
             } catch (const std::exception &e) {
-                std::cerr << "Fatal: Broken NBT data: " << e.what()
-                          << '\n';
+                std::cerr << "Fatal: Broken NBT data: " << e.what() << '\n';
                 return false;
             }
         }

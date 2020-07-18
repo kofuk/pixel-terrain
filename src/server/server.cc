@@ -151,7 +151,7 @@ namespace pixel_terrain::server {
                 return;
             }
 
-            anvil::region *r = new anvil::region(region_file.string());
+            anvil::region *r = new anvil::region(region_file);
             anvil::chunk *chunk = r->get_chunk(chunk_x, chunk_z);
             if (chunk == nullptr) {
                 response().set_response_code(404)->write_to(w);
@@ -237,7 +237,7 @@ namespace pixel_terrain::server {
     void launch_server(bool daemon_mode) {
 #ifdef _WIN32
         if (daemon_mode) {
-            cout << "Warning: Daemon mode has no effect on Windows.\n";
+            std::cout << "Warning: Daemon mode has no effect on Windows.\n";
         }
         server_base *s = new server_generic();
 #else

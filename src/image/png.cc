@@ -8,11 +8,14 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
+#include <iostream>
 #include <stdexcept>
 
 #include <png.h>
 #include <pngconf.h>
 
+#include "../utils/path_hack.hh"
 #include "png.hh"
 
 namespace pixel_terrain::image {
@@ -21,8 +24,8 @@ namespace pixel_terrain::image {
         std::fill(data, data + width * height * 4, 0);
     }
 
-    png::png(std::string filename) {
-        std::FILE *in = fopen(filename.c_str(), "rb");
+    png::png(std::filesystem::path path) {
+        std::FILE *in = FOPEN(path.c_str(), "rb");
         if (in == nullptr) {
             throw std::runtime_error(strerror(errno));
         }
@@ -109,8 +112,8 @@ namespace pixel_terrain::image {
         data[++base_off] = 0;
     }
 
-    bool png::save(std::string filename) {
-        std::FILE *f = fopen(filename.c_str(), "wb");
+    bool png::save(std::filesystem::path path) {
+        std::FILE *f = FOPEN(path.c_str(), "wb");
         if (f == nullptr) {
             return false;
         }
@@ -173,8 +176,8 @@ namespace pixel_terrain::image {
     }
 
     bool png::save() {
-        if (filename.empty()) throw std::logic_error("filename is empty");
+        if (path.empty()) throw std::logic_error("filename is empty");
 
-        return save(filename);
+        return save(path);
     }
 } // namespace pixel_terrain::image

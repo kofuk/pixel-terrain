@@ -7,10 +7,10 @@ namespace pixel_terrain::server {
     reader_generic::reader_generic() {}
 
     long int reader_generic::fill_buffer(char *buf, size_t len, size_t off) {
-        if (cin.bad()) return -1;
+        if (std::cin.bad()) return -1;
 
-        cin.read(buf + off, len - off);
-        return cin.gcount();
+        std::cin.read(buf + off, len - off);
+        return std::cin.gcount();
     }
 
 } // namespace pixel_terrain::server
