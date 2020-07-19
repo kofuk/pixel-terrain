@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,13 +24,19 @@
 #include <exception>
 #include <iostream>
 
+#include <regetopt/regetopt.h>
+
 #include "nbt/file.hh"
 #include "nbt/pull_parser/nbt_pull_parser.hh"
 #include "utils/path_hack.hh"
 #include "version.hh"
 
 namespace {
-    void print_usage() { std::cout << "usage: nbt2xml nbt_file\n"; }
+    void print_usage() {
+        std::cout << R"(usage: nbt2xml [--] FILE
+  --help     Print this usage and exit.
+  --version  Print version and exit.
+)"; }
 
     void print_version() {
         std::cout << "nbt2xml (" PROJECT_NAME " " VERSION_MAJOR
@@ -44,9 +50,15 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
     bool handle_file(const std::filesystem::path &file) {
         using namespace pixel_terrain;
 
-        pixel_terrain::file<unsigned char> f(file);
-        unsigned char *data = f.get_raw_data();
-        size_t size = f.size();
+        pixel_terrain::file<unsigned char> *f;
+        try {
+            f = new pixel_terrain::file<unsigned char>(file);
+        } catch (const std::exception &) {
+            std::cerr << "Fatal: Unable to open input file.\n";
+            return false;
+        }
+        unsigned char *data = f->get_raw_data();
+        size_t size = f->size();
 
         nbt::nbt_pull_parser p(data, size);
         nbt::parser_event ev = p.get_event_type();
@@ -231,25 +243,40 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                 ev = p.next();
             } catch (const std::exception &e) {
                 std::cerr << "Fatal: Broken NBT data: " << e.what() << '\n';
+                delete f;
+
                 return false;
             }
         }
+        delete f;
         return true;
     }
+
+    struct re_option long_options[] = {
+        {"help", re_no_argument, nullptr, 'h'},
+        {"version", re_no_argument, nullptr, 'v'},
+        {0, 0, 0, 0}};
 } // namespace
 
 int main(int argc, char **argv) {
-    if (argc < 2) {
+    for (;;) {
+        int opt = regetopt(argc, argv, "", long_options, nullptr);
+        if (opt < 0) break;
+
+        switch (opt) {
+        case 'h':
+            print_usage();
+            return 0;
+
+        case 'v':
+            print_version();
+            return 0;
+        }
+    }
+    if (argc - re_optind != 1) {
         print_usage();
         return 1;
     }
-    if (!strcmp(argv[1], "--help")) {
-        print_usage();
-        return 0;
-    } else if (!strcmp(argv[1], "--version")) {
-        print_version();
-        return 0;
-    }
 
-    return !handle_file(argv[1]);
+    return !handle_file(argv[re_optind]);
 }

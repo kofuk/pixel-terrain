@@ -19,7 +19,7 @@
 # SOFTWARE.
 
 add_executable(terrain2png terrain2png.cc)
-add_dependencies(terrain2png block_colors_data optlib)
+add_dependencies(terrain2png block_colors_data regetopt)
 if(ZLIB_USE_EXTERNAL_PROJECT)
   add_dependencies(terrain2png zlib)
 endif()
@@ -30,10 +30,11 @@ target_include_directories(terrain2png PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/exte
 target_link_libraries(terrain2png region_parser)
 target_link_libraries(terrain2png logger)
 target_link_libraries(terrain2png image_generator)
+target_link_libraries(terrain2png regetopt)
 install(TARGETS terrain2png DESTINATION bin)
 
 add_executable(blockd blockd.cc)
-add_dependencies(blockd optlib)
+add_dependencies(blockd regetopt)
 if(ZLIB_USE_EXTERNAL_PROJECT)
   add_dependencies(blockd zlib)
 endif()
@@ -41,17 +42,19 @@ target_include_directories(blockd PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/external/
 target_link_libraries(blockd region_parser)
 target_link_libraries(blockd logger)
 target_link_libraries(blockd block_server)
+target_link_libraries(blockd regetopt)
 install(TARGETS blockd DESTINATION bin)
 
 add_executable(nbt2xml nbt2xml.cc)
-target_link_libraries(nbt2xml nbt_pull_parser)
+target_include_directories(nbt2xml PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/external/include)
+target_link_libraries(nbt2xml nbt_pull_parser regetopt)
 install(TARGETS nbt2xml DESTINATION bin)
 
 add_executable(dumpnbt dumpnbt.cc)
-add_dependencies(dumpnbt optlib)
+add_dependencies(dumpnbt regetopt)
 target_include_directories(dumpnbt PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/external/include)
 target_link_libraries(dumpnbt region_parser)
-target_link_libraries(dumpnbt optlib)
+target_link_libraries(dumpnbt regetopt)
 install(TARGETS dumpnbt DESTINATION bin)
 
 add_subdirectory(image)

@@ -20,7 +20,7 @@
 
 add_library(block_server STATIC request.cc server.cc writer_string.cc)
 target_include_directories(block_server PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/external/include)
-target_link_libraries(block_server INTERFACE ${ZLIB_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} optlib)
+target_link_libraries(block_server INTERFACE ${ZLIB_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(block_server PRIVATE logger region_parser)
 
 if(MSVC)

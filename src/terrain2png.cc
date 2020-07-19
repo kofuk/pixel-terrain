@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,7 +23,7 @@
 #include <iostream>
 #include <thread>
 
-#include <optlib/optlib.h>
+#include <regetopt/regetopt.h>
 
 #include "image/blocks.hh"
 #include "image/generator.hh"
@@ -144,10 +144,19 @@ namespace pixel_terrain::image {
 } // namespace pixel_terrain::image
 
 namespace {
-    void print_usage(::optlib_parser *parser) {
-        std::cout << "usage: terrain2png [OPTION]... DIR\n";
-        std::cout << "Load save data in DIR, and generate image." << std::endl;
-        ::optlib_print_help(parser, stdout);
+    void print_usage() {
+        std::cout << R"(usage: terrain2png [OPTION]... [--] DIR
+Load save data in DIR, and generate image.
+
+  -j N, --jobs=N         Execute N jobs concurrently.
+  -U DIR, --journal DIR  Use DIR as cache direcotry.
+  -n, --nether           Use image generator optimized to nether.
+  -o DIR, --out DIR      Save generated images to DIR.
+  -r, --gen-range        Generate JSON file indicates X and Z range block exists.
+  -V, --verbose          Enable verbose log output.
+      --help             Print this usage and exit.
+      --version          Print version and exit.
+)";
     }
 
     void print_version() {
@@ -160,62 +169,45 @@ in Python.  Visit  https://github.com/kofuk/minecraft-image-gemerator  for more
 information and the source code.
 )";
     }
+
+    struct re_option long_options[] = {
+        {"jobs", re_required_argument, nullptr, 'j'},
+        {"journal", re_required_argument, nullptr, 'U'},
+        {"nether", re_no_argument, nullptr, 'n'},
+        {"out", re_required_argument, nullptr, 'o'},
+        {"gen-range", re_no_argument, nullptr, 'r'},
+        {"verbose", re_no_argument, nullptr, 'V'},
+        {"help", re_no_argument, nullptr, 'h'},
+        {"version", re_no_argument, nullptr, 'v'},
+        {0, 0, 0, 0}};
 } // namespace
 
 int main(int argc, char **argv) {
     pixel_terrain::image::option_jobs = std::thread::hardware_concurrency();
     pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
 
-    optlib_parser *parser = optlib_parser_new(argc, argv);
-    optlib_parser_add_option(parser, "jobs", 'j', true,
-                             "Specify max concurrency for image generation.");
-    optlib_parser_add_option(
-        parser, "journal", 'U', true,
-        "Specify cache directory to generate images efficiently.");
-    optlib_parser_add_option(parser, "nether", 'n', false,
-                             "Use image generator optimized to nether.");
-    optlib_parser_add_option(parser, "out", 'o', true,
-                             "Specify image output directory.");
-    optlib_parser_add_option(
-        parser, "gen-range", 'r', false,
-        "Generate JSON file indicates X and Z range block exists.");
-    optlib_parser_add_option(parser, "verbose", 'V', false,
-                             "Output verbose (debug) log.");
-    optlib_parser_add_option(parser, "help", 'h', false,
-                             "Print usage and exit.");
-    optlib_parser_add_option(parser, "version", 'v', false,
-                             "Print version and exit.");
-
     for (;;) {
-        optlib_option *opt = optlib_next(parser);
-        if (parser->finished) {
+        int opt = regetopt(argc, argv, "j:U:no:rV", long_options, nullptr);
+        if (opt<0) {
             break;
         }
-        if (!opt) {
-            optlib_print_help(parser, stdout);
-            optlib_parser_free(parser);
-            exit(1);
-        }
 
-        switch (opt->short_opt) {
+        switch (opt) {
         case 'V':
             pixel_terrain::image::option_verbose = true;
             break;
 
         case 'j':
             try {
-                pixel_terrain::image::option_jobs = std::stoi(opt->argval);
+                pixel_terrain::image::option_jobs = std::stoi(re_optarg);
                 if (pixel_terrain::image::option_jobs <= 0) {
                     throw std::out_of_range("concurrency is negative");
                 }
             } catch (std::invalid_argument const &e) {
                 std::cout << "Invalid concurrency.\n";
-                optlib_print_help(parser, stdout);
-                optlib_parser_free(parser);
                 std::exit(1);
             } catch (std::out_of_range const &e) {
                 std::cout << "Concurrency is out of permitted range.\n";
-                optlib_parser_free(parser);
                 std::exit(1);
             }
             break;
@@ -225,7 +217,7 @@ int main(int argc, char **argv) {
             break;
 
         case 'o':
-            pixel_terrain::image::option_out_dir = opt->argval;
+            pixel_terrain::image::option_out_dir = re_optarg;
             break;
 
         case 'r':
@@ -233,30 +225,27 @@ int main(int argc, char **argv) {
             break;
 
         case 'U':
-            pixel_terrain::image::option_journal_dir = opt->argval;
+            pixel_terrain::image::option_journal_dir = re_optarg;
             break;
 
         case 'h':
-            print_usage(parser);
-            ::optlib_parser_free(parser);
+            print_usage();
             ::exit(0);
 
         case 'v':
             print_version();
-            ::optlib_parser_free(parser);
             ::exit(0);
         }
     }
 
-    if (parser->optind != argc - 1) {
-        optlib_print_help(parser, stdout);
-        optlib_parser_free(parser);
+    if (re_optind != argc - 1) {
+        print_usage();
         std::exit(1);
     }
 
     pixel_terrain::image::init_block_list();
 
-    pixel_terrain::image::generate_all(argv[parser->optind]);
+    pixel_terrain::image::generate_all(argv[re_optind]);
 
     return 0;
 }

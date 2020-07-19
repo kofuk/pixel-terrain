@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,19 +23,21 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <optlib/optlib.h>
+#include <regetopt/regetopt.h>
 
 #include "server/server.hh"
 #include "version.hh"
 
 namespace {
-    void print_usage(optlib_parser *opt) {
-        std::cout << "usage: blockd [OPTIONS...]\n";
+    void print_usage() {
+        std::cout << R"(usage: blockd [OPTIONS...]
+  -d, --daemon             Run block server as daemon.
+  -o DIR, --overworld DIR  Read overworld data from DIR.
+  -n DIR, --nether DIR     Read nether data from DIR.
+  -e DIR, --end DIR        Read end data from DIR.
+          --help           Print this usage and exit.
+          --version        Print version and exit.
 
-        std::cout << "Possible options are:" << std::endl;
-        optlib_print_help(opt, stderr);
-
-        std::cout << R"(
 Help for block info server's protocol and config
 
 PROTOCOL:
@@ -69,71 +71,57 @@ in Python.  Visit  https://github.com/kofuk/minecraft-image-gemerator  for more
 information and the source code.
 )";
     }
+
+    struct re_option long_options[] = {
+        {"daemon", re_no_argument, nullptr, 'd'},
+        {"overworld", re_required_argument, nullptr, 'o'},
+        {"nether", re_required_argument, nullptr, 'n'},
+        {"end", re_required_argument, nullptr, 'e'},
+        {"help", re_no_argument, nullptr, 'h'},
+        {"version", re_no_argument, nullptr, 'v'},
+        {0, 0, 0, 0}};
 } // namespace
 
 int main(int argc, char **argv) {
     bool daemon_mode = false;
 
-    optlib_parser *parser = optlib_parser_new(argc, argv);
-    optlib_parser_add_option(parser, "daemon", 'd', false,
-                             "Run block server as daemon.");
-    optlib_parser_add_option(parser, "overworld", 'o', true,
-                             "Specify data directory for the overworld.");
-    optlib_parser_add_option(parser, "nether", 'n', true,
-                             "Specify data directory for the nether.");
-    optlib_parser_add_option(parser, "end", 'e', true,
-                             "Specify data directory for the end.");
-    optlib_parser_add_option(parser, "help", 'h', false,
-                             "Print this message and exit.");
-    optlib_parser_add_option(parser, "version", 'v', false,
-                             "Print version and exit.");
-
     for (;;) {
-        optlib_option *opt = optlib_next(parser);
-
-        if (parser->finished) {
+        int opt = regetopt(argc, argv, "do:n:e:", long_options, nullptr);
+        if (opt < 0) {
             break;
         }
-        if (!opt) {
-            print_usage(parser);
-            ::exit(1);
-        }
 
-        switch (opt->short_opt) {
+        switch (opt) {
         case 'd':
             daemon_mode = true;
             break;
 
         case 'h':
-            print_usage(parser);
-            ::optlib_parser_free(parser);
+            print_usage();
             ::exit(0);
 
         case 'o':
-            pixel_terrain::server::overworld_dir = opt->argval;
+            pixel_terrain::server::overworld_dir = re_optarg;
             break;
 
         case 'n':
-            pixel_terrain::server::nether_dir = opt->argval;
+            pixel_terrain::server::nether_dir = re_optarg;
             break;
 
         case 'e':
-            pixel_terrain::server::end_dir = opt->argval;
+            pixel_terrain::server::end_dir = re_optarg;
             break;
 
         case 'v':
             print_version();
-            ::optlib_parser_free(parser);
             ::exit(0);
         }
     }
 
-    if (argc - parser->optind == 0) {
-        ::optlib_parser_free(parser);
+    if (argc - re_optind == 0) {
         pixel_terrain::server::launch_server(daemon_mode);
     } else {
-        print_usage(parser);
-        ::optlib_parser_free(parser);
+        print_usage();
         ::exit(1);
     }
 

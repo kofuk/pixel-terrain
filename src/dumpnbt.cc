@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -29,7 +29,7 @@
 #include <utility>
 #include <vector>
 
-#include <optlib/optlib.h>
+#include <regetopt/regetopt.h>
 
 #include "nbt/region.hh"
 #include "utils/path_hack.hh"
@@ -108,79 +108,74 @@ namespace {
         return true;
     }
 
-    void print_usage(::optlib_parser *p) {
-        std::cout << R"(usage: dumpnbt [OPTION]... IN_FILE...)" << std::endl;
-        ::optlib_print_help(p, stdout);
+    void print_usage() {
+        std::cout << R"(usage: dumpnbt [OPTION]... [--] IN_FILE...
+
+  -o DIR, --out DIR        Set output filename format. %1 is replaced by input filename,
+                           %2  and %3 are replaced by chunk x, z coordinate.
+  -s (X,Z), --where (X,Z)  Select chunk. If not specified, dump all chunks.
+     --help                Print this usage and exit.
+     --version             Print version and exit.
+)";
     }
 
     void print_version() {
         std::cout << "dumpnbt (" << PROJECT_NAME << ' ' << VERSION_MAJOR << '.'
                   << VERSION_MINOR << '.' << VERSION_REVISION << ")\n";
     }
+
+    struct re_option long_options[] = {
+        {"out", re_required_argument, nullptr, 'o'},
+        {"where", re_required_argument, nullptr, 's'},
+        {"help", re_no_argument, nullptr, 'h'},
+        {"version", re_no_argument, nullptr, 'v'},
+        {0, 0, 0, 0}};
 } // namespace
 
 int main(int argc, char **argv) {
-    ::optlib_parser *p = ::optlib_parser_new(argc, argv);
-
-    ::optlib_parser_add_option(p, "out", 'o', true,
-                               "Set output format. %1 replaced by input "
-                               "filename, %2 and %3 replaced by chunk x, z.");
-    ::optlib_parser_add_option(p, "only", 'O', true,
-                               "Only dump specified coord (x,z).");
-    ::optlib_parser_add_option(p, "help", 'h', false,
-                               "Print this help then exit.");
-    ::optlib_parser_add_option(p, "version", 'v', false,
-                               "Print version then exit.");
-
     const char *outfmt = "%1+%2+%3.nbt";
     std::vector<std::pair<int, int>> coords;
 
     for (;;) {
-        ::optlib_option *opt = optlib_next(p);
-        if (!opt) {
+        int opt = regetopt(argc, argv, "o:s:", long_options, nullptr);
+        if (opt < 0) {
             break;
         }
-        switch (opt->short_opt) {
+        switch (opt) {
         case 'o':
-            outfmt = opt->argval;
+            outfmt = re_optarg;
             break;
 
         case 'O': {
             int x, z;
-            if (std::sscanf(opt->argval, "( %d , %d )", &x, &z) != 2) {
+            if (std::sscanf(re_optarg, "( %d , %d )", &x, &z) != 2) {
                 std::cout << "Malformed coordinate. (example: \"(1,2)\")";
-                ::optlib_parser_free(p);
                 return 1;
             }
             coords.push_back({x, z});
         } break;
 
         case 'h':
-            print_usage(p);
-            ::optlib_parser_free(p);
+            print_usage();
             return 0;
 
         case 'v':
             print_version();
-            ::optlib_parser_free(p);
             return 0;
 
         default:
-            print_usage(p);
-            ::optlib_parser_free(p);
+            print_usage();
             return 1;
         }
     }
 
-    for (int i = p->optind; i < argc; ++i) {
+    for (int i = re_optind; i < argc; ++i) {
         if (coords.empty()) {
-            dump_all(p->argv[i], outfmt);
+            dump_all(argv[i], outfmt);
         } else {
             for (const std::pair<int, int> &coord : coords) {
-                dump_coord(p->argv[i], outfmt, coord.first, coord.second);
+                dump_coord(argv[i], outfmt, coord.first, coord.second);
             }
         }
     }
-
-    ::optlib_parser_free(p);
 }

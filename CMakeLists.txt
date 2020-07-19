@@ -25,18 +25,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_STANDARD_REQUIRED ON)
 
 include(ExternalProject)
-ExternalProject_Add(optlib_project
-  GIT_REPOSITORY https://github.com/kofuk/optlib.git
-  GIT_TAG 941f5f7
-  TEST_BEFORE_INSTALL YES
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external -DCMAKE_BUILD_TYPE=Release)
-add_library(optlib IMPORTED STATIC)
+ExternalProject_Add(regetopt_project
+  GIT_REPOSITORY https://github.com/kofuk/regetopt.git
+  GIT_TAG v0.0.1
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
+add_library(regetopt IMPORTED STATIC)
 if(MSVC)
-  set_target_properties(optlib PROPERTIES
-    IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/optlib.lib)
+  set_target_properties(regetopt PROPERTIES
+    IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/regetopt_static.lib)
 else()
-  set_target_properties(optlib PROPERTIES
-    IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/liboptlib.a)
+  set_target_properties(regetopt PROPERTIES
+    IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/libregetopt_static.a)
 endif()
 
 include(cmake/require_zlib.cmake)
