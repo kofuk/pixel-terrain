@@ -36,7 +36,8 @@ namespace {
         std::cout << R"(usage: nbt2xml [--] FILE
   --help     Print this usage and exit.
   --version  Print version and exit.
-)"; }
+)";
+    }
 
     void print_version() {
         std::cout << "nbt2xml (" PROJECT_NAME " " VERSION_MAJOR
@@ -271,6 +272,9 @@ int main(int argc, char **argv) {
         case 'v':
             print_version();
             return 0;
+
+        default:
+            return 1;
         }
     }
     if (argc - re_optind != 1) {

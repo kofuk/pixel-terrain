@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
 
     for (;;) {
         int opt = regetopt(argc, argv, "j:U:no:rV", long_options, nullptr);
-        if (opt<0) {
+        if (opt < 0) {
             break;
         }
 
@@ -235,6 +235,9 @@ int main(int argc, char **argv) {
         case 'v':
             print_version();
             ::exit(0);
+
+        default:
+            return 1;
         }
     }
 
