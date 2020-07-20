@@ -48,6 +48,56 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
 )";
     }
 
+    std::string get_tag_name(unsigned char tag_type) {
+        using namespace pixel_terrain;
+        using namespace std::string_literals;
+
+        switch (tag_type) {
+        case nbt::TAG_END:
+            /* should NOT occur. */
+            return "End"s;
+
+        case nbt::TAG_BYTE:
+            return "Byte"s;
+
+        case nbt::TAG_SHORT:
+            return "Short"s;
+
+        case nbt::TAG_INT:
+            return "Int"s;
+
+        case nbt::TAG_LONG:
+            return "Long"s;
+
+        case nbt::TAG_FLOAT:
+            return "Float"s;
+
+        case nbt::TAG_DOUBLE:
+            return "Double"s;
+
+        case nbt::TAG_BYTE_ARRAY:
+            return "ByteArray"s;
+
+        case nbt::TAG_STRING:
+            return "String"s;
+
+        case nbt::TAG_LIST:
+            return "List"s;
+
+        case nbt::TAG_COMPOUND:
+            return "Compound"s;
+
+        case nbt::TAG_INT_ARRAY:
+            return "IntArray"s;
+
+        case nbt::TAG_LONG_ARRAY:
+            return "LongArray"s;
+
+        default:
+            return "unknown"s;
+        }
+    }
+
     bool handle_file(const std::filesystem::path &file) {
         using namespace pixel_terrain;
 
@@ -75,56 +125,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                 for (int i = 0; i < indent; ++i) {
                     std::cout << ' ';
                 }
-                switch (p.get_tag_type()) {
-                case nbt::TAG_BYTE:
-                    std::cout << "<Byte";
-                    break;
-
-                case nbt::TAG_SHORT:
-                    std::cout << "<Short";
-                    break;
-
-                case nbt::TAG_INT:
-                    std::cout << "<Int";
-                    break;
-
-                case nbt::TAG_LONG:
-                    std::cout << "<Long";
-                    break;
-
-                case nbt::TAG_FLOAT:
-                    std::cout << "<Float";
-                    break;
-
-                case nbt::TAG_DOUBLE:
-                    std::cout << "<Double";
-                    break;
-
-                case nbt::TAG_BYTE_ARRAY:
-                    std::cout << "<ByteArray";
-                    break;
-
-                case nbt::TAG_STRING:
-                    std::cout << "<String";
-                    break;
-
-                case nbt::TAG_LIST:
-                    std::cout << "<List";
-                    break;
-
-                case nbt::TAG_INT_ARRAY:
-                    std::cout << "<IntArray";
-                    break;
-
-                case nbt::TAG_LONG_ARRAY:
-                    std::cout << "<LongArray";
-                    break;
-
-                case nbt::TAG_COMPOUND:
-                    std::cout << "<Compound";
-                    break;
-                }
-
+                std::cout << '<' << get_tag_name(p.get_tag_type());
                 if (!p.get_tag_name().empty()) {
                     std::cout << " name=\"" << p.get_tag_name() << "\"";
                 }
@@ -185,56 +186,7 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                 for (int i = 0; i < indent; ++i) {
                     std::cout << ' ';
                 }
-                switch (p.get_tag_type()) {
-                case nbt::TAG_BYTE:
-                    std::cout << "</Byte>";
-                    break;
-
-                case nbt::TAG_SHORT:
-                    std::cout << "</Short>";
-                    break;
-
-                case nbt::TAG_INT:
-                    std::cout << "</Int>";
-                    break;
-
-                case nbt::TAG_LONG:
-                    std::cout << "</Long>";
-                    break;
-
-                case nbt::TAG_FLOAT:
-                    std::cout << "</Float>";
-                    break;
-
-                case nbt::TAG_DOUBLE:
-                    std::cout << "</Double>";
-                    break;
-
-                case nbt::TAG_BYTE_ARRAY:
-                    std::cout << "</ByteArray>";
-                    break;
-
-                case nbt::TAG_STRING:
-                    std::cout << "</String>";
-                    break;
-
-                case nbt::TAG_LIST:
-                    std::cout << "</List>";
-                    break;
-
-                case nbt::TAG_INT_ARRAY:
-                    std::cout << "</IntArray>";
-                    break;
-
-                case nbt::TAG_LONG_ARRAY:
-                    std::cout << "</LongArray>";
-                    break;
-
-                case nbt::TAG_COMPOUND:
-                    std::cout << "</Compound>";
-                    break;
-                }
-                std::cout << '\n';
+                std::cout << "</" << get_tag_name(p.get_tag_type()) << ">\n";
 
             default:
                 break;
