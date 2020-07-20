@@ -127,6 +127,10 @@ namespace pixel_terrain::image {
             }
 
             finish_worker();
+            pretty_printer::finish_progress_bar();
+            if (option_verbose) {
+                std::cerr << "Waiting for worker to finish...";
+            }
             wait_for_worker();
 
             if (option_generate_range) {
