@@ -47,12 +47,12 @@ namespace pixel_terrain::image {
         }
 
         void generate_all(std::string src_dir) {
-            if (!option_journal_dir.empty()) {
+            if (!option_cache_dir.empty()) {
                 try {
-                    std::filesystem::create_directories(option_journal_dir);
+                    std::filesystem::create_directories(option_cache_dir);
                 } catch (std::filesystem::filesystem_error const &e) {
                     using namespace std::literals::string_literals;
-                    logger::e("cannot create journal directory: "s + e.what());
+                    logger::e("cannot create cache directory: "s + e.what());
 
                     exit(1);
                 }
@@ -101,10 +101,10 @@ namespace pixel_terrain::image {
 
                 anvil::region *r;
                 try {
-                    if (option_journal_dir.empty()) {
+                    if (option_cache_dir.empty()) {
                         r = new anvil::region(path.path());
                     } else {
-                        r = new anvil::region(path.path(), option_journal_dir);
+                        r = new anvil::region(path.path(), option_cache_dir);
                     }
                 } catch (std::exception const &e) {
                     logger::e("failed to read region: " + path.path().string());
@@ -148,14 +148,14 @@ namespace {
         std::cout << R"(usage: terrain2png [OPTION]... [--] DIR
 Load save data in DIR, and generate image.
 
-  -j N, --jobs=N         Execute N jobs concurrently.
-  -U DIR, --journal DIR  Use DIR as cache direcotry.
-  -n, --nether           Use image generator optimized to nether.
-  -o DIR, --out DIR      Save generated images to DIR.
-  -r, --gen-range        Generate JSON file indicates X and Z range block exists.
-  -V, --verbose          Enable verbose log output.
-      --help             Print this usage and exit.
-      --version          Print version and exit.
+  -j N, --jobs=N           Execute N jobs concurrently.
+  -c DIR, --cache-dir DIR  Use DIR as cache direcotry.
+  -n, --nether             Use image generator optimized to nether.
+  -o DIR, --out DIR        Save generated images to DIR.
+  -r, --gen-range          Generate JSON file indicates X and Z range block exists.
+  -V, --verbose            Enable verbose log output.
+      --help               Print this usage and exit.
+      --version            Print version and exit.
 )";
     }
 
@@ -172,7 +172,7 @@ information and the source code.
 
     struct re_option long_options[] = {
         {"jobs", re_required_argument, nullptr, 'j'},
-        {"journal", re_required_argument, nullptr, 'U'},
+        {"cache-dir", re_required_argument, nullptr, 'c'},
         {"nether", re_no_argument, nullptr, 'n'},
         {"out", re_required_argument, nullptr, 'o'},
         {"gen-range", re_no_argument, nullptr, 'r'},
@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
     pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
 
     for (;;) {
-        int opt = regetopt(argc, argv, "j:U:no:rV", long_options, nullptr);
+        int opt = regetopt(argc, argv, "j:c:no:rV", long_options, nullptr);
         if (opt < 0) {
             break;
         }
@@ -224,8 +224,8 @@ int main(int argc, char **argv) {
             pixel_terrain::image::option_generate_range = true;
             break;
 
-        case 'U':
-            pixel_terrain::image::option_journal_dir = re_optarg;
+        case 'c':
+            pixel_terrain::image::option_cache_dir = re_optarg;
             break;
 
         case 'h':
