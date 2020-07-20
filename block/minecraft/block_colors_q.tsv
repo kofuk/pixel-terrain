@@ -1,5 +1,6 @@
 block_id	r	g	b	a
 minecraft:quartz_block	ee	ea	e6	ff
+minecraft:quartz_bricks	ee	e6	de	ff
 minecraft:quartz_pillar	ee	ea	e6	ff
 minecraft:quartz_slab	ee	e6	de	ff
 minecraft:quartz_stairs	ee	e6	de	ff

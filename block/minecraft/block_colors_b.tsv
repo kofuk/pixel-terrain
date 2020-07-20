@@ -2,6 +2,7 @@ block_id	r	g	b	a
 minecraft:bamboo	06	7f	17	ff
 minecraft:bamboo_sapling	65	5c	1e	64
 minecraft:barrel	54	3b	21	ff
+minecraft:basalt	3a	3b	48	ff
 minecraft:beacon	61	fa	ef	c8
 minecraft:bedrock	55	55	55	ff
 minecraft:bee_nest	f7	ce	46	ff
@@ -35,6 +36,10 @@ minecraft:black_stained_glass_pane	16	16	16	0a
 minecraft:black_terracotta	1d	0d	04	ff
 minecraft:black_wall_banner	7e	82	81	0a
 minecraft:black_wool	0d	0d	12	ff
+minecraft:blackstone	1f	12	1b	ff
+minecraft:blackstone_slab	1f	12	1b	ff
+minecraft:blackstone_stairs	1f	12	1b	ff
+minecraft:blackstone_wall	1f	12	1b	ff
 minecraft:blast_furnace	57	56	56	ff
 minecraft:blue_banner	7e	82	81	50
 minecraft:blue_bed	3a	4d	a5	ff

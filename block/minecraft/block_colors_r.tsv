@@ -33,4 +33,5 @@ minecraft:redstone_wall_torch	ff	e6	08	64
 minecraft:redstone_wire	ff	00	00	64
 minecraft:repeater	85	04	04	ff
 minecraft:repeating_command_block	55	3b	9b	ff
+minecraft:respawn_anchor	10	0c	1c	ff
 minecraft:rose_bush	bf	25	29	64

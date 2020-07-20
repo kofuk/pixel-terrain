@@ -8,6 +8,7 @@ minecraft:scaffolding	84	58	35	e6
 minecraft:sea_lantern	cb	dd	d6	ff
 minecraft:sea_pickle	38	44	17	78
 minecraft:seagrass	34	96	9b	c8
+minecraft:shroomlight	fe	ac	6d	ff
 minecraft:shulker_box	98	69	98	ff
 minecraft:skeleton_skull	d3	d3	d3	ff
 minecraft:skeleton_wall_skull	d3	d3	d3	ff
@@ -29,7 +30,13 @@ minecraft:smooth_stone_slab	a8	a8	a8	ff
 minecraft:smooth_stone_stairs	a8	a8	a8	ff
 minecraft:snow	e7	f9	f8	ff
 minecraft:snow_block	ef	fa	f9	ff
+minecraft:soul_campfire	25	c6	cd	ff
+minecraft:soul_fire	02	c2	c8	ff
+minecraft:soul_lantern	3e	44	53	c8
 minecraft:soul_sand	46	31	28	ff
+minecraft:soul_soil	49	37	2c	ff
+minecraft:soul_torch	02	c2	c8	64
+minecraft:soul_wall_torch	02	c2	c8	64
 minecraft:spawner	2a	24	35	c8
 minecraft:sponge	96	a8	46	ff
 minecraft:spruce_button	88	65	39	32
@@ -62,6 +69,8 @@ minecraft:stripped_acacia_log	a9	5d	3b	ff
 minecraft:stripped_acacia_wood	a9	5d	3b	ff
 minecraft:stripped_birch_log	c8	b0	76	ff
 minecraft:stripped_birch_wood	c8	b0	76	ff
+minecraft:stripped_crimson_hyphae	89	39	5b	ff
+minecraft:stripped_crimson_stem	89	39	5b	ff
 minecraft:stripped_dark_oak_log	63	4e	32	ff
 minecraft:stripped_dark_oak_wood	63	4e	32	ff
 minecraft:stripped_jungle_log	bb	8d	61	ff
@@ -70,6 +79,8 @@ minecraft:stripped_oak_log	ae	8e	52	ff
 minecraft:stripped_oak_wood	ae	8e	52	ff
 minecraft:stripped_spruce_log	79	5b	37	ff
 minecraft:stripped_spruce_wood	79	5b	37	ff
+minecraft:stripped_warped_hyphae	3b	99	97	ff
+minecraft:stripped_warped_stem	3b	99	97	ff
 minecraft:structure_block	1f	15	20	ff
 minecraft:structure_void	5b	77	7a	64
 minecraft:sugar_cane	00	b4	3a	64
