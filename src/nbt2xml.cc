@@ -33,9 +33,11 @@
 
 namespace {
     void print_usage() {
-        std::cout << R"(usage: nbt2xml [--] FILE
-  --help     Print this usage and exit.
-  --version  Print version and exit.
+        std::cout << R"(usage: nbt2xml [OPTION]... [--] FILE
+  -s STR, --indent STR  Use STR to indent. (default: "  ")
+  -u, --no-prettify     Don't emit indent and new line.
+  --help                Print this usage and exit.
+  --version             Print version and exit.
 )";
     }
 
@@ -47,6 +49,9 @@ Copyright (C) 2020  Koki Fukuda.
 Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
 )";
     }
+
+    std::string indent_str = "  ";
+    bool pretty_print = true;
 
     std::string get_tag_name(unsigned char tag_type) {
         using namespace pixel_terrain;
@@ -118,26 +123,35 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
         while (ev != nbt::parser_event::DOCUMENT_END) {
             switch (ev) {
             case nbt::parser_event::DOCUMENT_START:
-                std::cout << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+                std::cout << "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+                if (pretty_print) std::cout << '\n';
                 break;
 
             case nbt::parser_event::TAG_START:
-                for (int i = 0; i < indent; ++i) {
-                    std::cout << ' ';
+                if (pretty_print) {
+                    for (int i = 0; i < indent; ++i) {
+                        std::cout << indent_str;
+                    }
                 }
                 std::cout << '<' << get_tag_name(p.get_tag_type());
                 if (!p.get_tag_name().empty()) {
                     std::cout << " name=\"" << p.get_tag_name() << "\"";
                 }
-                std::cout << ">\n";
+                std::cout << '>';
+                if (pretty_print) {
+                    std::cout << '\n';
+                }
 
-                indent += 2;
+                ++indent;
                 break;
 
             case nbt::parser_event::DATA:
-                for (int i = 0; i < indent; ++i) {
-                    std::cout << ' ';
+                if (pretty_print) {
+                    for (int i = 0; i < indent; ++i) {
+                        std::cout << indent_str;
+                    }
                 }
+
                 switch (p.get_tag_type()) {
                 case nbt::TAG_BYTE:
                     std::cout << +p.get_byte();
@@ -178,15 +192,22 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
                 case nbt::TAG_LONG_ARRAY:
                     std::cout << "<item>" << p.get_long() << "</item>";
                 }
-                std::cout << '\n';
+
+                if (pretty_print) {
+                    std::cout << '\n';
+                }
                 break;
 
             case nbt::parser_event::TAG_END:
-                indent -= 2;
-                for (int i = 0; i < indent; ++i) {
-                    std::cout << ' ';
+                --indent;
+                if (pretty_print) {
+                    for (int i = 0; i < indent; ++i) {
+                        std::cout << indent_str;
+                    }
                 }
-                std::cout << "</" << get_tag_name(p.get_tag_type()) << ">\n";
+                std::cout << "</" << get_tag_name(p.get_tag_type()) << '>';
+                if (pretty_print) std::cout << '\n';
+                break;
 
             default:
                 break;
@@ -206,6 +227,8 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
     }
 
     struct re_option long_options[] = {
+        {"indent", re_required_argument, nullptr, 's'},
+        {"no-prettify", re_no_argument, nullptr, 'u'},
         {"help", re_no_argument, nullptr, 'h'},
         {"version", re_no_argument, nullptr, 'v'},
         {0, 0, 0, 0}};
@@ -213,10 +236,18 @@ Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
 
 int main(int argc, char **argv) {
     for (;;) {
-        int opt = regetopt(argc, argv, "", long_options, nullptr);
+        int opt = regetopt(argc, argv, "s:u", long_options, nullptr);
         if (opt < 0) break;
 
         switch (opt) {
+        case 's':
+            indent_str = re_optarg;
+            break;
+
+        case 'u':
+            pretty_print = false;
+            break;
+
         case 'h':
             print_usage();
             return 0;
