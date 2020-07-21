@@ -37,8 +37,6 @@
 #include <thread>
 #include <unordered_map>
 
-#include <optlib/optlib.h>
-
 #include "../utils/logger/logger.hh"
 #include "../nbt/region.hh"
 #include "request.hh"

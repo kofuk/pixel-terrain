@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Copyright (c) 2020 Koki Fukuda
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,13 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_library(image_generator STATIC blocks.cc color.cc generator.cc worker.cc png.cc)
-target_include_directories(image_generator PRIVATE SYSTEM ${PNG_INCLUE_DIRS})
-target_include_directories(image_generator PRIVATE ${CMAKE_BINARY_DIR})
-target_link_libraries(image_generator INTERFACE png_static ${CMAKE_THREAD_LIBS_INIT})
-add_dependencies(image_generator block_colors_data)
+cd "$(dirname "${BASH_SOURCE:-$0}")"
 
-add_boost_test(color_test imagegen_color color_test.cc)
-if(TARGET color_test)
-  target_link_libraries(color_test image_generator)
-endif()
+# remove all tarballs
+rm -f *.tar.gz
+
+# remove extracted dirs
+rm -rf libpng regetopt zlib

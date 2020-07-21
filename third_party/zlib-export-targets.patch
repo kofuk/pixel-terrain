@@ -1,0 +1,42 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0fe939d..6ae92ac 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -187,6 +187,8 @@ add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC
+ add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+ set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
+ set_target_properties(zlib PROPERTIES SOVERSION 1)
++set_target_properties(zlib zlibstatic PROPERTIES
++    PUBLIC_HEADER "${ZLIB_PUBLIC_HDRS}" )
+ 
+ if(NOT CYGWIN)
+     # This property causes shared libraries on Linux to have the full version
+@@ -212,12 +214,12 @@ endif()
+ 
+ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
+     install(TARGETS zlib zlibstatic
++        EXPORT zlib
++        PUBLIC_HEADER DESTINATION "${INSTALL_INC_DIR}"
+         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+-endif()
+-if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
+-    install(FILES ${ZLIB_PUBLIC_HDRS} DESTINATION "${INSTALL_INC_DIR}")
++        LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
++        INCLUDES DESTINATION "${INSTALL_INC_DIR}" )
+ endif()
+ if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
+     install(FILES zlib.3 DESTINATION "${INSTALL_MAN_DIR}/man3")
+@@ -225,6 +227,11 @@ endif()
+ if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
+     install(FILES ${ZLIB_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
+ endif()
++if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
++    install(EXPORT zlib
++        FILE zlib-config.cmake
++        DESTINATION share/cmake/zlib)
++endif()
+ 
+ #============================================================================
+ # Example binaries

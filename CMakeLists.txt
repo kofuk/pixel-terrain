@@ -18,29 +18,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+if(NOT PIXEL_TERRAIN_SUPER_BUILDING)
+  message(FATAL_ERROR "Currently, pixel-terrain supports only super build. Generate configuration file from superbuild/CMakeLists.txt.")
+  return()
+endif()
+
 cmake_minimum_required(VERSION 3.15)
 project(pixel-terrain CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_STANDARD_REQUIRED ON)
 
-include(ExternalProject)
-ExternalProject_Add(regetopt_project
-  GIT_REPOSITORY https://github.com/kofuk/regetopt.git
-  GIT_TAG v0.0.1
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/external -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
-add_library(regetopt IMPORTED STATIC)
-if(MSVC)
-  set_target_properties(regetopt PROPERTIES
-    IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/regetopt_static.lib)
-else()
-  set_target_properties(regetopt PROPERTIES
-    IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/external/lib/libregetopt_static.a)
-endif()
-
-include(cmake/require_zlib.cmake)
-include(cmake/require_png.cmake)
 find_package(Threads REQUIRED)
+include(${ZLIB_CONFIG_CMAKE})
+include(${PNG_CONFIG_CMAKE})
+include(${REGETOPT_CONFIG_CMAKE})
 
 include(cmake/test_utils.cmake)
 
@@ -48,18 +40,24 @@ add_custom_target(generate_editor_aux DEPENDS
   ${PROJECT_SOURCE_DIR}/compile_flags.txt
   ${PROJECT_SOURCE_DIR}/src/.dir-locals.el)
 
+get_target_property(ZLIB_INCLUDE_DIRS zlibstatic INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(PNG_INCLUDE_DIRS png_static INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(REGETOPT_INCLUDE_DIRS regetopt_static INTERFACE_INCLUDE_DIRECTORIES)
+set(COMP_INCLUDE_DIRS "${ZLIB_INCLUDE_DIRS};${PNG_INCLUDE_DIRS};${REGETOPT_INCLUDE_DIRS};${CMAKE_BINARY_DIR}")
+unset(REGETOPT_INCLUDE_DIRS)
+unset(PNG_INCLUDE_DIRS)
+unset(ZLIB_INCLUDE_DIRS)
 add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/compile_flags.txt
-  COMMAND tools/editor-aux/editor-aux compile_flags.txt ${PROJECT_SOURCE_DIR}/compile_flags.txt
-  ${CMAKE_SOURCE_DIR}/external/include ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
+  COMMAND tools/editor-aux/editor-aux compile_flags.txt ${PROJECT_SOURCE_DIR}/compile_flags.txt ${COMP_INCLUDE_DIRS}
   DEPENDS editor-aux
   COMMENT "Generating compile_flags.txt"
   VERBATIM)
 add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
-  COMMAND  tools/editor-aux/editor-aux .dir-locals.el ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
-  ${CMAKE_SOURCE_DIR}/external/include ${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
+  COMMAND  tools/editor-aux/editor-aux .dir-locals.el ${PROJECT_SOURCE_DIR}/src/.dir-locals.el ${COMP_INCLUDE_DIRS}
   DEPENDS editor-aux
   COMMENT "Generating src/.dir-locals.el"
   VERBATIM)
+unset(COMP_INCLUDE_DIRS)
 
 add_subdirectory(block)
 add_subdirectory(src)
