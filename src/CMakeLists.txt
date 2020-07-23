@@ -40,7 +40,6 @@ target_link_libraries(nbt2xml nbt_pull_parser regetopt_static)
 install(TARGETS nbt2xml DESTINATION bin)
 
 add_executable(dumpnbt dumpnbt.cc)
-add_dependencies(dumpnbt regetopt)
 target_include_directories(dumpnbt PRIVATE SYSTEM ${PROJECT_SOURCE_DIR}/external/include)
 target_link_libraries(dumpnbt region_parser)
 target_link_libraries(dumpnbt regetopt_static)

@@ -21,7 +21,7 @@
 add_library(image_generator STATIC blocks.cc color.cc generator.cc worker.cc png.cc)
 target_include_directories(image_generator PRIVATE SYSTEM ${PNG_INCLUE_DIRS})
 target_include_directories(image_generator PRIVATE ${CMAKE_BINARY_DIR})
-target_link_libraries(image_generator INTERFACE png_static ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(image_generator PUBLIC png_static ${CMAKE_THREAD_LIBS_INIT})
 add_dependencies(image_generator block_colors_data)
 
 add_boost_test(color_test imagegen_color color_test.cc)
