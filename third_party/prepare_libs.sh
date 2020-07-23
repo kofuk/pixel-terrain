@@ -23,7 +23,7 @@
 download_urls=(
     'http://zlib.net/zlib-1.2.11.tar.gz'
     'http://prdownloads.sourceforge.net/libpng/libpng-1.6.37.tar.gz?download'
-    'https://github.com/kofuk/regetopt/archive/v0.0.2.tar.gz'
+    'https://github.com/kofuk/regetopt/archive/v0.0.3.tar.gz'
 )
 archive_checksums=(
     'c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1'
@@ -33,7 +33,7 @@ archive_checksums=(
 extracted_dir_names=(
     'zlib-1.2.11'
     'libpng-1.6.37'
-    'regetopt-0.0.2'
+    'regetopt-0.0.3'
 )
 extract_dests=(
     'zlib'
