@@ -20,26 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-download_urls=(
-    'http://zlib.net/zlib-1.2.11.tar.gz'
-    'http://prdownloads.sourceforge.net/libpng/libpng-1.6.37.tar.gz?download'
-    'https://github.com/kofuk/regetopt/archive/v0.0.3.tar.gz'
-)
-archive_checksums=(
-    'c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1'
-    'daeb2620d829575513e35fecc83f0d3791a620b9b93d800b763542ece9390fb4'
-    'SKIP'
-)
-extracted_dir_names=(
-    'zlib-1.2.11'
-    'libpng-1.6.37'
-    'regetopt-0.0.3'
-)
-extract_dests=(
-    'zlib'
-    'libpng'
-    'regetopt'
-)
+cd "$(dirname "${BASH_SOURCE:-$0}")"
+
+. ./dep
 
 if ! command -v curl &>/dev/null || ! command -v tar &>/dev/null || \
         ! command -v  sha256sum &>/dev/null || ! command -v patch &>/dev/null; then
@@ -47,8 +30,6 @@ if ! command -v curl &>/dev/null || ! command -v tar &>/dev/null || \
     echo '	curl  tar  sha256sum  patch'
     exit 1
 fi
-
-cd "$(dirname "${BASH_SOURCE:-$0}")"
 
 for ((i=0; i<3; ++i)); do
     curl -Lo "${extract_dests[i]}.tar.gz" "${download_urls[i]}"
