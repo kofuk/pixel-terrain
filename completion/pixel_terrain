@@ -1,0 +1,100 @@
+# Bash completion for terrain2png         -*- shell-script -*-
+
+# Copyright (c) 2020 Koki Fukuda
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+_blockd() {
+    local options=(-d --daemon -o --overworld{=,} -n --nether{=,}
+                   -e --end{=,} --help --version)
+    local cur="${COMP_WORDS[$COMP_CWORD]}"
+    local prev="${COMP_WORDS[$COMP_CWORD-1]}"
+    case "$prev" in
+        -d|--daemon|-o|--overworld|-n|--nether|-e|--end)
+            COMPREPLY=($(compgen -A directory -- "$cur"))
+            return
+            ;;
+        *)
+            COMPREPLY=($(compgen -W "${options[*]}" -- "$cur"))
+            return
+            ;;
+    esac
+}
+complete -F _blockd blockd
+
+_dumpnbt() {
+    local options=(-o --out{=,} -s --where{=,} --help --version)
+    local cur="${COMP_WORDS[$COMP_CWORD]}"
+    local prev="${COMP_WORDS[$COMP_CWORD-1]}"
+    case "$prev" in
+        -o|--out)
+            COMPREPLY=($(compgen -A directory -- "$cur"))
+            return
+            ;;
+        -s|--where)
+            COMPREPLY=($(compgen -W "$(echo '('{0..31}','{0..31}')')" -- "$cur"))
+            return
+            ;;
+        *)
+            COMPREPLY=($(compgen -A file -W "${options[*]}" -- "$cur"))
+            return
+            ;;
+    esac
+}
+complete -F _dumpnbt dumpnbt
+
+_nbt2xml() {
+    local options=(-s --indent{=,} -u --no-pretty --help --version)
+    local cur="${COMP_WORDS[$COMP_CWORD]}"
+    local prev="${COMP_WORDS[$COMP_CWORD-1]}"
+    case "$prev" in
+        -s|--indent)
+            COMPREPLY=()
+            return
+            ;;
+        *)
+            COMPREPLY=($(compgen -A file -W "${options[*]}" -- "$cur"))
+            return
+            ;;
+    esac
+}
+complete -F _nbt2xml nbt2xml
+
+_terrain2png() {
+    local options=(-j --jobs{=,} -c --cache-dir{=,} -n --nether -o --out{=,}
+                   -r --gen-range -V --verbose --help --version)
+
+    local cur="${COMP_WORDS[$COMP_CWORD]}"
+    local prev="${COMP_WORDS[$COMP_CWORD-1]}"
+    case "$prev" in
+        -j|--jobs)
+            COMPREPLY=($(compgen -W "$(seq $(nproc))" -- "$cur"))
+            return
+            ;;
+        -c|--cache-dir|-o|--out)
+            COMPREPLY=($(compgen -A directory -- "$cur"))
+            return
+            ;;
+        *)
+            COMPREPLY=($(compgen -A directory -W "${options[*]}" -- "$cur"))
+            return
+            ;;
+    esac
+}
+complete -F _terrain2png terrain2png

@@ -71,6 +71,10 @@ add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
   VERBATIM)
 unset(COMP_INCLUDE_DIRS)
 
+if(UNIX)
+  install(FILES completion/pixel_terrain DESTINATION share/bash_completion/completions)
+endif()
+
 add_subdirectory(block)
 add_subdirectory(src)
 add_subdirectory(tools)
