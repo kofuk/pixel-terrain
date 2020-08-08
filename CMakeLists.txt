@@ -48,6 +48,11 @@ set(REGETOPT_MOD_NAME regetopt_static)
 
 include(cmake/test_utils.cmake)
 
+if(${CMAKE_BUILD_TYPE} MATCHES Debug AND NOT MSVC)
+  add_compile_options(-fsanitize=address -fsanitize=leak)
+  add_link_options(-fsanitize=address -fsanitize=leak)
+endif()
+
 add_custom_target(generate_editor_aux DEPENDS
   ${PROJECT_SOURCE_DIR}/compile_flags.txt
   ${PROJECT_SOURCE_DIR}/src/.dir-locals.el)

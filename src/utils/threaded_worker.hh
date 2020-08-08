@@ -202,6 +202,7 @@ namespace pixel_terrain {
                 if (t->joinable()) {
                     t->join();
                 }
+                delete t;
             }
 
             waited = true;
