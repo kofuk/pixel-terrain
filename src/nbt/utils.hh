@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <memory>
 #include <utility>
 
@@ -71,33 +72,43 @@ namespace pixel_terrain::nbt::utils {
 
     [[maybe_unused]] static inline std::uint64_t
     to_host_byte_order(std::uint64_t src) {
-        reorder_8((unsigned char *)&src);
+        unsigned char as_bytes[8];
+        reorder_8((unsigned char *)std::memcpy(as_bytes, &src, 8));
+        std::memcpy(&src, as_bytes, 8);
 
         return src;
     }
 
     [[maybe_unused]] static inline std::int32_t
     to_host_byte_order(std::int32_t src) {
-        reorder_4((unsigned char *)&src);
+        unsigned char as_bytes[4];
+        reorder_4((unsigned char *)std::memcpy(as_bytes, &src, 4));
+        std::memcpy(&src, as_bytes, 4);
 
         return src;
     }
 
     [[maybe_unused]] static inline std::int16_t
     to_host_byte_order(std::int16_t src) {
-        reorder_2((unsigned char *)&src);
+        unsigned char as_bytes[2];
+        reorder_2((unsigned char *)std::memcpy(as_bytes, &src, 2));
+        std::memcpy(&src, as_bytes, 2);
 
         return src;
     }
 
     [[maybe_unused]] static inline double to_host_byte_order(double src) {
-        reorder_8((unsigned char *)&src);
+        unsigned char as_bytes[8];
+        reorder_8((unsigned char *)std::memcpy(as_bytes, &src, 8));
+        std::memcpy(&src, as_bytes, 8);
 
         return src;
     }
 
     [[maybe_unused]] static inline float to_host_byte_order(float src) {
-        reorder_4((unsigned char *)&src);
+        unsigned char as_bytes[4];
+        reorder_4((unsigned char *)std::memcpy(as_bytes, &src, 4));
+        std::memcpy(&src, as_bytes, 4);
 
         return src;
     }
