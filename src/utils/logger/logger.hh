@@ -29,6 +29,9 @@ namespace pixel_terrain::logger {
     void d(std::string message);
     void e(std::string message);
     void i(std::string message);
+
+    void record_stat(bool regenerated);
+    void show_stat();
 } // namespace pixel_terrain::logger
 
 #endif

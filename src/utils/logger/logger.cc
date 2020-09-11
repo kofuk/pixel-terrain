@@ -30,6 +30,9 @@
 namespace pixel_terrain::logger {
     namespace {
         std::mutex m;
+
+        std::size_t generated;
+        std::size_t reused;
     }
 
     void d(std::string message) {
@@ -45,5 +48,19 @@ namespace pixel_terrain::logger {
     void i(std::string message) {
         std::unique_lock<std::mutex> lock(m);
         std::cout << message << '\n';
+    }
+
+    void record_stat(bool regenerated) {
+        std::unique_lock<std::mutex> lock(m);
+
+        if (regenerated) ++generated;
+        else ++reused;
+    }
+
+    void show_stat() {
+        std::cout << "Statistics:\n";
+        std::cout << "  Chunks generated: " << generated << '\n';
+        std::cout << "  Chunks reused:    " << reused << '\n';
+        std::cout << "  % reused:         " << (reused * 100) / (generated + reused) << '\n';
     }
 } // namespace pixel_terrain::logger

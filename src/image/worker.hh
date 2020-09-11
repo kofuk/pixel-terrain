@@ -54,6 +54,7 @@ namespace pixel_terrain::image {
     extern int option_jobs;
     extern bool option_nether;
     extern bool option_generate_range;
+    extern bool option_show_stat;
     extern std::filesystem::path option_cache_dir;
 
     queued_item *fetch_item();

@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -116,6 +116,11 @@ namespace pixel_terrain::anvil {
 
         chunk *cur_chunk = new chunk(data, len);
         return cur_chunk;
+    }
+
+    bool region::exists_chunk_data(int chunk_x, int chunk_z) {
+        return !chunk_location_off(chunk_x, chunk_z) &&
+               !chunk_location_sectors(chunk_x, chunk_z);
     }
 
     chunk *region::get_chunk_if_dirty(int chunk_x, int chunk_z) {

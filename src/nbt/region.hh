@@ -51,6 +51,7 @@ namespace pixel_terrain::anvil {
         chunk_data(int chunk_x, int chunk_z);
         chunk *get_chunk(int chunk_x, int chunk_z);
         chunk *get_chunk_if_dirty(int chunk_x, int chunk_z);
+        bool exists_chunk_data(int chunk_x, int chunk_z);
     };
 } // namespace pixel_terrain::anvil
 

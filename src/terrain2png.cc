@@ -143,6 +143,10 @@ namespace pixel_terrain::image {
                 max_z *= 2;
                 write_range_file(min_x, min_z, max_x, max_z);
             }
+
+            if (option_show_stat) {
+                logger::show_stat();
+            }
         }
     } // namespace
 } // namespace pixel_terrain::image
@@ -157,6 +161,7 @@ Load save data in DIR, and generate image.
   -n, --nether             Use image generator optimized to nether.
   -o DIR, --out DIR        Save generated images to DIR.
   -r, --gen-range          Generate JSON file indicates X and Z range block exists.
+  -s, --statistics         Show statistics about generation.
   -V, --verbose            Enable verbose log output.
       --help               Print this usage and exit.
       --version            Print version and exit.
@@ -180,6 +185,7 @@ information and the source code.
         {"nether", re_no_argument, nullptr, 'n'},
         {"out", re_required_argument, nullptr, 'o'},
         {"gen-range", re_no_argument, nullptr, 'r'},
+        {"statistics", re_no_argument, nullptr, 's'},
         {"verbose", re_no_argument, nullptr, 'V'},
         {"help", re_no_argument, nullptr, 'h'},
         {"version", re_no_argument, nullptr, 'v'},
@@ -191,7 +197,7 @@ int main(int argc, char **argv) {
     pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
 
     for (;;) {
-        int opt = regetopt(argc, argv, "j:c:no:rV", long_options, nullptr);
+        int opt = regetopt(argc, argv, "j:c:no:rsV", long_options, nullptr);
         if (opt < 0) {
             break;
         }
@@ -226,6 +232,10 @@ int main(int argc, char **argv) {
 
         case 'r':
             pixel_terrain::image::option_generate_range = true;
+            break;
+
+        case 's':
+            pixel_terrain::image::option_show_stat = true;
             break;
 
         case 'c':

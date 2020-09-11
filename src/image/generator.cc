@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -312,6 +312,13 @@ namespace pixel_terrain::image {
                 anvil::chunk *chunk;
 
                 try {
+                    /* Avoid nonexisting chunk to be recorded as reused chunk.
+                     */
+                    if (region->exists_chunk_data(off_x * 16 + chunk_x,
+                                                  off_z * 16 + chunk_z)) {
+                        continue;
+                    }
+
                     chunk = region->get_chunk_if_dirty(off_x * 16 + chunk_x,
                                                        off_z * 16 + chunk_z);
                 } catch (std::exception const &e) {
@@ -322,6 +329,7 @@ namespace pixel_terrain::image {
                 }
 
                 if (chunk == nullptr) {
+                    logger::record_stat(false);
                     continue;
                 }
 
@@ -338,6 +346,7 @@ namespace pixel_terrain::image {
                     }
                 }
 
+                logger::record_stat(true);
                 generate_chunk(chunk, chunk_x, chunk_z, *image);
 
                 delete chunk;
@@ -350,6 +359,12 @@ namespace pixel_terrain::image {
                     for (int t_chunk_z = chunk_z + 1; t_chunk_z < chunk_z + 4;
                          ++t_chunk_z) {
                         try {
+                            if (region->exists_chunk_data(
+                                    off_x * 16 + t_chunk_x,
+                                    off_z * 16 + t_chunk_z)) {
+                                continue;
+                            }
+
                             chunk = region->get_chunk_if_dirty(
                                 off_x * 16 + t_chunk_x, off_z * 16 + t_chunk_z);
                         } catch (std::exception const &e) {
@@ -363,6 +378,7 @@ namespace pixel_terrain::image {
                             continue;
                         }
 
+                        logger::record_stat(true);
                         generate_chunk(chunk, t_chunk_x, t_chunk_z, *image);
 
                         delete chunk;

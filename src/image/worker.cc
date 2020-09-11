@@ -72,6 +72,7 @@ namespace pixel_terrain::image {
     bool option_nether;
     bool option_generate_progress;
     bool option_generate_range;
+    bool option_show_stat;
     std::filesystem::path option_cache_dir;
 
     void queue_item(std::shared_ptr<queued_item> item) {
