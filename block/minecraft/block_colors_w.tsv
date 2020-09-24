@@ -1,6 +1,7 @@
 block_id	r	g	b	a
 minecraft:wall_torch	ff	e8	0a	64
 minecraft:warped_button	39	83	82	ff
+minecraft:warped_fence_gate	39	83	82	96
 minecraft:warped_fungus	14	b4	85	10
 minecraft:warped_hyphae	45	2d	5c	ff
 minecraft:warped_nylium	16	7e	86	ff
