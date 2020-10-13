@@ -40,11 +40,8 @@ namespace pixel_terrain::image {
 
     struct queued_item {
         std::shared_ptr<region_container> region;
-        int off_x;
-        int off_z;
 
-        queued_item(std::shared_ptr<region_container> region, int off_x,
-                    int off_z);
+        queued_item(std::shared_ptr<region_container> region);
 
         std::string debug_string();
     };

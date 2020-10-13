@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -48,18 +48,16 @@ namespace pixel_terrain::image {
 
     region_container::~region_container() { delete region; }
 
-    queued_item::queued_item(std::shared_ptr<region_container> region,
-                             int off_x, int off_z)
-        : region(move(region)), off_x(off_x), off_z(off_z) {}
+    queued_item::queued_item(std::shared_ptr<region_container> region)
+        : region(move(region)) {}
 
     std::string queued_item::debug_string() {
         if (region == nullptr) {
             return "(finishing job)";
         }
 
-        return "(" + std::to_string(region->rx) + "+" + std::to_string(off_x) +
-               ", " + std::to_string(region->rz) + "+" + std::to_string(off_z) +
-               ")";
+        return "(" + std::to_string(region->rx) + ", " +
+               std::to_string(region->rz) + ")";
     }
 
     namespace {

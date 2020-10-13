@@ -179,7 +179,7 @@ namespace pixel_terrain::image {
             rows[i] = data + i * width * 4;
         }
 
-        png_write_rows(png, rows, 256);
+        png_write_rows(png, rows, width);
 
         delete[] rows;
 

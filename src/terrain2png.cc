@@ -115,13 +115,7 @@ namespace pixel_terrain::image {
 
                 std::shared_ptr<region_container> rc(
                     new region_container(r, x, z));
-
-                for (int off_x = 0; off_x < 2; ++off_x) {
-                    for (int off_z = 0; off_z < 2; ++off_z) {
-                        queue_item(std::shared_ptr<queued_item>(
-                            new queued_item(rc, off_x, off_z)));
-                    }
-                }
+                queue_item(std::shared_ptr<queued_item>(new queued_item(rc)));
 
                 pretty_printer::increment_progress_bar();
             }

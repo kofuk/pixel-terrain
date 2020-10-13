@@ -60,20 +60,20 @@ namespace pixel_terrain::image {
         constexpr std::int32_t PS_BIOME_OVERRIDDEN = 1 << 1;
 
         inline PixelState &get_pixel_state(
-            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_state,
+            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_state,
             int x, int y) {
-            return (*pixel_state)[y * 256 + x];
+            return (*pixel_state)[y * 512 + x];
         }
 
-        std::shared_ptr<std::array<PixelState, 256 * 256>>
+        std::shared_ptr<std::array<PixelState, 512 * 512>>
         scan_chunk(anvil::chunk *chunk) {
             int max_y = chunk->get_max_height();
             if (option_nether) {
                 if (max_y > 127) max_y = 127;
             }
 
-            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states(
-                new std::array<PixelState, 256 * 256>);
+            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states(
+                new std::array<PixelState, 512 * 512>);
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
                     bool air_found = false;
@@ -168,7 +168,7 @@ namespace pixel_terrain::image {
         }
 
         void handle_biomes(
-            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states) {
+            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states) {
             /* process biome color overrides */
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
@@ -196,7 +196,7 @@ namespace pixel_terrain::image {
         }
 
         void handle_inclination(
-            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states) {
+            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 1; x < 16; ++x) {
                     PixelState &left = get_pixel_state(pixel_states, x - 1, z);
@@ -240,14 +240,14 @@ namespace pixel_terrain::image {
         }
 
         void process_pipeline(
-            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states) {
+            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states) {
             handle_biomes(pixel_states);
             handle_inclination(pixel_states);
         }
 
         void generate_image(
             int chunk_x, int chunk_z,
-            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states,
+            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states,
             png &image) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
@@ -271,7 +271,7 @@ namespace pixel_terrain::image {
 
         void generate_chunk(anvil::chunk *chunk, int chunk_x, int chunk_z,
                             png &image) {
-            std::shared_ptr<std::array<PixelState, 256 * 256>> pixel_states =
+            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states =
                 scan_chunk(chunk);
             process_pipeline(pixel_states);
             generate_image(chunk_x, chunk_z, pixel_states, image);
@@ -282,8 +282,6 @@ namespace pixel_terrain::image {
         anvil::region *region = item->region->region;
         int region_x = item->region->rx;
         int region_z = item->region->rz;
-        int off_x = item->off_x;
-        int off_z = item->off_z;
 
         if (option_verbose) {
             logger::d("generating " + item->debug_string() + " ...");
@@ -292,11 +290,9 @@ namespace pixel_terrain::image {
         std::filesystem::path path = option_out_dir;
         {
             path_string name;
-            name.append(
-                std::filesystem::path(std::to_string(region_x * 2 + off_x)));
+            name.append(std::filesystem::path(std::to_string(region_x)));
             name.append(PATH_STR_LITERAL(","));
-            name.append(
-                std::filesystem::path(std::to_string(region_z * 2 + off_z)));
+            name.append(std::filesystem::path(std::to_string(region_z)));
             name.append(PATH_STR_LITERAL(".png"));
             path /= name;
         }
@@ -306,21 +302,19 @@ namespace pixel_terrain::image {
         /* minumum range of chunk update is radius of 3, so we can capture
            all updated chunk with step of 6. but, we set this 4 since
            4 can divide 16, our image (chunk) width. */
-        for (int chunk_z = 0; chunk_z < 16; chunk_z += 4) {
+        for (int chunk_z = 0; chunk_z < 32; chunk_z += 4) {
             int prev_chunk_x = -1;
-            for (int chunk_x = 0; chunk_x < 16; ++chunk_x) {
+            for (int chunk_x = 0; chunk_x < 32; ++chunk_x) {
                 anvil::chunk *chunk;
 
                 try {
                     /* Avoid nonexisting chunk to be recorded as reused chunk.
                      */
-                    if (region->exists_chunk_data(off_x * 16 + chunk_x,
-                                                  off_z * 16 + chunk_z)) {
+                    if (region->exists_chunk_data(chunk_x, chunk_z)) {
                         continue;
                     }
 
-                    chunk = region->get_chunk_if_dirty(off_x * 16 + chunk_x,
-                                                       off_z * 16 + chunk_z);
+                    chunk = region->get_chunk_if_dirty(chunk_x, chunk_z);
                 } catch (std::exception const &e) {
                     logger::e("Warning: parse error in " +
                               item->debug_string());
@@ -339,10 +333,10 @@ namespace pixel_terrain::image {
                             image = new png(path);
 
                         } catch (std::exception const &) {
-                            image = new png(256, 256);
+                            image = new png(512, 512);
                         }
                     } else {
-                        image = new png(256, 256);
+                        image = new png(512, 512);
                     }
                 }
 
@@ -353,20 +347,19 @@ namespace pixel_terrain::image {
 
                 int start_x =
                     chunk_x - 3 > prev_chunk_x ? chunk_x - 3 : prev_chunk_x + 1;
-                int end_x = chunk_x + 4 > 16 ? 16 : chunk_x + 4;
+                int end_x = chunk_x + 4 > 32 ? 32 : chunk_x + 4;
 
                 for (int t_chunk_x = start_x; t_chunk_x < end_x; ++t_chunk_x) {
                     for (int t_chunk_z = chunk_z + 1; t_chunk_z < chunk_z + 4;
                          ++t_chunk_z) {
                         try {
-                            if (region->exists_chunk_data(
-                                    off_x * 16 + t_chunk_x,
-                                    off_z * 16 + t_chunk_z)) {
+                            if (region->exists_chunk_data(t_chunk_x,
+                                                          t_chunk_z)) {
                                 continue;
                             }
 
-                            chunk = region->get_chunk_if_dirty(
-                                off_x * 16 + t_chunk_x, off_z * 16 + t_chunk_z);
+                            chunk = region->get_chunk_if_dirty(t_chunk_x,
+                                                               t_chunk_z);
                         } catch (std::exception const &e) {
                             logger::e("Warning: parse error in " +
                                       item->debug_string());
