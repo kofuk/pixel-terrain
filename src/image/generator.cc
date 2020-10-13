@@ -34,9 +34,33 @@
 #include "color.hh"
 #include "generator.hh"
 #include "png.hh"
-#include "worker.hh"
 
 namespace pixel_terrain::image {
+    std::filesystem::path option_out_dir;
+    bool option_verbose;
+    bool option_nether;
+    bool option_generate_progress;
+    bool option_generate_range;
+    bool option_show_stat;
+    std::filesystem::path option_cache_dir;
+
+    region_container::region_container(anvil::region *region, int rx, int rz)
+        : region(region), rx(rx), rz(rz) {}
+
+    region_container::~region_container() { delete region; }
+
+    queued_item::queued_item(std::shared_ptr<region_container> region)
+        : region(move(region)) {}
+
+    std::string queued_item::debug_string() {
+        if (region == nullptr) {
+            return "(finishing job)";
+        }
+
+        return "(" + std::to_string(region->rx) + ", " +
+               std::to_string(region->rz) + ")";
+    }
+
     struct PixelState {
         std::uint_fast32_t flags;
         std::uint_fast8_t top_height;
@@ -278,7 +302,7 @@ namespace pixel_terrain::image {
         }
     } // namespace
 
-    void generate_256(std::shared_ptr<queued_item> item) {
+    void generate_region(std::shared_ptr<queued_item> item) {
         anvil::region *region = item->region->region;
         int region_x = item->region->rx;
         int region_z = item->region->rz;

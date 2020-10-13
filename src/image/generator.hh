@@ -24,12 +24,37 @@
 #define GENERATOR_HH
 
 #include <memory>
+#include <filesystem>
 
-#include "worker.hh"
+#include "../nbt/region.hh"
 
 namespace pixel_terrain::image {
-    /* generates 256x256 image */
-    void generate_256(std::shared_ptr<queued_item> item);
+    struct region_container {
+        anvil::region *region;
+        int rx;
+        int rz;
+
+        region_container(anvil::region *region, int rx, int rz);
+        ~region_container();
+    };
+
+    struct queued_item {
+        std::shared_ptr<region_container> region;
+
+        queued_item(std::shared_ptr<region_container> region);
+
+        std::string debug_string();
+    };
+
+    void generate_region(std::shared_ptr<queued_item> item);
+
+    extern std::filesystem::path option_out_dir;
+    extern bool option_verbose;
+    extern bool option_nether;
+    extern bool option_generate_range;
+    extern bool option_show_stat;
+    extern std::filesystem::path option_cache_dir;
+
 } // namespace pixel_terrain::image
 
 #endif

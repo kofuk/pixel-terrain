@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_library(image_generator STATIC blocks.cc color.cc generator.cc worker.cc png.cc)
+add_library(image_generator STATIC blocks.cc color.cc generator.cc png.cc)
 target_include_directories(image_generator PRIVATE SYSTEM ${PNG_INCLUE_DIRS})
 target_include_directories(image_generator PRIVATE ${CMAKE_BINARY_DIR})
 target_link_libraries(image_generator PUBLIC ${PNG_MOD_NAME} ${CMAKE_THREAD_LIBS_INIT})
