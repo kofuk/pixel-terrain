@@ -33,8 +33,8 @@
 
 namespace pixel_terrain::image {
     class png {
-        int width;
-        int height;
+        unsigned int width;
+        unsigned int height;
         std::filesystem::path path;
         ::png_bytep data;
 
@@ -45,6 +45,7 @@ namespace pixel_terrain::image {
 
         int get_width();
         int get_height();
+        void fit(unsigned int width, unsigned int height);
         void set_pixel(int x, int y, std::uint_fast32_t color);
         std::uint_fast32_t get_pixel(int x, int y);
         void clear(int x, int y);

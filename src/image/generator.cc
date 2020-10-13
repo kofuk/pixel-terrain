@@ -331,6 +331,7 @@ namespace pixel_terrain::image {
                     if (std::filesystem::exists(path)) {
                         try {
                             image = new png(path);
+                            image->fit(512, 512);
 
                         } catch (std::exception const &) {
                             image = new png(512, 512);

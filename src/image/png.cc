@@ -102,6 +102,25 @@ namespace pixel_terrain::image {
 
     png::~png() { delete[] data; }
 
+    void png::fit(unsigned int width, unsigned int height) {
+        ::png_bytep new_data = new ::png_byte[width * height * 4];
+        std::fill(new_data, new_data + width * height * 4, 0);
+        for (int x = 0, x_end = std::min(this->width, width); x < x_end; ++x) {
+            for (int y = 0, y_end = std::min(this->width, width); y < y_end; ++y) {
+                std::cout << x << ',' << y << '\n';
+                unsigned int from_base = (y * this->width + x) * 4;
+                unsigned int to_base = (y * width + x) * 4;
+                for (int i = 0; i < 4; ++i) {
+                    new_data[to_base + i] = this->data[from_base + i];
+                }
+            }
+        }
+        this->width = width;
+        this->height = height;
+        delete[] data;
+        data = new_data;
+    }
+
     void png::set_pixel(int x, int y, std::uint_fast32_t color) {
         int base_off = (y * width + x) * 4;
         data[base_off] = (color >> 24) & 0xff;
