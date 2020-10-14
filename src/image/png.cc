@@ -107,7 +107,6 @@ namespace pixel_terrain::image {
         std::fill(new_data, new_data + width * height * 4, 0);
         for (int x = 0, x_end = std::min(this->width, width); x < x_end; ++x) {
             for (int y = 0, y_end = std::min(this->width, width); y < y_end; ++y) {
-                std::cout << x << ',' << y << '\n';
                 unsigned int from_base = (y * this->width + x) * 4;
                 unsigned int to_base = (y * width + x) * 4;
                 for (int i = 0; i < 4; ++i) {
