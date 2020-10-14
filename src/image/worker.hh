@@ -20,16 +20,45 @@
  * SOFTWARE.
  */
 
-#ifndef GENERATOR_HH
-#define GENERATOR_HH
+#ifndef WORKER_HH
+#define WORKER_HH
 
-#include <memory>
+#include <mutex>
+#include <utility>
 
-#include "worker.hh"
+#include "../nbt/region.hh"
 
 namespace pixel_terrain::image {
-    /* generates 256x256 image */
-    void generate_256(std::shared_ptr<queued_item> item);
+    struct region_container {
+        anvil::region *region;
+        int rx;
+        int rz;
+
+        region_container(anvil::region *region, int rx, int rz);
+        ~region_container();
+    };
+
+    struct queued_item {
+        std::shared_ptr<region_container> region;
+
+        queued_item(std::shared_ptr<region_container> region);
+
+        std::string debug_string();
+    };
+
+    extern std::filesystem::path option_out_dir;
+    extern bool option_verbose;
+    extern int option_jobs;
+    extern bool option_nether;
+    extern bool option_generate_range;
+    extern bool option_show_stat;
+    extern std::filesystem::path option_cache_dir;
+
+    queued_item *fetch_item();
+    void queue_item(std::shared_ptr<queued_item> item);
+    void start_worker();
+    void wait_for_worker();
+    void finish_worker();
 } // namespace pixel_terrain::image
 
 #endif

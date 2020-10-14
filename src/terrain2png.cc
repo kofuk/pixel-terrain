@@ -27,6 +27,7 @@
 
 #include "image/blocks.hh"
 #include "image/generator.hh"
+#include "image/worker.hh"
 #include "utils/logger/logger.hh"
 #include "utils/logger/pretty_printer.hh"
 #include "utils/path_hack.hh"
@@ -56,6 +57,8 @@ namespace pixel_terrain::image {
                     exit(1);
                 }
             }
+
+            start_worker();
 
             std::filesystem::directory_iterator dirents(src_dir);
             int nfiles = std::distance(begin(dirents), end(dirents));
@@ -112,12 +115,17 @@ namespace pixel_terrain::image {
 
                 std::shared_ptr<region_container> rc(
                     new region_container(r, x, z));
-                generate_region(std::shared_ptr<queued_item>(new queued_item(rc)));
+                queue_item(std::shared_ptr<queued_item>(new queued_item(rc)));
 
                 pretty_printer::increment_progress_bar();
             }
 
+            finish_worker();
             pretty_printer::finish_progress_bar();
+            if (option_verbose) {
+                std::cerr << "Waiting for worker to finish...";
+            }
+            wait_for_worker();
 
             if (option_generate_range) {
                 /* max_* is exclusive */
@@ -142,7 +150,7 @@ namespace {
         std::cout << R"(usage: terrain2png [OPTION]... [--] DIR
 Load save data in DIR, and generate image.
 
-  -j N, --jobs=N           Deleted option.
+  -j N, --jobs=N           Execute N jobs concurrently.
   -c DIR, --cache-dir DIR  Use DIR as cache direcotry.
   -n, --nether             Use image generator optimized to nether.
   -o DIR, --out DIR        Save generated images to DIR.
@@ -179,6 +187,7 @@ information and the source code.
 } // namespace
 
 int main(int argc, char **argv) {
+    pixel_terrain::image::option_jobs = std::thread::hardware_concurrency();
     pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
 
     for (;;) {
@@ -193,7 +202,18 @@ int main(int argc, char **argv) {
             break;
 
         case 'j':
-            std::cout << "Warning: Ignoring deleted option `-j'.\n";
+            try {
+                pixel_terrain::image::option_jobs = std::stoi(re_optarg);
+                if (pixel_terrain::image::option_jobs <= 0) {
+                    throw std::out_of_range("concurrency is negative");
+                }
+            } catch (std::invalid_argument const &e) {
+                std::cout << "Invalid concurrency.\n";
+                std::exit(1);
+            } catch (std::out_of_range const &e) {
+                std::cout << "Concurrency is out of permitted range.\n";
+                std::exit(1);
+            }
             break;
 
         case 'n':
