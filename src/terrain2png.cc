@@ -168,8 +168,8 @@ Load save data in DIR, and generate image.
         std::cout << R"(
 Copyright (C) 2020  Koki Fukuda.
 This program includes C++ re-implementation of anvil-parser, originally written
-in Python.  Visit  https://github.com/kofuk/minecraft-image-gemerator  for more
-information and the source code.
+in Python. Visit https://github.com/kofuk/pixel-terrain for more information
+and the source code.
 )";
     }
 

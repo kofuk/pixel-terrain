@@ -46,7 +46,7 @@ namespace {
                      "." VERSION_MINOR "." VERSION_REVISION ")\n";
         std::cout << R"(
 Copyright (C) 2020  Koki Fukuda.
-Visit https://github.com/kofuk/minecraft-image-gemerator for the source code.
+Visit https://github.com/kofuk/pixel-terrain for the source code.
 )";
     }
 
