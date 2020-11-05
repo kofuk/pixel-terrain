@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,6 +22,8 @@
 
 /* Logger, that can be used from different thread safely. */
 
+#include <cstdarg>
+#include <cstdio>
 #include <iostream>
 #include <mutex>
 
@@ -33,34 +35,38 @@ namespace pixel_terrain::logger {
 
         std::size_t generated;
         std::size_t reused;
-    }
+    } // namespace
 
-    void d(std::string message) {
-        std::unique_lock<std::mutex> lock(m);
-        std::cerr << message << '\n';
-    }
+    unsigned int log_level;
 
-    void e(std::string message) {
-        std::unique_lock<std::mutex> lock(m);
-        std::cerr << message << '\n';
-    }
+    void L(unsigned int log_level, char const *fmt, ...) {
+        if (logger::log_level < log_level) return;
 
-    void i(std::string message) {
+        std::va_list ap;
+        va_start(ap, fmt);
+
         std::unique_lock<std::mutex> lock(m);
-        std::cout << message << '\n';
+        std::vfprintf(stderr, fmt, ap);
+
+        va_end(ap);
     }
 
     void record_stat(bool regenerated) {
         std::unique_lock<std::mutex> lock(m);
 
-        if (regenerated) ++generated;
-        else ++reused;
+        if (regenerated)
+            ++generated;
+        else
+            ++reused;
     }
 
     void show_stat() {
-        std::cout << "Statistics:\n";
-        std::cout << "  Chunks generated: " << generated << '\n';
-        std::cout << "  Chunks reused:    " << reused << '\n';
-        std::cout << "  % reused:         " << (reused * 100) / (generated + reused) << '\n';
+        if (log_level >= INFO) {
+            std::cout << "Statistics:\n";
+            std::cout << "  Chunks generated: " << generated << '\n';
+            std::cout << "  Chunks reused:    " << reused << '\n';
+            std::cout << "  % reused:         "
+                      << (reused * 100) / (generated + reused) << '\n';
+        }
     }
 } // namespace pixel_terrain::logger

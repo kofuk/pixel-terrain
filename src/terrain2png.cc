@@ -52,7 +52,7 @@ namespace pixel_terrain::image {
                     std::filesystem::create_directories(option_cache_dir);
                 } catch (std::filesystem::filesystem_error const &e) {
                     using namespace std::literals::string_literals;
-                    logger::e("cannot create cache directory: "s + e.what());
+                    logger::L(logger::ERROR, "cannot create cache directory: %s\n",e.what());
 
                     exit(1);
                 }
@@ -107,8 +107,8 @@ namespace pixel_terrain::image {
                         r = new anvil::region(path.path(), option_cache_dir);
                     }
                 } catch (std::exception const &e) {
-                    logger::e("failed to read region: " + path.path().string());
-                    logger::e(e.what());
+                    logger::L(logger::ERROR, "failed to read region: %s\n", path.path().string().c_str());
+                    logger::L(logger::ERROR, "%s\n", e.what());
 
                     continue;
                 }
@@ -122,9 +122,7 @@ namespace pixel_terrain::image {
 
             finish_worker();
             pretty_printer::finish_progress_bar();
-            if (option_verbose) {
-                std::cerr << "Waiting for worker to finish...";
-            }
+            logger::L(logger::DEBUG, "Waiting for worker to finish...\n");
             wait_for_worker();
 
             if (option_generate_range) {
@@ -138,9 +136,7 @@ namespace pixel_terrain::image {
                 write_range_file(min_x, min_z, max_x, max_z);
             }
 
-            if (option_show_stat) {
-                logger::show_stat();
-            }
+            logger::show_stat();
         }
     } // namespace
 } // namespace pixel_terrain::image
@@ -156,7 +152,7 @@ Load save data in DIR, and generate image.
   -o DIR, --out DIR        Save generated images to DIR.
   -r, --gen-range          Generate JSON file indicates X and Z range block exists.
   -s, --statistics         Show statistics about generation.
-  -V, --verbose            Enable verbose log output.
+  -V                       Set log level. Specifying multiple times increases log level.
       --help               Print this usage and exit.
       --version            Print version and exit.
 )";
@@ -179,8 +175,6 @@ and the source code.
         {"nether", re_no_argument, nullptr, 'n'},
         {"out", re_required_argument, nullptr, 'o'},
         {"gen-range", re_no_argument, nullptr, 'r'},
-        {"statistics", re_no_argument, nullptr, 's'},
-        {"verbose", re_no_argument, nullptr, 'V'},
         {"help", re_no_argument, nullptr, 'h'},
         {"version", re_no_argument, nullptr, 'v'},
         {0, 0, 0, 0}};
@@ -191,14 +185,14 @@ int main(int argc, char **argv) {
     pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
 
     for (;;) {
-        int opt = regetopt(argc, argv, "j:c:no:rsV", long_options, nullptr);
+        int opt = regetopt(argc, argv, "j:c:no:rV", long_options, nullptr);
         if (opt < 0) {
             break;
         }
 
         switch (opt) {
         case 'V':
-            pixel_terrain::image::option_verbose = true;
+            ++pixel_terrain::logger::log_level;
             break;
 
         case 'j':
@@ -226,10 +220,6 @@ int main(int argc, char **argv) {
 
         case 'r':
             pixel_terrain::image::option_generate_range = true;
-            break;
-
-        case 's':
-            pixel_terrain::image::option_show_stat = true;
             break;
 
         case 'c':

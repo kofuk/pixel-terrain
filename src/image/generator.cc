@@ -87,9 +87,9 @@ namespace pixel_terrain::image {
                         try {
                             block = chunk->get_block(x, y, z);
                         } catch (std::exception const &e) {
-                            logger::e("Warning: error occurred while obtaining "
-                                      "block");
-                            logger::e(e.what());
+                            logger::L(logger::ERROR, "Warning: error occurred while obtaining "
+                                      "block\n");
+                            logger::L(logger::ERROR, "%s\n", e.what());
 
                             continue;
                         }
@@ -114,7 +114,7 @@ namespace pixel_terrain::image {
 
                         auto color_itr = colors.find(block);
                         if (color_itr == end(colors)) {
-                            logger::i(R"(colors[")" + block + R"("] = ???)");
+                            logger::L(0, "%s\tR\tG\tB\n", block.c_str());
                         } else {
                             std::uint_fast32_t color = color_itr->second;
 
@@ -283,9 +283,8 @@ namespace pixel_terrain::image {
         int region_x = item->region->rx;
         int region_z = item->region->rz;
 
-        if (option_verbose) {
-            logger::d("generating " + item->debug_string() + " ...");
-        }
+        logger::L(logger::DEBUG, "generating %s...\n",
+                  item->debug_string().c_str());
 
         std::filesystem::path path = option_out_dir;
         {
@@ -316,9 +315,9 @@ namespace pixel_terrain::image {
 
                     chunk = region->get_chunk_if_dirty(chunk_x, chunk_z);
                 } catch (std::exception const &e) {
-                    logger::e("Warning: parse error in " +
-                              item->debug_string());
-                    logger::e(e.what());
+                    logger::L(logger::DEBUG, "Warning: parse error in %s\n",
+                              item->debug_string().c_str());
+                    logger::L(logger::DEBUG, "%s\n",  e.what());
                     continue;
                 }
 
@@ -362,9 +361,9 @@ namespace pixel_terrain::image {
                             chunk = region->get_chunk_if_dirty(t_chunk_x,
                                                                t_chunk_z);
                         } catch (std::exception const &e) {
-                            logger::e("Warning: parse error in " +
-                                      item->debug_string());
-                            logger::e(e.what());
+                            logger::L(logger::DEBUG, "Warning: parse error in %s\n",
+                                      item->debug_string().c_str());
+                            logger::L(logger::DEBUG, "%s\n", e.what());
                             continue;
                         }
 
@@ -383,10 +382,8 @@ namespace pixel_terrain::image {
         }
 
         if (image == nullptr) {
-            if (option_verbose) {
-                logger::d("exiting without generating; any chunk changed in " +
-                          item->debug_string());
-            }
+            logger::L(logger::DEBUG, "exiting without generating; any chunk changed in %s\n",
+                      item->debug_string().c_str());
 
             return;
         }
@@ -394,9 +391,8 @@ namespace pixel_terrain::image {
         image->save(path);
         delete image;
 
-        if (option_verbose) {
-            logger::d("generated " + item->debug_string());
-        }
+        logger::L(logger::DEBUG, "generated %s\n",
+                  item->debug_string().c_str());
     }
 
 } // namespace pixel_terrain::image

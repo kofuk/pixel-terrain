@@ -65,26 +65,20 @@ namespace pixel_terrain::image {
     } // namespace
 
     std::filesystem::path option_out_dir;
-    bool option_verbose;
     int option_jobs;
     bool option_nether;
     bool option_generate_progress;
     bool option_generate_range;
-    bool option_show_stat;
     std::filesystem::path option_cache_dir;
 
     void queue_item(std::shared_ptr<queued_item> item) {
-        if (option_verbose) {
-            logger::d("trying to queue " + item->debug_string());
-        }
+        logger::L(logger::DEBUG, "trying to queue %s\n", item->debug_string().c_str());
 
         worker->queue_job(move(item));
     }
 
     void start_worker() {
-        if (option_verbose) {
-            logger::d("starting worker thread(s) ...");
-        }
+        logger::L(logger::DEBUG, "starting worker thread(s) ...\n");
 
         worker = new threaded_worker<std::shared_ptr<queued_item>>(
             option_jobs, &generate_256);
