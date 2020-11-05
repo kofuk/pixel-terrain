@@ -129,10 +129,6 @@ namespace pixel_terrain::image {
                 /* max_* is exclusive */
                 ++max_x;
                 ++max_z;
-                min_x *= 2;
-                min_z *= 2;
-                max_x *= 2;
-                max_z *= 2;
                 write_range_file(min_x, min_z, max_x, max_z);
             }
 
