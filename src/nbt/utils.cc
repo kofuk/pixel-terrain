@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,8 +21,10 @@
  */
 
 #include <algorithm>
+#include <filesystem>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -81,5 +83,42 @@ namespace pixel_terrain::nbt::utils {
             std::shared_ptr<unsigned char[]>(
                 dd_out, [](unsigned char *data) { delete[] data; }),
             all_out.size());
+    }
+
+    std::tuple<int, int> parse_region_file_path(
+        std::filesystem::path const &file_path) noexcept(false) {
+        std::string filename = file_path.filename().string();
+        if (filename.empty()) {
+            throw std::invalid_argument("Invalid file path");
+        }
+
+        std::vector<std::string> elements;
+        std::size_t prev = 0;
+        for (std::size_t i = 0; i < filename.size(); ++i) {
+            if (filename[i] == '.') {
+                elements.push_back(filename.substr(prev, i - prev));
+                prev = i + 1;
+            }
+        }
+        if (prev <= filename.size()) {
+            elements.push_back(filename.substr(prev));
+        }
+
+        if (elements.size() != 4 || elements[0] != "r" ||
+            elements[3] != "mca") {
+            throw std::invalid_argument("Invalid region filename format");
+        }
+
+        std::size_t idx;
+        int x = std::stoi(elements[1], &idx);
+        if (idx != elements[1].size()) {
+            throw std::invalid_argument("Invalid region x axis");
+        }
+        int z = std::stoi(elements[2], &idx);
+        if (idx != elements[2].size()) {
+            throw std::invalid_argument("Invalid region z axis");
+        }
+
+        return {x, z};
     }
 } // namespace pixel_terrain::nbt::utils

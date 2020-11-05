@@ -20,7 +20,10 @@
  * SOFTWARE.
  */
 
+#include <filesystem>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 #include <thread>
 
 #include <regetopt/regetopt.h>
@@ -28,6 +31,7 @@
 #include "image/blocks.hh"
 #include "image/generator.hh"
 #include "image/worker.hh"
+#include "nbt/utils.hh"
 #include "utils/logger/logger.hh"
 #include "utils/logger/pretty_printer.hh"
 #include "utils/path_hack.hh"
@@ -52,7 +56,8 @@ namespace pixel_terrain::image {
                     std::filesystem::create_directories(option_cache_dir);
                 } catch (std::filesystem::filesystem_error const &e) {
                     using namespace std::literals::string_literals;
-                    logger::L(logger::ERROR, "cannot create cache directory: %s\n",e.what());
+                    logger::L(logger::ERROR,
+                              "cannot create cache directory: %s\n", e.what());
 
                     exit(1);
                 }
@@ -75,22 +80,16 @@ namespace pixel_terrain::image {
 
                 std::string name = path.path().filename().string();
 
-                if (name[0] != 'r' || name[1] != '.') continue;
-                std::size_t i = 2;
-                while (i < name.size() &&
-                       (name[i] == '-' || ('0' <= name[i] && name[i] <= '9')))
-                    ++i;
-
-                if (name[i] == '.' && i + 1 >= name.size()) continue;
-                ++i;
-
-                std::size_t start_z = i;
-                while (i < name.size() &&
-                       (name[i] == '-' || ('0' <= name[i] && name[i] <= '9')))
-                    ++i;
-
-                int x = stoi(name.substr(2, i - 2));
-                int z = stoi(name.substr(start_z, i - start_z));
+                int x, z;
+                try {
+                    auto [rx, rz] = pixel_terrain::nbt::utils::parse_region_file_path(
+                        path.path());
+                    x = rx;
+                    z = rz;
+                } catch (std::invalid_argument const &e) {
+                    logger::L(logger::INFO, "%s: Skipping non-region file: %s\n", path.path().filename().string().c_str(), e.what());
+                    continue;
+                }
 
                 if (option_generate_range) {
                     if (x < min_x) min_x = x;
@@ -107,7 +106,8 @@ namespace pixel_terrain::image {
                         r = new anvil::region(path.path(), option_cache_dir);
                     }
                 } catch (std::exception const &e) {
-                    logger::L(logger::ERROR, "failed to read region: %s\n", path.path().string().c_str());
+                    logger::L(logger::ERROR, "failed to read region: %s\n",
+                              path.path().string().c_str());
                     logger::L(logger::ERROR, "%s\n", e.what());
 
                     continue;
