@@ -34,10 +34,11 @@
 
 namespace {
     void print_usage() {
-        std::cout << "usage: lsp-aux TYPE OUT_FILE ARGS..." << std::endl;
-        std::cout << "TYPEs:" << std::endl;
-        std::cout << "  compile_flags.txt" << std::endl;
-        std::cout << "  .dir-local.el" << std::endl;
+        std::cout << R"(usage: lsp-aux TYPE OUT_FILE ARGS...
+TYPEs:
+  compile_flags.txt
+  .dir-local.el
+)";
     }
 
     void generate_compile_flags(std::vector<std::string> const &flags,
