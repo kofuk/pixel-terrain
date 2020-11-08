@@ -11,6 +11,10 @@ This software contains C++ re-implementation of [matcool/anvil-parser](https://g
 - Generates map image for overworld, nether and the end.
 - Change block color on specific biomes.
 
+## Installation
+
+See [INSTALL.md](INSTALL.md) for build and installation instruction.
+
 ## Legal Information
 
 - Minecraft is a trademark of Mojang Studios.
