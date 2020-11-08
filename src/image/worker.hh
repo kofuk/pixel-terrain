@@ -31,19 +31,10 @@
 namespace pixel_terrain::image {
     struct region_container {
         anvil::region *region;
-        int rx;
-        int rz;
+        std::filesystem::path out_file_;
 
-        region_container(anvil::region *region, int rx, int rz);
+        region_container(anvil::region *region, std::filesystem::path const &out_file);
         ~region_container();
-    };
-
-    struct queued_item {
-        std::shared_ptr<region_container> region;
-
-        queued_item(std::shared_ptr<region_container> region);
-
-        std::string debug_string();
     };
 
     extern std::filesystem::path option_out_dir;
@@ -52,8 +43,8 @@ namespace pixel_terrain::image {
     extern bool option_generate_range;
     extern std::filesystem::path option_cache_dir;
 
-    queued_item *fetch_item();
-    void queue_item(std::shared_ptr<queued_item> item);
+    region_container *fetch_item();
+    void queue_item(std::shared_ptr<region_container> item);
     void start_worker();
     void wait_for_worker();
     void finish_worker();

@@ -50,6 +50,27 @@ namespace pixel_terrain::image {
                 << end_z << "]\n";
         }
 
+        void generate_single_region(std::filesystem::path const &region_file,
+                                    std::filesystem::path const &out_file) {
+            anvil::region *r;
+            try {
+                if (option_cache_dir.empty()) {
+                    r = new anvil::region(region_file);
+                } else {
+                    r = new anvil::region(region_file, option_cache_dir);
+                }
+            } catch (std::exception const &e) {
+                logger::L(logger::ERROR, "failed to read region: %s\n",
+                          region_file.string().c_str());
+                logger::L(logger::ERROR, "%s\n", e.what());
+
+                return;
+            }
+
+            queue_item(std::shared_ptr<region_container>(
+                new region_container(r, out_file)));
+        }
+
         void generate_all(std::string src_dir) {
             if (!option_cache_dir.empty()) {
                 try {
@@ -82,12 +103,15 @@ namespace pixel_terrain::image {
 
                 int x, z;
                 try {
-                    auto [rx, rz] = pixel_terrain::nbt::utils::parse_region_file_path(
-                        path.path());
+                    auto [rx, rz] =
+                        pixel_terrain::nbt::utils::parse_region_file_path(
+                            path.path());
                     x = rx;
                     z = rz;
                 } catch (std::invalid_argument const &e) {
-                    logger::L(logger::INFO, "%s: Skipping non-region file: %s\n", path.path().filename().string().c_str(), e.what());
+                    logger::L(
+                        logger::INFO, "%s: Skipping non-region file: %s\n",
+                        path.path().filename().string().c_str(), e.what());
                     continue;
                 }
 
@@ -98,24 +122,14 @@ namespace pixel_terrain::image {
                     if (z > max_z) max_z = z;
                 }
 
-                anvil::region *r;
-                try {
-                    if (option_cache_dir.empty()) {
-                        r = new anvil::region(path.path());
-                    } else {
-                        r = new anvil::region(path.path(), option_cache_dir);
-                    }
-                } catch (std::exception const &e) {
-                    logger::L(logger::ERROR, "failed to read region: %s\n",
-                              path.path().string().c_str());
-                    logger::L(logger::ERROR, "%s\n", e.what());
-
-                    continue;
-                }
-
-                std::shared_ptr<region_container> rc(
-                    new region_container(r, x, z));
-                queue_item(std::shared_ptr<queued_item>(new queued_item(rc)));
+                std::filesystem::path out_file(option_out_dir);
+                path_string out_name;
+                out_name.append(std::filesystem::path(std::to_string(x)));
+                out_name.append(PATH_STR_LITERAL(","));
+                out_name.append(std::filesystem::path(std::to_string(z)));
+                out_name.append(PATH_STR_LITERAL(".png"));
+                out_file /= out_name;
+                generate_single_region(path.path(), out_file);
 
                 pretty_printer::increment_progress_bar();
             }

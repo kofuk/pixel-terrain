@@ -43,25 +43,14 @@
 #include "worker.hh"
 
 namespace pixel_terrain::image {
-    region_container::region_container(anvil::region *region, int rx, int rz)
-        : region(region), rx(rx), rz(rz) {}
+    region_container::region_container(anvil::region *region,
+                                       std::filesystem::path const &out_file)
+        : region(region), out_file_(out_file) {}
 
     region_container::~region_container() { delete region; }
 
-    queued_item::queued_item(std::shared_ptr<region_container> region)
-        : region(move(region)) {}
-
-    std::string queued_item::debug_string() {
-        if (region == nullptr) {
-            return "(finishing job)";
-        }
-
-        return "(" + std::to_string(region->rx) + ", " +
-               std::to_string(region->rz) + ")";
-    }
-
     namespace {
-        threaded_worker<std::shared_ptr<queued_item>> *worker;
+        threaded_worker<std::shared_ptr<region_container>> *worker;
     } // namespace
 
     std::filesystem::path option_out_dir;
@@ -71,8 +60,9 @@ namespace pixel_terrain::image {
     bool option_generate_range;
     std::filesystem::path option_cache_dir;
 
-    void queue_item(std::shared_ptr<queued_item> item) {
-        logger::L(logger::DEBUG, "trying to queue %s\n", item->debug_string().c_str());
+    void queue_item(std::shared_ptr<region_container> item) {
+        logger::L(logger::DEBUG, "trying to queue %s\n",
+                  item->out_file_.filename().string().c_str());
 
         worker->queue_job(move(item));
     }
@@ -80,7 +70,7 @@ namespace pixel_terrain::image {
     void start_worker() {
         logger::L(logger::DEBUG, "starting worker thread(s) ...\n");
 
-        worker = new threaded_worker<std::shared_ptr<queued_item>>(
+        worker = new threaded_worker<std::shared_ptr<region_container>>(
             option_jobs, &generate_256);
         worker->start();
     }

@@ -278,23 +278,10 @@ namespace pixel_terrain::image {
         }
     } // namespace
 
-    void generate_256(std::shared_ptr<queued_item> item) {
-        anvil::region *region = item->region->region;
-        int region_x = item->region->rx;
-        int region_z = item->region->rz;
-
+    void generate_256(std::shared_ptr<region_container> item) {
+        anvil::region *region = item->region;
         logger::L(logger::DEBUG, "generating %s...\n",
-                  item->debug_string().c_str());
-
-        std::filesystem::path path = option_out_dir;
-        {
-            path_string name;
-            name.append(std::filesystem::path(std::to_string(region_x)));
-            name.append(PATH_STR_LITERAL(","));
-            name.append(std::filesystem::path(std::to_string(region_z)));
-            name.append(PATH_STR_LITERAL(".png"));
-            path /= name;
-        }
+                  item->out_file_.filename().string().c_str());
 
         png *image = nullptr;
 
@@ -316,7 +303,7 @@ namespace pixel_terrain::image {
                     chunk = region->get_chunk_if_dirty(chunk_x, chunk_z);
                 } catch (std::exception const &e) {
                     logger::L(logger::DEBUG, "Warning: parse error in %s\n",
-                              item->debug_string().c_str());
+                              item->out_file_.filename().string().c_str());
                     logger::L(logger::DEBUG, "%s\n",  e.what());
                     continue;
                 }
@@ -327,9 +314,9 @@ namespace pixel_terrain::image {
                 }
 
                 if (image == nullptr) {
-                    if (std::filesystem::exists(path)) {
+                    if (std::filesystem::exists(item->out_file_)) {
                         try {
-                            image = new png(path);
+                            image = new png(item->out_file_);
                             image->fit(512, 512);
 
                         } catch (std::exception const &) {
@@ -362,7 +349,7 @@ namespace pixel_terrain::image {
                                                                t_chunk_z);
                         } catch (std::exception const &e) {
                             logger::L(logger::DEBUG, "Warning: parse error in %s\n",
-                                      item->debug_string().c_str());
+                                      item->out_file_.filename().string().c_str());
                             logger::L(logger::DEBUG, "%s\n", e.what());
                             continue;
                         }
@@ -383,16 +370,16 @@ namespace pixel_terrain::image {
 
         if (image == nullptr) {
             logger::L(logger::DEBUG, "exiting without generating; any chunk changed in %s\n",
-                      item->debug_string().c_str());
+                      item->out_file_.filename().string().c_str());
 
             return;
         }
 
-        image->save(path);
+        image->save(item->out_file_);
         delete image;
 
         logger::L(logger::DEBUG, "generated %s\n",
-                  item->debug_string().c_str());
+                  item->out_file_.filename().string().c_str());
     }
 
 } // namespace pixel_terrain::image
