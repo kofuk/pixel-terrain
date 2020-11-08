@@ -71,7 +71,7 @@ namespace pixel_terrain::image {
         logger::L(logger::DEBUG, "starting worker thread(s) ...\n");
 
         worker = new threaded_worker<std::shared_ptr<region_container>>(
-            option_jobs, &generate_256);
+            option_jobs, &generate_region);
         worker->start();
     }
 

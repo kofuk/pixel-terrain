@@ -30,7 +30,7 @@
 
 namespace pixel_terrain::image {
     /* generates 256x256 image */
-    void generate_256(std::shared_ptr<region_container> item);
+    void generate_region(std::shared_ptr<region_container> item);
 } // namespace pixel_terrain::image
 
 #endif

@@ -278,7 +278,7 @@ namespace pixel_terrain::image {
         }
     } // namespace
 
-    void generate_256(std::shared_ptr<region_container> item) {
+    void generate_region(std::shared_ptr<region_container> item) {
         anvil::region *region = item->region;
         logger::L(logger::DEBUG, "generating %s...\n",
                   item->out_file_.filename().string().c_str());
