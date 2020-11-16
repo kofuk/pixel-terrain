@@ -8,8 +8,10 @@ minecraft:warped_nylium	16	7e	86	ff
 minecraft:warped_planks	28	70	67	ff
 minecraft:warped_pressure_plate	39	83	82	ff
 minecraft:warped_roots	14	b4	85	10
+minecraft:warped_sign	45	2d	5c	50
 minecraft:warped_stairs	39	83	82	ff
 minecraft:warped_stem	45	2d	5c	ff
+minecraft:warped_wall_sign	45	2d	5c	0a
 minecraft:warped_wart_block	16	7e	86	ff
 minecraft:water	34	56	9b	96
 minecraft:weeping_vines	5a	00	00	64
