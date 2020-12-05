@@ -19,7 +19,7 @@ tar -xf "${extract_dests[2]}.tar.gz" -C '/tmp' && rm -f "${extract_dests[2]}.tar
 
 mkdir -p build/regetopt && cd $_ || { echo 'echo: Unable to make build directory'; exit 1; }
 
-cmake "$@" -GNinja -DCMAKE_INSTALL_PREFIX="$_DIR/build/third_party" "/tmp/${extracted_dir_names[2]}" && ninja install || \
+cmake "$@" -G'Unix Makefiles' -DCMAKE_INSTALL_PREFIX="$_DIR/build/third_party" "/tmp/${extracted_dir_names[2]}" && cmake --install || \
         { echo 'Fatal: build failure'; exit 1; }
 
 echo 'Library has been built successfully!'

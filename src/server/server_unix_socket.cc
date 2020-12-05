@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -20,10 +20,11 @@
  * SOFTWARE.
  */
 
+#include <csignal>
+#include <cstring>
 #include <iostream>
 #include <mutex>
 
-#include <signal.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -46,15 +47,15 @@ namespace pixel_terrain::server {
         std::mutex worker_mutex;
 
         void terminate_server() {
-            unlink("/tmp/mcmap.sock");
-            exit(0);
+            ::unlink("/tmp/mcmap.sock");
+            std::exit(0);
         }
 
         void handle_signals(sigset_t *sigs) {
             int sig;
             for (;;) {
-                if (sigwait(sigs, &sig) != 0) {
-                    exit(1);
+                if (::sigwait(sigs, &sig) != 0) {
+                    std::exit(1);
                 }
 
                 std::unique_lock<std::mutex> lock(worker_mutex);
@@ -70,12 +71,12 @@ namespace pixel_terrain::server {
         }
 
         void prepare_signel_handle_thread() {
-            sigset_t sigs;
-            sigemptyset(&sigs);
-            sigaddset(&sigs, SIGPIPE);
-            sigaddset(&sigs, SIGUSR1);
-            sigaddset(&sigs, SIGINT);
-            pthread_sigmask(SIG_BLOCK, &sigs, nullptr);
+            ::sigset_t sigs;
+            ::sigemptyset(&sigs);
+            ::sigaddset(&sigs, SIGPIPE);
+            ::sigaddset(&sigs, SIGUSR1);
+            ::sigaddset(&sigs, SIGINT);
+            ::pthread_sigmask(SIG_BLOCK, &sigs, nullptr);
 
             std::thread t(&handle_signals, &sigs);
             t.detach();
@@ -90,7 +91,7 @@ namespace pixel_terrain::server {
             delete w;
             delete req;
             delete r;
-            close(fd);
+            ::close(fd);
         }
 
     } // namespace
@@ -100,10 +101,10 @@ namespace pixel_terrain::server {
 
     void server_unix_socket::start_server() {
         if (daemon_mode) {
-            if (daemon(0, 0) == -1) {
+            if (::daemon(0, 0) == -1) {
                 std::cerr << "cannot run in daemon mode\n";
 
-                exit(1);
+                std::exit(1);
             }
         }
 
@@ -114,48 +115,48 @@ namespace pixel_terrain::server {
 
         int ssock;
 
-        sockaddr_un sa;
-        memset(&sa, 0, sizeof(sa));
-        sockaddr_un sa_peer;
-        memset(&sa_peer, 0, sizeof(sa));
+        ::sockaddr_un sa;
+        std::memset(&sa, 0, sizeof(sa));
+        ::sockaddr_un sa_peer;
+        std::memset(&sa_peer, 0, sizeof(sa));
 
-        socklen_t addr_len = sizeof(sockaddr_un);
+        ::socklen_t addr_len = sizeof(sockaddr_un);
 
-        if ((ssock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-            perror("server");
+        if ((ssock = ::socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
+            std::perror("server");
 
-            exit(1);
+            std::exit(1);
         }
 
         sa.sun_family = AF_UNIX;
-        strcpy(sa.sun_path, "/tmp/mcmap.sock");
+        std::strcpy(sa.sun_path, "/tmp/mcmap.sock");
 
-        if (bind(ssock, reinterpret_cast<sockaddr *>(&sa),
-                 sizeof(sockaddr_un)) == -1) {
+        if (::bind(ssock, reinterpret_cast<::sockaddr *>(&sa),
+                   sizeof(::sockaddr_un)) == -1) {
             goto fail;
         }
 
-        if (listen(ssock, 4) == -1) {
+        if (::listen(ssock, 4) == -1) {
             goto fail;
         }
 
-        if (chmod("/tmp/mcmap.sock", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
-                                         S_IROTH | S_IWOTH) == -1) {
+        if (::chmod("/tmp/mcmap.sock", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP |
+                                           S_IROTH | S_IWOTH) == -1) {
             goto fail;
         }
 
         for (;;) {
             int fd;
-            if ((fd = accept(ssock, reinterpret_cast<sockaddr *>(&sa_peer),
-                             &addr_len)) > 0) {
+            if ((fd = ::accept(ssock, reinterpret_cast<::sockaddr *>(&sa_peer),
+                               &addr_len)) > 0) {
                 std::unique_lock<std::mutex> lock(worker_mutex);
                 worker->queue_job(fd);
             }
         }
 
     fail:
-        perror("server");
-        close(ssock);
+        std::perror("server");
+        ::close(ssock);
         if (worker != nullptr) {
             worker->finish();
             worker->wait();
