@@ -38,15 +38,15 @@ namespace pixel_terrain::image {
         std::size_t off = 0;
         for (;;) {
             std::size_t len =
-                std::strlen(reinterpret_cast<char *>(block_colors_data) + off);
+                std::strlen(reinterpret_cast<char const *>(block_colors_data) + off);
             if (len == 0) {
                 break;
             }
             std::string_view block_name(
-                reinterpret_cast<char *>(block_colors_data) + off, len);
+                reinterpret_cast<char const *>(block_colors_data) + off, len);
             off += len + 1;
             colors[block_name] =
-                *reinterpret_cast<std::uint32_t *>(block_colors_data + off);
+                *reinterpret_cast<std::uint32_t const *>(block_colors_data + off);
             off += 4;
         }
     }

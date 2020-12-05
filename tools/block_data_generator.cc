@@ -114,7 +114,7 @@ namespace {
 #else
 #include <cstdint>
 namespace {
-std::uint8_t block_colors_data[] = {
+const std::uint8_t block_colors_data[] = {
 )";
     }
 
