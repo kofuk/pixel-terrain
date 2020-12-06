@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <unistd.h>
 
-#include "reader_unix.hh"
+#include "server/reader_unix.hh"
 
 namespace pixel_terrain::server {
     reader_unix::reader_unix(int fd) : fd(fd) {}

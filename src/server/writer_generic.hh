@@ -25,7 +25,7 @@
 
 #include <string>
 
-#include "writer.hh"
+#include "server/writer.hh"
 
 namespace pixel_terrain::server {
     class writer_generic : public writer {

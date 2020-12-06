@@ -18,13 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_library(image_generator STATIC blocks.cc color.cc generator.cc worker.cc png.cc)
-target_include_directories(image_generator PRIVATE SYSTEM ${PNG_INCLUE_DIRS})
-target_include_directories(image_generator PRIVATE ${CMAKE_BINARY_DIR})
-target_link_libraries(image_generator PUBLIC ${PNG_MOD_NAME} ${CMAKE_THREAD_LIBS_INIT})
-add_dependencies(image_generator block_colors_data)
-
-add_boost_test(color_test imagegen_color color_test.cc)
-if(TARGET color_test)
-  target_link_libraries(color_test image_generator)
-endif()
+add_library(pixtimage STATIC blocks.cc generator.cc worker.cc)
+target_include_directories(pixtimage PRIVATE ${CMAKE_BINARY_DIR})
+target_link_libraries(pixtimage PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(pixtimage PRIVATE graphics)
+add_dependencies(pixtimage block_colors_data)

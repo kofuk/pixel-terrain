@@ -36,11 +36,11 @@
 #include <utility>
 #include <vector>
 
-#include "../nbt/region.hh"
-#include "../utils/logger/logger.hh"
-#include "../utils/threaded_worker.hh"
-#include "generator.hh"
-#include "worker.hh"
+#include "image/generator.hh"
+#include "image/worker.hh"
+#include "logger/logger.hh"
+#include "nbt/region.hh"
+#include "utils/threaded_worker.hh"
 
 namespace pixel_terrain::image {
     region_container::region_container(anvil::region *region,

@@ -26,7 +26,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "reader.hh"
+#include "server/reader.hh"
 
 namespace pixel_terrain::server {
     class request {

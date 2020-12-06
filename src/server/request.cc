@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-#include "request.hh"
+#include "server/request.hh"
 
 namespace pixel_terrain::server {
     request::request(reader *r) : request_reader(r) {}

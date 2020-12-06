@@ -31,9 +31,9 @@
 #include "image/blocks.hh"
 #include "image/generator.hh"
 #include "image/worker.hh"
+#include "logger/logger.hh"
+#include "logger/pretty_printer.hh"
 #include "nbt/utils.hh"
-#include "utils/logger/logger.hh"
-#include "utils/logger/pretty_printer.hh"
 #include "utils/path_hack.hh"
 #include "version.hh"
 

@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,16 +37,16 @@
 #include <thread>
 #include <unordered_map>
 
-#include "../utils/logger/logger.hh"
-#include "../nbt/region.hh"
-#include "request.hh"
-#include "server.hh"
+#include "logger/logger.hh"
+#include "nbt/region.hh"
+#include "server/request.hh"
+#include "server/server.hh"
+#include "server/writer.hh"
 #if _WIN32
-#include "server_generic.hh"
+#include "server/server_generic.hh"
 #else
-#include "server_unix_socket.hh"
+#include "server/server_unix_socket.hh"
 #endif
-#include "writer.hh"
 
 namespace pixel_terrain::server {
     std::string overworld_dir;
@@ -68,8 +68,9 @@ namespace pixel_terrain::server {
             response() {}
 
             ~response() {
-                logger::L(logger::ERROR, "BUG: Response object discarded without writing "
-                              "its data");
+                logger::L(logger::ERROR,
+                          "BUG: Response object discarded without writing "
+                          "its data");
             }
 
             void write_to(writer *w) {

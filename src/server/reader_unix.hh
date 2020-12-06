@@ -25,7 +25,7 @@
 
 #include <cstddef>
 
-#include "reader.hh"
+#include "server/reader.hh"
 
 namespace pixel_terrain::server {
     class reader_unix : public reader {

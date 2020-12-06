@@ -35,9 +35,9 @@
 #include <fcntl.h>
 #include <utility>
 
-#include "file.hh"
-#include "region.hh"
-#include "utils.hh"
+#include "nbt/file.hh"
+#include "nbt/region.hh"
+#include "nbt/utils.hh"
 
 namespace pixel_terrain::anvil {
     region::region(std::filesystem::path filename) {

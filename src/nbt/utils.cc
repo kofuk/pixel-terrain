@@ -30,7 +30,7 @@
 
 #include <zlib.h>
 
-#include "utils.hh"
+#include "nbt/utils.hh"
 
 namespace pixel_terrain::nbt::utils {
     std::pair<std::shared_ptr<unsigned char[]>, std::size_t>

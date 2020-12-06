@@ -18,4 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_library(logger STATIC logger.cc pretty_printer.cc)
+set(GRAPHICS_SRC
+  color.cc
+  png.cc)
+
+add_library(graphics STATIC ${GRAPHICS_SRC})
+target_include_directories(graphics PRIVATE SYSTEM ${PNG_INCLUE_DIRS})
+target_link_libraries(graphics PUBLIC ${PNG_MOD_NAME})
+
+add_boost_test(color_test imagegen_color color_test.cc)
+if(TARGET color_test)
+  target_link_libraries(color_test graphics)
+endif()

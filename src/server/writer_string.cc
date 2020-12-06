@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-#include "writer_string.hh"
+#include "server/writer_string.hh"
 
 namespace pixel_terrain::server {
     void writer_string::write_data(std::string const &data) {

@@ -32,14 +32,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "../utils/threaded_worker.hh"
-#include "reader.hh"
-#include "reader_unix.hh"
-#include "request.hh"
-#include "server.hh"
-#include "server_unix_socket.hh"
-#include "writer.hh"
-#include "writer_unix.hh"
+#include "server/reader.hh"
+#include "server/reader_unix.hh"
+#include "server/request.hh"
+#include "server/server.hh"
+#include "server/server_unix_socket.hh"
+#include "server/writer.hh"
+#include "server/writer_unix.hh"
+#include "utils/threaded_worker.hh"
 
 namespace pixel_terrain::server {
     namespace {

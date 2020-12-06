@@ -24,7 +24,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_suite.hpp>
 
-#include "color.hh"
+#include "graphics/color.hh"
 
 using namespace pixel_terrain;
 

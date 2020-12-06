@@ -29,12 +29,12 @@
 #include <memory>
 #include <string>
 
-#include "../utils/logger/logger.hh"
-#include "blocks.hh"
-#include "color.hh"
-#include "generator.hh"
-#include "png.hh"
-#include "worker.hh"
+#include "graphics/color.hh"
+#include "graphics/png.hh"
+#include "image/blocks.hh"
+#include "image/generator.hh"
+#include "image/worker.hh"
+#include "logger/logger.hh"
 
 namespace pixel_terrain::image {
     struct PixelState {
@@ -87,7 +87,8 @@ namespace pixel_terrain::image {
                         try {
                             block = chunk->get_block(x, y, z);
                         } catch (std::exception const &e) {
-                            logger::L(logger::ERROR, "Warning: error occurred while obtaining "
+                            logger::L(logger::ERROR,
+                                      "Warning: error occurred while obtaining "
                                       "block\n");
                             logger::L(logger::ERROR, "%s\n", e.what());
 
@@ -304,7 +305,7 @@ namespace pixel_terrain::image {
                 } catch (std::exception const &e) {
                     logger::L(logger::DEBUG, "Warning: parse error in %s\n",
                               item->out_file_.filename().string().c_str());
-                    logger::L(logger::DEBUG, "%s\n",  e.what());
+                    logger::L(logger::DEBUG, "%s\n", e.what());
                     continue;
                 }
 
@@ -348,8 +349,9 @@ namespace pixel_terrain::image {
                             chunk = region->get_chunk_if_dirty(t_chunk_x,
                                                                t_chunk_z);
                         } catch (std::exception const &e) {
-                            logger::L(logger::DEBUG, "Warning: parse error in %s\n",
-                                      item->out_file_.filename().string().c_str());
+                            logger::L(
+                                logger::DEBUG, "Warning: parse error in %s\n",
+                                item->out_file_.filename().string().c_str());
                             logger::L(logger::DEBUG, "%s\n", e.what());
                             continue;
                         }
@@ -369,7 +371,8 @@ namespace pixel_terrain::image {
         }
 
         if (image == nullptr) {
-            logger::L(logger::DEBUG, "exiting without generating; any chunk changed in %s\n",
+            logger::L(logger::DEBUG,
+                      "exiting without generating; any chunk changed in %s\n",
                       item->out_file_.filename().string().c_str());
 
             return;

@@ -27,9 +27,8 @@
 #include <cstring>
 #include <string>
 
-#include "blocks.hh"
-
 #include "block/block_colors_data.hh"
+#include "image/blocks.hh"
 
 namespace pixel_terrain::image {
     std::unordered_map<std::string_view, std::uint32_t> colors;

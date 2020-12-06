@@ -24,7 +24,7 @@
 
 #include <unistd.h>
 
-#include "writer_unix.hh"
+#include "server/writer_unix.hh"
 
 namespace pixel_terrain::server {
     writer_unix::writer_unix(int fd) : fd(fd) {}

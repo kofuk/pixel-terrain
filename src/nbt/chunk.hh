@@ -28,7 +28,7 @@
 #include <memory>
 #include <vector>
 
-#include "pull_parser/nbt_pull_parser.hh"
+#include "nbt/pull_parser/nbt_pull_parser.hh"
 
 namespace pixel_terrain::anvil {
     class chunk {

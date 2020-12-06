@@ -28,7 +28,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_suite.hpp>
 
-#include "nbt_pull_parser.hh"
+#include "nbt/pull_parser/nbt_pull_parser.hh"
 
 using namespace pixel_terrain::nbt;
 

@@ -27,7 +27,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_suite.hpp>
 
-#include "utils.hh"
+#include "nbt/utils.hh"
 
 using namespace pixel_terrain::nbt::utils;
 

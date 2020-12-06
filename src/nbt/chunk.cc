@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,9 +30,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "../utils/logger/logger.hh"
-#include "chunk.hh"
-#include "pull_parser/nbt_pull_parser.hh"
+#include "logger/logger.hh"
+#include "nbt/chunk.hh"
+#include "nbt/pull_parser/nbt_pull_parser.hh"
 
 namespace pixel_terrain::anvil {
     chunk::chunk(std::shared_ptr<unsigned char[]> data, std::size_t length)

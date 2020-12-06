@@ -26,7 +26,7 @@
 #include <mutex>
 #include <utility>
 
-#include "../nbt/region.hh"
+#include "nbt/region.hh"
 
 namespace pixel_terrain::image {
     struct region_container {

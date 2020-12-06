@@ -29,7 +29,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_suite.hpp>
 
-#include "writer_unix.hh"
+#include "server/writer_unix.hh"
 
 using namespace pixel_terrain::server;
 

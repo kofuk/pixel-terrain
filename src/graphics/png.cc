@@ -8,8 +8,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -37,8 +37,8 @@
 #include <png.h>
 #include <pngconf.h>
 
-#include "../utils/path_hack.hh"
-#include "png.hh"
+#include "graphics/png.hh"
+#include "utils/path_hack.hh"
 
 namespace pixel_terrain::image {
     png::png(int width, int height)
@@ -106,7 +106,8 @@ namespace pixel_terrain::image {
         ::png_bytep new_data = new ::png_byte[width * height * 4];
         std::fill(new_data, new_data + width * height * 4, 0);
         for (int x = 0, x_end = std::min(this->width, width); x < x_end; ++x) {
-            for (int y = 0, y_end = std::min(this->width, width); y < y_end; ++y) {
+            for (int y = 0, y_end = std::min(this->width, width); y < y_end;
+                 ++y) {
                 unsigned int from_base = (y * this->width + x) * 4;
                 unsigned int to_base = (y * width + x) * 4;
                 for (int i = 0; i < 4; ++i) {

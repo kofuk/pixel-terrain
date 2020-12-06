@@ -24,7 +24,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_suite.hpp>
 
-#include "writer_string.hh"
+#include "server/writer_string.hh"
 
 using namespace pixel_terrain::server;
 

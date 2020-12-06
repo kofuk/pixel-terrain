@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-#include "writer_generic.hh"
+#include "server/writer_generic.hh"
 
 namespace pixel_terrain::server {
     writer_generic::writer_generic() {}

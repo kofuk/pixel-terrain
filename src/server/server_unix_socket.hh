@@ -23,7 +23,7 @@
 #ifndef SERVER_UNIX_SOCKET_HH
 #define SERVER_UNIX_SOCKET_HH
 
-#include "server_base.hh"
+#include "server/server_base.hh"
 
 namespace pixel_terrain::server {
     class server_unix_socket : public server_base {

@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "reader_generic.hh"
+#include "server/reader_generic.hh"
 
 namespace pixel_terrain::server {
     reader_generic::reader_generic() {}

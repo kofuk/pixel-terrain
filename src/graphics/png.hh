@@ -29,7 +29,7 @@
 
 #include <pngconf.h>
 
-#include "../utils/path_hack.hh"
+#include "utils/path_hack.hh"
 
 namespace pixel_terrain::image {
     class png {

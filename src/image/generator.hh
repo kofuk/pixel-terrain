@@ -26,7 +26,7 @@
 #include <filesystem>
 #include <memory>
 
-#include "worker.hh"
+#include "image/worker.hh"
 
 namespace pixel_terrain::image {
     /* generates 256x256 image */
