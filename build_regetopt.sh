@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# SPDX-License-Identifier: MIT
+
 _DIR="$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)"
 
 cd "$_DIR"
