@@ -8,6 +8,7 @@
 
 #include "nbt/file.hh"
 #include "nbt/pull_parser/nbt_pull_parser.hh"
+#include "pixel-terrain.hh"
 #include "utils/path_hack.hh"
 #include "version.hh"
 
@@ -17,16 +18,6 @@ namespace {
   -s STR, --indent STR  Use STR to indent. (default: "  ")
   -u, --no-prettify     Don't emit indent and new line.
   --help                Print this usage and exit.
-  --version             Print version and exit.
-)";
-    }
-
-    void print_version() {
-        std::cout << "nbt2xml (" PROJECT_NAME " " VERSION_MAJOR
-                     "." VERSION_MINOR "." VERSION_REVISION ")\n";
-        std::cout << R"(
-Copyright (C) 2020  Koki Fukuda.
-Visit https://github.com/kofuk/pixel-terrain for the source code.
 )";
     }
 
@@ -214,36 +205,34 @@ Visit https://github.com/kofuk/pixel-terrain for the source code.
         {0, 0, 0, 0}};
 } // namespace
 
-int main(int argc, char **argv) {
-    for (;;) {
-        int opt = regetopt(argc, argv, "s:u", long_options, nullptr);
-        if (opt < 0) break;
+namespace pixel_terrain {
+    int nbt_to_xml_main(int argc, char **argv) {
+        for (;;) {
+            int opt = regetopt(argc, argv, "s:u", long_options, nullptr);
+            if (opt < 0) break;
 
-        switch (opt) {
-        case 's':
-            indent_str = re_optarg;
-            break;
+            switch (opt) {
+            case 's':
+                indent_str = re_optarg;
+                break;
 
-        case 'u':
-            pretty_print = false;
-            break;
+            case 'u':
+                pretty_print = false;
+                break;
 
-        case 'h':
+            case 'h':
+                print_usage();
+                return 0;
+
+            default:
+                return 1;
+            }
+        }
+        if (argc - re_optind != 1) {
             print_usage();
-            return 0;
-
-        case 'v':
-            print_version();
-            return 0;
-
-        default:
             return 1;
         }
-    }
-    if (argc - re_optind != 1) {
-        print_usage();
-        return 1;
-    }
 
-    return !handle_file(argv[re_optind]);
-}
+        return !handle_file(argv[re_optind]);
+    }
+} // namespace pixel_terrain

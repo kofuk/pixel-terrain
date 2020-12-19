@@ -14,6 +14,7 @@
 #include "logger/logger.hh"
 #include "logger/pretty_printer.hh"
 #include "nbt/utils.hh"
+#include "pixel-terrain.hh"
 #include "utils/path_hack.hh"
 #include "version.hh"
 
@@ -141,21 +142,8 @@ Load save data in DIR, and generate image.
   -n, --nether             Use image generator optimized to nether.
   -o DIR, --out DIR        Save generated images to DIR.
   -r, --gen-range          Generate JSON file indicates X and Z range block exists.
-  -s, --statistics         Show statistics about generation.
-  -V                       Set log level. Specifying multiple times increases log level.
+  -V, -VV, -VVV            Set log level. Specifying multiple times increases log level.
       --help               Print this usage and exit.
-      --version            Print version and exit.
-)";
-    }
-
-    void print_version() {
-        std::cout << "terrain2png (" PROJECT_NAME " " VERSION_MAJOR
-                     "." VERSION_MINOR "." VERSION_REVISION ")\n";
-        std::cout << R"(
-Copyright (C) 2020  Koki Fukuda.
-This program includes C++ re-implementation of anvil-parser, originally written
-in Python. Visit https://github.com/kofuk/pixel-terrain for more information
-and the source code.
 )";
     }
 
@@ -166,77 +154,74 @@ and the source code.
         {"out", re_required_argument, nullptr, 'o'},
         {"gen-range", re_no_argument, nullptr, 'r'},
         {"help", re_no_argument, nullptr, 'h'},
-        {"version", re_no_argument, nullptr, 'v'},
         {0, 0, 0, 0}};
 } // namespace
 
-int main(int argc, char **argv) {
-    pixel_terrain::image::option_jobs = std::thread::hardware_concurrency();
-    pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
+namespace pixel_terrain {
+    int image_main(int argc, char **argv) {
+        pixel_terrain::image::option_jobs = std::thread::hardware_concurrency();
+        pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
 
-    for (;;) {
-        int opt = regetopt(argc, argv, "j:c:no:rV", long_options, nullptr);
-        if (opt < 0) {
-            break;
-        }
-
-        switch (opt) {
-        case 'V':
-            ++pixel_terrain::logger::log_level;
-            break;
-
-        case 'j':
-            try {
-                pixel_terrain::image::option_jobs = std::stoi(re_optarg);
-                if (pixel_terrain::image::option_jobs <= 0) {
-                    throw std::out_of_range("concurrency is negative");
-                }
-            } catch (std::invalid_argument const &e) {
-                std::cout << "Invalid concurrency.\n";
-                std::exit(1);
-            } catch (std::out_of_range const &e) {
-                std::cout << "Concurrency is out of permitted range.\n";
-                std::exit(1);
+        for (;;) {
+            int opt = regetopt(argc, argv, "j:c:no:rV", long_options, nullptr);
+            if (opt < 0) {
+                break;
             }
-            break;
 
-        case 'n':
-            pixel_terrain::image::option_nether = true;
-            break;
+            switch (opt) {
+            case 'V':
+                ++pixel_terrain::logger::log_level;
+                break;
 
-        case 'o':
-            pixel_terrain::image::option_out_dir = re_optarg;
-            break;
+            case 'j':
+                try {
+                    pixel_terrain::image::option_jobs = std::stoi(re_optarg);
+                    if (pixel_terrain::image::option_jobs <= 0) {
+                        throw std::out_of_range("concurrency is negative");
+                    }
+                } catch (std::invalid_argument const &e) {
+                    std::cout << "Invalid concurrency.\n";
+                    std::exit(1);
+                } catch (std::out_of_range const &e) {
+                    std::cout << "Concurrency is out of permitted range.\n";
+                    std::exit(1);
+                }
+                break;
 
-        case 'r':
-            pixel_terrain::image::option_generate_range = true;
-            break;
+            case 'n':
+                pixel_terrain::image::option_nether = true;
+                break;
 
-        case 'c':
-            pixel_terrain::image::option_cache_dir = re_optarg;
-            break;
+            case 'o':
+                pixel_terrain::image::option_out_dir = re_optarg;
+                break;
 
-        case 'h':
-            print_usage();
-            ::exit(0);
+            case 'r':
+                pixel_terrain::image::option_generate_range = true;
+                break;
 
-        case 'v':
-            print_version();
-            ::exit(0);
+            case 'c':
+                pixel_terrain::image::option_cache_dir = re_optarg;
+                break;
 
-        default:
-            return 1;
+            case 'h':
+                print_usage();
+                ::exit(0);
+
+            default:
+                return 1;
+            }
         }
+
+        if (re_optind != argc - 1) {
+            print_usage();
+            std::exit(1);
+        }
+
+        pixel_terrain::image::init_block_list();
+
+        pixel_terrain::image::generate_all(argv[re_optind]);
+
+        return 0;
     }
-
-    if (re_optind != argc - 1) {
-        print_usage();
-        std::exit(1);
-    }
-
-    pixel_terrain::image::init_block_list();
-
-    pixel_terrain::image::generate_all(argv[re_optind]);
-
-    return 0;
-}
+} // namespace pixel_terrain

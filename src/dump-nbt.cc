@@ -12,6 +12,7 @@
 #include <regetopt/regetopt.h>
 
 #include "nbt/region.hh"
+#include "pixel-terrain.hh"
 #include "utils/path_hack.hh"
 #include "version.hh"
 
@@ -95,66 +96,59 @@ namespace {
                            %2  and %3 are replaced by chunk x, z coordinate.
   -s (X,Z), --where (X,Z)  Select chunk. If not specified, dump all chunks.
      --help                Print this usage and exit.
-     --version             Print version and exit.
 )";
-    }
-
-    void print_version() {
-        std::cout << "dumpnbt (" << PROJECT_NAME << ' ' << VERSION_MAJOR << '.'
-                  << VERSION_MINOR << '.' << VERSION_REVISION << ")\n";
     }
 
     struct re_option long_options[] = {
         {"out", re_required_argument, nullptr, 'o'},
         {"where", re_required_argument, nullptr, 's'},
         {"help", re_no_argument, nullptr, 'h'},
-        {"version", re_no_argument, nullptr, 'v'},
         {0, 0, 0, 0}};
 } // namespace
 
-int main(int argc, char **argv) {
-    const char *outfmt = "%1+%2+%3.nbt";
-    std::vector<std::pair<int, int>> coords;
+namespace pixel_terrain {
+    int dump_nbt_main(int argc, char **argv) {
+        const char *outfmt = "%1+%2+%3.nbt";
+        std::vector<std::pair<int, int>> coords;
 
-    for (;;) {
-        int opt = regetopt(argc, argv, "o:s:", long_options, nullptr);
-        if (opt < 0) {
-            break;
-        }
-        switch (opt) {
-        case 'o':
-            outfmt = re_optarg;
-            break;
+        for (;;) {
+            int opt = regetopt(argc, argv, "o:s:", long_options, nullptr);
+            if (opt < 0) {
+                break;
+            }
+            switch (opt) {
+            case 'o':
+                outfmt = re_optarg;
+                break;
 
-        case 'O': {
-            int x, z;
-            if (std::sscanf(re_optarg, "( %d , %d )", &x, &z) != 2) {
-                std::cout << "Malformed coordinate. (example: \"(1,2)\")";
+            case 'O': {
+                int x, z;
+                if (std::sscanf(re_optarg, "( %d , %d )", &x, &z) != 2) {
+                    std::cout << "Malformed coordinate. (example: \"(1,2)\")";
+                    return 1;
+                }
+                coords.push_back({x, z});
+            } break;
+
+            case 'h':
+                print_usage();
+                return 0;
+
+            default:
                 return 1;
             }
-            coords.push_back({x, z});
-        } break;
-
-        case 'h':
-            print_usage();
-            return 0;
-
-        case 'v':
-            print_version();
-            return 0;
-
-        default:
-            return 1;
         }
-    }
 
-    for (int i = re_optind; i < argc; ++i) {
-        if (coords.empty()) {
-            dump_all(argv[i], outfmt);
-        } else {
-            for (const std::pair<int, int> &coord : coords) {
-                dump_coord(argv[i], outfmt, coord.first, coord.second);
+        for (int i = re_optind; i < argc; ++i) {
+            if (coords.empty()) {
+                dump_all(argv[i], outfmt);
+            } else {
+                for (const std::pair<int, int> &coord : coords) {
+                    dump_coord(argv[i], outfmt, coord.first, coord.second);
+                }
             }
         }
+
+        return 0;
     }
-}
+} // namespace pixel_terrain
