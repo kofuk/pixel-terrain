@@ -62,6 +62,10 @@ if(UNIX)
   install(FILES completion/pixel_terrain DESTINATION share/bash_completion/completions)
 endif()
 
+if(UNIX)
+  install(FILES LICENSE DESTINATION share/licenses/pixel-terrain)
+endif()
+
 add_subdirectory(block)
 add_subdirectory(src)
 add_subdirectory(tools)
