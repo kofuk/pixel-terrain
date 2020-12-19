@@ -1,82 +1,93 @@
 # SPDX-License-Identifier: MIT
 
-# Bash completion for pixel_terrain        -*- shell-script -*-
+# Bash completion for pixel_terrain
 
-_blockd() {
-    local options=(-d --daemon -o --overworld{=,} -n --nether{=,}
-                   -e --end{=,} --help --version)
-    local cur="${COMP_WORDS[$COMP_CWORD]}"
-    local prev="${COMP_WORDS[$COMP_CWORD-1]}"
-    case "$prev" in
-        -d|--daemon|-o|--overworld|-n|--nether|-e|--end)
-            COMPREPLY=($(compgen -A directory -- "$cur"))
-            return
-            ;;
-        *)
-            COMPREPLY=($(compgen -W "${options[*]}" -- "$cur"))
-            return
-            ;;
-    esac
-}
-complete -F _blockd blockd
-
-_dumpnbt() {
-    local options=(-o --out{=,} -s --where{=,} --help --version)
-    local cur="${COMP_WORDS[$COMP_CWORD]}"
-    local prev="${COMP_WORDS[$COMP_CWORD-1]}"
-    case "$prev" in
-        -o|--out)
-            COMPREPLY=($(compgen -A directory -- "$cur"))
-            return
-            ;;
-        -s|--where)
-            COMPREPLY=($(compgen -W "$(echo '('{0..31}','{0..31}')')" -- "$cur"))
-            return
-            ;;
-        *)
-            COMPREPLY=($(compgen -A file -W "${options[*]}" -- "$cur"))
-            return
-            ;;
-    esac
-}
-complete -F _dumpnbt dumpnbt
-
-_nbt2xml() {
-    local options=(-s --indent{=,} -u --no-pretty --help --version)
-    local cur="${COMP_WORDS[$COMP_CWORD]}"
-    local prev="${COMP_WORDS[$COMP_CWORD-1]}"
-    case "$prev" in
-        -s|--indent)
-            COMPREPLY=()
-            return
-            ;;
-        *)
-            COMPREPLY=($(compgen -A file -W "${options[*]}" -- "$cur"))
-            return
-            ;;
-    esac
-}
-complete -F _nbt2xml nbt2xml
-
-_terrain2png() {
-    local options=(-j --jobs{=,} -c --cache-dir{=,} -n --nether -o --out{=,}
-                   -r --gen-range -V --verbose --help --version)
+_pixel_terrain() {
+    local global_options=(--help --version)
+    local subcommands=(dump-nbt image nbt-to-xml server)
 
     local cur="${COMP_WORDS[$COMP_CWORD]}"
     local prev="${COMP_WORDS[$COMP_CWORD-1]}"
-    case "$prev" in
-        -j|--jobs)
-            COMPREPLY=($(compgen -W "$(seq $(nproc))" -- "$cur"))
-            return
+
+    if [ "$COMP_CWORD" -eq 1 ]; then
+        COMPREPLY=($(compgen -W "${subcommands[*]} ${global_options[*]}" -- "$cur"))
+        return
+    fi
+
+    local first_option="${COMP_WORDS[1]}"
+
+    case "$first_option" in
+        dump-nbt)
+            local dump_nbt_options=(-o --out -s --where)
+            case "$prev" in
+                -o|--out)
+                    COMPREPLY=($(compgen -A directory -- "$cur"))
+                    return
+                    ;;
+                -s|--where)
+                    COMPREPLY=($(compgen -W "$(echo '('{0..31}','{0..31}')')" -- "$cur"))
+                    return
+                    ;;
+                *)
+                    COMPREPLY=($(compgen -A file -W "${dump_nbt_options[*]} ${global_options[*]}" -- "$cur"))
+                    return
+                    ;;
+            esac
             ;;
-        -c|--cache-dir|-o|--out)
-            COMPREPLY=($(compgen -A directory -- "$cur"))
-            return
+
+        image)
+            local image_options=(-j --jobs -c --cache-dir -n --nether -o --out -r --gen-range -V)
+            case "$prev" in
+                -j|--jobs)
+                    COMPREPLY=($(compgen -W "$(seq $(nproc))" -- "$cur"))
+                    return
+                    ;;
+                -c|--cache-dir|-o|--out)
+                    COMPREPLY=($(compgen -A directory -- "$cur"))
+                    return
+                    ;;
+                *)
+                    COMPREPLY=($(compgen -W directory -W "${image_options[*]} ${global_options[*]}" -- "$cur"))
+                    return
+                    ;;
+            esac
             ;;
+
+        nbt-to-xml)
+            local nbt_to_xml_options=(-s --indent -u --no-prettify)
+            case "$prev" in
+                -s|--indent)
+                    COMPREPLY=()
+                    return
+                    ;;
+                *)
+                    COMPREPLY=($(compgen -A file -W "${nbt_to_xml_options[*]} ${global_options[*]}" -- "$cur"))
+                    return
+                    ;;
+            esac
+            ;;
+
+        server)
+            local server_options=(-d --daemon -o --overworld -n --nether -e --end)
+            case "$prev" in
+                -o|--overworld|-n|--nether|-e|--end)
+                    COMPREPLY=($(compgen -A directory -- "$cur"))
+                    return
+                    ;;
+                *)
+                    COMPREPLY=($(compgen -W "${server_options[*]} ${global_options[*]}" -- "$cur"))
+                    return
+                    ;;
+            esac
+            ;;
+
         *)
-            COMPREPLY=($(compgen -A directory -W "${options[*]}" -- "$cur"))
+            COMPREPLY=($(compgen -W "${global_options[*]}" -- "$cur"))
             return
             ;;
     esac
-}
-complete -F _terrain2png terrain2png
+} && complete -F _pixel_terrain pixel-terrain
+
+# Local Variables:
+#   mode: shell-script
+# End:
