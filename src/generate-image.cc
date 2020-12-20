@@ -134,17 +134,18 @@ namespace pixel_terrain::image {
 
 namespace {
     void print_usage() {
-        std::cout << R"(usage: terrain2png [OPTION]... [--] DIR
-Load save data in DIR, and generate image.
+        std::cout << &R"(
+Usage: pixel-terrain generate-image [option]... [--] <dir>
+Load save data in <dir>, and generate image.
 
-  -j N, --jobs=N           Execute N jobs concurrently.
   -c DIR, --cache-dir DIR  Use DIR as cache direcotry.
+  -j N, --jobs=N           Execute N jobs concurrently.
   -n, --nether             Use image generator optimized to nether.
   -o DIR, --out DIR        Save generated images to DIR.
   -r, --gen-range          Generate JSON file indicates X and Z range block exists.
   -V, -VV, -VVV            Set log level. Specifying multiple times increases log level.
       --help               Print this usage and exit.
-)";
+)"[1];
     }
 
     struct re_option long_options[] = {

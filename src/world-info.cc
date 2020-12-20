@@ -19,7 +19,7 @@ namespace pixel_terrain {
             std::fputs(&R"(
 Usage: pixel-terrain world-info [option]...
 
-  -F FIELDS, --fields=FIELDS  Comma-separated list of field to show. [name, path]
+  -F FIELDS, --fields=FIELDS  Comma-separated list of field to show. [name,path]
   -q, --quiet                 Don't print index line.
   -h, --help                  Print this help and exit.
 

@@ -14,11 +14,13 @@
 
 namespace {
     void print_usage() {
-        std::cout << R"(usage: nbt2xml [OPTION]... [--] FILE
+        std::cout << &R"(
+Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
+
   -s STR, --indent STR  Use STR to indent. (default: "  ")
   -u, --no-prettify     Don't emit indent and new line.
-  --help                Print this usage and exit.
-)";
+      --help            Print this usage and exit.
+)"[1];
     }
 
     std::string indent_str = "  ";

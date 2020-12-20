@@ -90,13 +90,14 @@ namespace {
     }
 
     void print_usage() {
-        std::cout << R"(usage: dumpnbt [OPTION]... [--] IN_FILE...
+        std::cout << &R"(
+Usage: pixel-terrain dump-nbt [option]... [--] <in file>...
 
-  -o DIR, --out DIR        Set output filename format. %1 is replaced by input filename,
+  -o DIR, --out=DIR        Set output filename format. %1 is replaced by input filename,
                            %2  and %3 are replaced by chunk x, z coordinate.
-  -s (X,Z), --where (X,Z)  Select chunk. If not specified, dump all chunks.
+  -s (X,Z), --where=(X,Z)  Select chunk. If not specified, dump all chunks.
      --help                Print this usage and exit.
-)";
+)"[1];
     }
 
     struct re_option long_options[] = {
