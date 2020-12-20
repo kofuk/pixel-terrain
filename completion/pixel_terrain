@@ -4,10 +4,15 @@
 
 _pixel_terrain() {
     local global_options=(--help --version)
-    local subcommands=(dump-nbt image nbt-to-xml server)
+    local subcommands=(dump-nbt image nbt-to-xml server world-info)
 
     local cur="${COMP_WORDS[$COMP_CWORD]}"
     local prev="${COMP_WORDS[$COMP_CWORD-1]}"
+
+    # In case '--foo=' form.
+    if [ "x$prev" = 'x=' ] && [ 0 -lt "$((COMP_CWORD-1))" ]; then
+        prev="${COMP_WORDS[$COMP_CWORD-2]}"
+    fi
 
     if [ "$COMP_CWORD" -eq 1 ]; then
         COMPREPLY=($(compgen -W "${subcommands[*]} ${global_options[*]}" -- "$cur"))
@@ -76,6 +81,31 @@ _pixel_terrain() {
                     ;;
                 *)
                     COMPREPLY=($(compgen -W "${server_options[*]} ${global_options[*]}" -- "$cur"))
+                    return
+                    ;;
+            esac
+            ;;
+
+        world-info)
+            local world_info_options=(-F --fields -q --quiet)
+            local fields=(name path)
+            case "$prev" in
+                -F|--fields)
+                    if [ -z "${cur#=}" ]; then
+                        COMPREPLY=(${fields[@]})
+                    else
+                        local last="$(tail -1 <<<"${cur//,/$'\n'}")"
+                        local candidates=($(compgen -W "${fields[*]}" -- "$last"))
+                        local last_dropped="${cur%$last}"
+                        COMPREPLY=($(printf "%s\n" "${candidates[@]}" | sed "s@^@${last_dropped//@/\\@}@g"))
+                        if [ ! -z "$last" ]; then
+                            COMPREPLY=($(sed 's/^.*$/& &,/g' <<<"${COMPREPLY[@]}"))
+                        fi
+                    fi
+                    return
+                    ;;
+                *)
+                    COMPREPLY=($(compgen -W "${world_info_options[*]}" -- "$cur"))
                     return
                     ;;
             esac

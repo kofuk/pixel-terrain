@@ -65,6 +65,34 @@ namespace pixel_terrain::nbt::utils {
             all_out.size());
     }
 
+    std::pair<std::shared_ptr<std::uint8_t[]>, std::size_t>
+    gzip_file_decompress(std::filesystem::path const &path) {
+        gzFile in;
+#ifdef _WIN32
+        in = ::gzopen_w(path.c_str(), "r");
+#else
+        in = ::gzopen(path.c_str(), "r");
+#endif
+        if (!in) return std::make_pair(nullptr, 0);
+
+        std::vector<std::uint8_t> all_out;
+        std::uint8_t buf[1024];
+        std::size_t nread;
+
+        while ((nread = ::gzread(in, buf, 1024)) != 0)
+            all_out.insert(all_out.cend(), buf, buf + nread);
+
+        ::gzclose(in);
+
+        std::uint8_t *data = new std::uint8_t[all_out.size()];
+        std::copy(all_out.cbegin(), all_out.cend(), data);
+
+        return std::make_pair(
+            std::shared_ptr<std::uint8_t[]>(
+                data, [](std::uint8_t *data) { delete[] data; }),
+            all_out.size());
+    }
+
     std::tuple<int, int> parse_region_file_path(
         std::filesystem::path const &file_path) noexcept(false) {
         std::string filename = file_path.filename().string();

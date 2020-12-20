@@ -7,18 +7,23 @@ set(PIXEL_TERRAIN_SRCS
   block-server.cc
   dump-nbt.cc
   generate-image.cc
-  nbt-to-xml.cc)
+  nbt-to-xml.cc
+  world-info.cc
+  )
 
 add_executable(pixel-terrain ${PIXEL_TERRAIN_SRCS})
 add_dependencies(pixel-terrain
-  block_colors_data)
+  block_colors_data
+  )
 target_link_libraries(pixel-terrain PRIVATE
   mcregion
   logger
   pixtimage
   pixtserver
   nbtpullparser
-  ${REGETOPT_MOD_NAME})
+  worlds
+  ${REGETOPT_MOD_NAME}
+  )
 install(TARGETS pixel-terrain DESTINATION bin)
 
 add_subdirectory(graphics)
@@ -26,3 +31,4 @@ add_subdirectory(image)
 add_subdirectory(nbt)
 add_subdirectory(server)
 add_subdirectory(logger)
+add_subdirectory(worlds)

@@ -24,6 +24,9 @@ namespace {
          {&pixel_terrain::nbt_to_xml_main, "Convert NBT data into XML."}},
         {"server",
          {&pixel_terrain::server_main, "Altitude and surface block server."}},
+        {"world-info",
+         {&pixel_terrain::world_info_main,
+          "List saved worlds and their information."}},
     };
 
     inline bool is_non_option(char *arg) { return arg[0] != '-'; }
