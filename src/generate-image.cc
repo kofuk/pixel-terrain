@@ -8,9 +8,7 @@
 
 #include <regetopt/regetopt.h>
 
-#include "image/blocks.hh"
-#include "image/generator.hh"
-#include "image/worker.hh"
+#include "image/image.hh"
 #include "logger/logger.hh"
 #include "logger/pretty_printer.hh"
 #include "nbt/utils.hh"
@@ -20,8 +18,9 @@
 
 namespace pixel_terrain::image {
     namespace {
-        void write_range_file(int start_x, int start_z, int end_x, int end_z) {
-            std::filesystem::path out_path(option_out_dir);
+        void write_range_file(int start_x, int start_z, int end_x, int end_z,
+                              options opt) {
+            std::filesystem::path out_path(opt.out_dir);
             out_path /= PATH_STR_LITERAL("chunk_range.json");
 
             std::ofstream out(out_path);
@@ -32,13 +31,14 @@ namespace pixel_terrain::image {
         }
 
         void generate_single_region(std::filesystem::path const &region_file,
-                                    std::filesystem::path const &out_file) {
+                                    std::filesystem::path const &out_file,
+                                    worker *worker, options opt) {
             anvil::region *r;
             try {
-                if (option_cache_dir.empty()) {
+                if (opt.cache_dir.empty()) {
                     r = new anvil::region(region_file);
                 } else {
-                    r = new anvil::region(region_file, option_cache_dir);
+                    r = new anvil::region(region_file, opt.cache_dir);
                 }
             } catch (std::exception const &e) {
                 logger::L(logger::ERROR, "failed to read region: %s\n",
@@ -48,14 +48,14 @@ namespace pixel_terrain::image {
                 return;
             }
 
-            queue_item(std::shared_ptr<region_container>(
+            worker->queue(std::shared_ptr<region_container>(
                 new region_container(r, out_file)));
         }
 
-        void generate_all(std::string src_dir) {
-            if (!option_cache_dir.empty()) {
+        void generate_all(std::string src_dir, options opt) {
+            if (!opt.cache_dir.empty()) {
                 try {
-                    std::filesystem::create_directories(option_cache_dir);
+                    std::filesystem::create_directories(opt.cache_dir);
                 } catch (std::filesystem::filesystem_error const &e) {
                     using namespace std::literals::string_literals;
                     logger::L(logger::ERROR,
@@ -65,7 +65,8 @@ namespace pixel_terrain::image {
                 }
             }
 
-            start_worker();
+            worker worker(opt);
+            worker.start();
 
             std::filesystem::directory_iterator dirents(src_dir);
             int nfiles = std::distance(begin(dirents), end(dirents));
@@ -96,34 +97,34 @@ namespace pixel_terrain::image {
                     continue;
                 }
 
-                if (option_generate_range) {
+                if (opt.generate_range) {
                     if (x < min_x) min_x = x;
                     if (x > max_x) max_x = x;
                     if (z < min_z) min_z = z;
                     if (z > max_z) max_z = z;
                 }
 
-                std::filesystem::path out_file(option_out_dir);
+                std::filesystem::path out_file(opt.out_dir);
                 path_string out_name;
                 out_name.append(std::filesystem::path(std::to_string(x)));
                 out_name.append(PATH_STR_LITERAL(","));
                 out_name.append(std::filesystem::path(std::to_string(z)));
                 out_name.append(PATH_STR_LITERAL(".png"));
                 out_file /= out_name;
-                generate_single_region(path.path(), out_file);
+                generate_single_region(path.path(), out_file, &worker, opt);
 
                 pretty_printer::increment_progress_bar();
             }
 
             logger::L(logger::DEBUG, "Waiting for worker to finish...\n");
-            finish_worker();
+            worker.finish();
             pretty_printer::finish_progress_bar();
 
-            if (option_generate_range) {
+            if (opt.generate_range) {
                 /* max_* is exclusive */
                 ++max_x;
                 ++max_z;
-                write_range_file(min_x, min_z, max_x, max_z);
+                write_range_file(min_x, min_z, max_x, max_z, opt);
             }
 
             logger::show_stat();
@@ -159,8 +160,7 @@ Load save data in <dir>, and generate image.
 
 namespace pixel_terrain {
     int image_main(int argc, char **argv) {
-        pixel_terrain::image::option_jobs = std::thread::hardware_concurrency();
-        pixel_terrain::image::option_out_dir = PATH_STR_LITERAL(".");
+        pixel_terrain::image::options options;
 
         for (;;) {
             int opt = regetopt(argc, argv, "j:c:no:rV", long_options, nullptr);
@@ -175,8 +175,8 @@ namespace pixel_terrain {
 
             case 'j':
                 try {
-                    pixel_terrain::image::option_jobs = std::stoi(re_optarg);
-                    if (pixel_terrain::image::option_jobs <= 0) {
+                    options.n_jobs = std::stoi(re_optarg);
+                    if (options.n_jobs <= 0) {
                         throw std::out_of_range("concurrency is negative");
                     }
                 } catch (std::invalid_argument const &e) {
@@ -189,19 +189,19 @@ namespace pixel_terrain {
                 break;
 
             case 'n':
-                pixel_terrain::image::option_nether = true;
+                options.nether = true;
                 break;
 
             case 'o':
-                pixel_terrain::image::option_out_dir = re_optarg;
+                options.out_dir = re_optarg;
                 break;
 
             case 'r':
-                pixel_terrain::image::option_generate_range = true;
+                options.generate_range = true;
                 break;
 
             case 'c':
-                pixel_terrain::image::option_cache_dir = re_optarg;
+                options.cache_dir = re_optarg;
                 break;
 
             case 'h':
@@ -220,7 +220,7 @@ namespace pixel_terrain {
 
         pixel_terrain::image::init_block_list();
 
-        pixel_terrain::image::generate_all(argv[re_optind]);
+        pixel_terrain::image::generate_all(argv[re_optind], options);
 
         return 0;
     }
