@@ -52,7 +52,7 @@ _pixel_terrain() {
                     return
                     ;;
                 *)
-                    COMPREPLY=($(compgen -W directory -W "${image_options[*]} ${global_options[*]}" -- "$cur"))
+                    COMPREPLY=($(compgen -A directory -W "${image_options[*]} ${global_options[*]}" -- "$cur"))
                     return
                     ;;
             esac
