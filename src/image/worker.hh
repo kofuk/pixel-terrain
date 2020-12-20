@@ -26,7 +26,6 @@ namespace pixel_terrain::image {
     region_container *fetch_item();
     void queue_item(std::shared_ptr<region_container> item);
     void start_worker();
-    void wait_for_worker();
     void finish_worker();
 } // namespace pixel_terrain::image
 

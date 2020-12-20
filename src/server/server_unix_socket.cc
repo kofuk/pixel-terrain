@@ -42,7 +42,6 @@ namespace pixel_terrain::server {
                 if (sig == SIGUSR1) {
                     if (worker != nullptr) {
                         worker->finish();
-                        worker->wait();
                         delete worker;
                     }
                     terminate_server();
@@ -139,7 +138,6 @@ namespace pixel_terrain::server {
         ::close(ssock);
         if (worker != nullptr) {
             worker->finish();
-            worker->wait();
         }
     }
 } // namespace pixel_terrain::server

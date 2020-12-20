@@ -115,10 +115,9 @@ namespace pixel_terrain::image {
                 pretty_printer::increment_progress_bar();
             }
 
+            logger::L(logger::DEBUG, "Waiting for worker to finish...\n");
             finish_worker();
             pretty_printer::finish_progress_bar();
-            logger::L(logger::DEBUG, "Waiting for worker to finish...\n");
-            wait_for_worker();
 
             if (option_generate_range) {
                 /* max_* is exclusive */

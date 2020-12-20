@@ -55,10 +55,8 @@ namespace pixel_terrain::image {
         worker->start();
     }
 
-    void wait_for_worker() {
-        worker->wait();
+    void finish_worker() {
+        worker->finish();
         delete worker;
     }
-
-    void finish_worker() { worker->finish(); }
 } // namespace pixel_terrain::image
