@@ -6,7 +6,7 @@
 #include <string>
 #include <thread>
 
-#include <regetopt/regetopt.h>
+#include <regetopt.h>
 
 #include "image/image.hh"
 #include "logger/logger.hh"

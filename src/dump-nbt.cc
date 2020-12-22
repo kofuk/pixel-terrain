@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-#include <regetopt/regetopt.h>
+#include <regetopt.h>
 
 #include "nbt/region.hh"
 #include "pixel-terrain.hh"

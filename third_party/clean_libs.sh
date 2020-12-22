@@ -8,4 +8,4 @@ cd "$(dirname "${BASH_SOURCE:-$0}")"
 rm -f *.tar.gz
 
 # remove extracted dirs
-rm -rf libpng regetopt zlib
+rm -rf libpng zlib

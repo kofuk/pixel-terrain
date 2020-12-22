@@ -22,7 +22,7 @@ target_link_libraries(pixel-terrain PRIVATE
   pixtserver
   nbtpullparser
   worlds
-  ${REGETOPT_MOD_NAME}
+  regetopt
   )
 install(TARGETS pixel-terrain DESTINATION bin)
 
@@ -33,3 +33,5 @@ add_subdirectory(server)
 add_subdirectory(logger)
 add_subdirectory(utils)
 add_subdirectory(worlds)
+
+add_subdirectory(third_party/regetopt)

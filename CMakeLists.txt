@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 cmake_minimum_required(VERSION 3.15)
-project(pixel-terrain CXX)
+project(pixel-terrain C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_STANDARD_REQUIRED ON)
@@ -11,17 +11,12 @@ find_package(Threads REQUIRED)
 if(PIXEL_TERRAIN_SUPER_BUILDING)
   include(${ZLIB_CONFIG_CMAKE})
   include(${PNG_CONFIG_CMAKE})
-  include(${REGETOPT_CONFIG_CMAKE})
 
   set(ZLIB_MOD_NAME zlibstatic)
   set(PNG_MOD_NAME png_static)
 else()
   find_package(ZLIB REQUIRED)
   find_package(PNG REQUIRED)
-  if(NOT DEFINED REGETOPT_CONFIG_CMAKE)
-    message(FATAL_ERROR "Must provide REGETOPT_CONFIG_CMAKE. (If you don't have it, execute build_regetopt.sh and build it.)")
-  endif()
-  include(${REGETOPT_CONFIG_CMAKE})
 
   set(ZLIB_MOD_NAME ZLIB::ZLIB)
   set(PNG_MOD_NAME PNG::PNG)
@@ -29,6 +24,10 @@ endif()
 set(REGETOPT_MOD_NAME regetopt_static)
 
 include(cmake/test_utils.cmake)
+
+add_subdirectory(block)
+add_subdirectory(src)
+add_subdirectory(tools)
 
 if(${CMAKE_BUILD_TYPE} MATCHES Debug AND NOT MSVC)
   add_compile_options(-fsanitize=address -fsanitize=leak)
@@ -41,7 +40,7 @@ add_custom_target(generate_editor_aux DEPENDS
 
 get_target_property(ZLIB_INCLUDE_DIRS ${ZLIB_MOD_NAME} INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(PNG_INCLUDE_DIRS ${PNG_MOD_NAME} INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(REGETOPT_INCLUDE_DIRS ${REGETOPT_MOD_NAME} INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(REGETOPT_INCLUDE_DIRS regetopt INTERFACE_INCLUDE_DIRECTORIES)
 set(COMP_INCLUDE_DIRS "${ZLIB_INCLUDE_DIRS};${PNG_INCLUDE_DIRS};${REGETOPT_INCLUDE_DIRS};${CMAKE_BINARY_DIR};${PROJECT_SOURCE_DIR}/src")
 unset(REGETOPT_INCLUDE_DIRS)
 unset(PNG_INCLUDE_DIRS)
@@ -65,7 +64,3 @@ endif()
 if(UNIX)
   install(FILES LICENSE DESTINATION share/licenses/pixel-terrain)
 endif()
-
-add_subdirectory(block)
-add_subdirectory(src)
-add_subdirectory(tools)

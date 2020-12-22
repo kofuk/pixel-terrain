@@ -4,7 +4,7 @@
 #include <exception>
 #include <iostream>
 
-#include <regetopt/regetopt.h>
+#include <regetopt.h>
 
 #include "nbt/file.hh"
 #include "nbt/pull_parser/nbt_pull_parser.hh"

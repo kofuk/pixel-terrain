@@ -4,11 +4,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <regetopt/regetopt.h>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <regetopt.h>
 
 #include "pixel-terrain.hh"
 #include "worlds/worlds.hh"

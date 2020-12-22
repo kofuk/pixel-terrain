@@ -4,7 +4,6 @@ project(pixel-terrain-super-build NONE)
 cmake_minimum_required(VERSION 3.15)
 
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libpng OR
-    NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/regetopt OR
     NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/zlib)
   message(FATAL_ERROR "You must execute project_root/third_party/prepare_libs.sh to initialize third-party libraries")
   return()
@@ -19,7 +18,6 @@ add_custom_target(rclean
   COMMAND cmake --build ${CMAKE_CURRENT_BINARY_DIR}/pixel-terrain --target clean
   COMMAND cmake --build ${CMAKE_CURRENT_BINARY_DIR}/png/src/png-build --target clean
   COMMAND cmake --build ${CMAKE_CURRENT_BINARY_DIR}/zlib/src/zlib-build --target clean
-  COMMAND cmake --build ${CMAKE_CURRENT_BINARY_DIR}/regetopt/src/regetopt-build --target clean
   COMMAND cmake --build ${CMAKE_CURRENT_BINARY_DIR} --target clean
   VERBATIM)
 
@@ -44,13 +42,6 @@ ExternalProject_Add(png
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   DEPENDS zlib)
 
-ExternalProject_Add(regetopt
-  PREFIX regetopt
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/regetopt
-  CMAKE_ARGS
-  -DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_INSTALL_PREFIX}
-  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
-
 ExternalProject_Add(pixel-terrain
   PREFIX pixel-terrain
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -59,8 +50,7 @@ ExternalProject_Add(pixel-terrain
   CMAKE_ARGS
   -DZLIB_CONFIG_CMAKE=${THIRD_PARTY_INSTALL_PREFIX}/share/cmake/zlib/zlib-config.cmake
   -DPNG_CONFIG_CMAKE=${THIRD_PARTY_INSTALL_PREFIX}/lib/libpng/libpng16.cmake
-  -DREGETOPT_CONFIG_CMAKE=${THIRD_PARTY_INSTALL_PREFIX}/lib/regetopt/regetopt-config.cmake
   -DPIXEL_TERRAIN_SUPER_BUILDING=ON
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-  DEPENDS zlib png regetopt)
+  DEPENDS zlib png)

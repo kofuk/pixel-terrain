@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <regetopt/regetopt.h>
+#include <regetopt.h>
 
 #include "pixel-terrain.hh"
 #include "server/server.hh"
