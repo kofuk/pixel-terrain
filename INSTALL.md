@@ -2,11 +2,23 @@
 
 ## Build instruction
 
-### Superbuild (Easiest)
+### Using system-installed libraries
+
+Make sure the following libraries are installed and can be found with CMake:
+
+- zlib
+- libpng
+
+If you installed libraries above, this project builds in the way as usual CMake project:
+
+```shell
+$ mkdir build && cd $_ && cmake .. && cmake --build .
+```
+
+### Superbuild
 
 In this way, all dependencies are built (instead of using libraries on your system)
-and statically linked. Unless you have special reason for using system-installed
-libraries, I recommend to build in this way.
+and statically linked.
 
 Make sure the following required dependencies installed:
 
@@ -36,17 +48,3 @@ You should be able to choose any single configuration build system.
 If your system doesn't have commands to execute `prepare_libs.sh`,
 you have to manually download tarballs (URLs are written in `third_party/dep`)
 and apply patches in third_party directory.
-
-### Using system-installed libraries (Advanced)
-
-Make sure the following libraries are installed and can be found with CMake:
-
-- zlib
-- libpng
-
-First, you have to build `regetopt` library (command-line option parser) because
-it can't be found usual system. I sure that all you have to do is executing `build_regetopt.sh`.
-Arguments you pass to the script will be passed to CMake.
-
-Then, configure your build with top level CMakeLists.txt
-(with option `build_regetopt.sh` displays in the last line).
