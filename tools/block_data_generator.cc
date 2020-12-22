@@ -20,11 +20,11 @@
  * DATA STRUCTURE
  *
  * |-------------------|-------------------------|
+ * | len(block_id)     | length of block_id      |
  * | block_id (string) | block id (byte by byte) |
  * | .                 |                         |
  * | .                 |                         |
  * | .                 |                         |
- * | 0                 | sentinel value          |
  * | color[0]          |                         |
  * | color[1]          |                         |
  * | color[2]          |                         |
@@ -154,6 +154,13 @@ const std::uint8_t block_colors_data[] = {
                 return false;
             }
             element.namespace_id = fields[0];
+            if (255 < element.namespace_id.size()) {
+                /* Namespace ID longer than 255 can't be saved because of
+                   limitation of data structure. */
+                std::cerr << "fatal: namespace id too long: " << in_name << ": "
+                          << lineno << '\n';
+                return false;
+            }
 
             for (int c = 0; c < 4; ++c) {
                 try {
@@ -185,11 +192,12 @@ const std::uint8_t block_colors_data[] = {
     bool write_content(std::set<block_color> const &elements,
                        std::ostream &out_file) {
         for (block_color const &element : elements) {
+            std::uint8_t block_id_len = (std::uint8_t)element.namespace_id.size();
+            out_file << +block_id_len << ',';
             for (char const &chr : element.namespace_id) {
                 out_file << '\'' << chr << '\'';
                 out_file << ',';
             }
-            out_file << '0' << ',';
             total_bytes += element.namespace_id.size() + 1;
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__

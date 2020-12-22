@@ -16,14 +16,13 @@ namespace pixel_terrain::image {
     void init_block_list() {
         std::size_t off = 0;
         for (;;) {
-            std::size_t len = std::strlen(
-                reinterpret_cast<char const *>(block_colors_data) + off);
-            if (len == 0) {
-                break;
-            }
+            std::size_t len = static_cast<std::size_t>(block_colors_data[off]);
+            ++off;
+            if (len == 0) break;
+
             std::string_view block_name(
                 reinterpret_cast<char const *>(block_colors_data) + off, len);
-            off += len + 1;
+            off += len;
             std::uint32_t color;
             std::memcpy(&color, block_colors_data + off, sizeof(std::uint32_t));
             colors[block_name] = color;
