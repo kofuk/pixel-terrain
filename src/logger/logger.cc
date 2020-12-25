@@ -7,6 +7,10 @@
 #include <iostream>
 #include <mutex>
 
+#ifdef __unix__
+#include <unistd.h>
+#endif
+
 #include "logger.hh"
 
 namespace pixel_terrain::logger {
@@ -15,6 +19,11 @@ namespace pixel_terrain::logger {
 
         std::size_t generated;
         std::size_t reused;
+
+#ifdef __unix__
+        bool tty_initialized;
+        bool is_tty;
+#endif
     } // namespace
 
     unsigned int log_level;
@@ -26,6 +35,47 @@ namespace pixel_terrain::logger {
         va_start(ap, fmt);
 
         std::unique_lock<std::mutex> lock(m);
+
+#ifdef __unix__
+        if (!tty_initialized) {
+            tty_initialized = true;
+            is_tty = ::isatty(STDOUT_FILENO);
+        }
+#endif
+
+        switch (log_level) {
+        case logger::INFO:
+#ifdef __unix__
+            if (is_tty)
+                std::fputs("\e[1mPixelTerrain-\e[1;32mINFO\e[0m: ", stderr);
+            else
+                std::fputs("PixelTerrain-INFO: ", stderr);
+#else
+            std::fputs("PixelTerrain-INFO: ", stderr);
+#endif
+            break;
+        case logger::DEBUG:
+#ifdef __unix__
+            if (is_tty)
+                std::fputs("\e[1mPixelTerrain-\e[1;33mDEBUG\e[0m: ", stderr);
+            else
+                std::fputs("PixelTerrain-DEBUG: ", stderr);
+#else
+            std::fputs("PixelTerrain-DEBUG: ", stderr);
+#endif
+            break;
+        case logger::ERROR:
+#ifdef __unix__
+            if (is_tty)
+                std::fputs("\e[1mPixelTerrain-\e[1;31mERROR\e[0m: ", stderr);
+            else
+                std::fputs("PixelTerrain-ERROR: ", stderr);
+#else
+            std::fputs("PixelTerrain-ERROR: ", stderr);
+#endif
+            break;
+        }
+
         std::vfprintf(stderr, fmt, ap);
 
         va_end(ap);
