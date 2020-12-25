@@ -6,29 +6,30 @@
 #include <filesystem>
 
 #include "image/containers.hh"
-#include "image/generator.hh"
+#include "image/worker.hh"
 #include "nbt/chunk.hh"
 #include "nbt/region.hh"
 #include "utils/threaded_worker.hh"
 
 namespace pixel_terrain::image {
-    class worker {
-        image::image_generator *generator_;
-        threaded_worker<std::shared_ptr<region_container>> *worker_;
+    class image_generator {
+        image::worker *worker_;
+        threaded_worker<std::shared_ptr<region_container>> *thread_pool_;
         region_container *fetch();
 
     public:
-        worker(options opt) {
-            generator_ = new image::image_generator(opt);
-            worker_ = new threaded_worker<std::shared_ptr<region_container>>(
-                opt.n_jobs, [this](std::shared_ptr<region_container> item) {
-                    this->generator_->generate_region(item);
-                });
+        image_generator(options opt) {
+            worker_ = new image::worker(opt);
+            thread_pool_ =
+                new threaded_worker<std::shared_ptr<region_container>>(
+                    opt.n_jobs, [this](std::shared_ptr<region_container> item) {
+                        this->worker_->generate_region(item);
+                    });
         }
 
-        ~worker() {
+        ~image_generator() {
+            delete thread_pool_;
             delete worker_;
-            delete generator_;
         }
 
         void start();

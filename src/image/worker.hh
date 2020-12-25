@@ -7,14 +7,14 @@
 #include <memory>
 
 #include "graphics/png.hh"
-#include "nbt/chunk.hh"
 #include "image/containers.hh"
+#include "nbt/chunk.hh"
 
 namespace pixel_terrain::image {
     constexpr std::int32_t PS_IS_TRANSPARENT = 1;
     constexpr std::int32_t PS_BIOME_OVERRIDDEN = 1 << 1;
 
-    class image_generator {
+    class worker {
         struct PixelState {
             std::uint_fast32_t flags;
             std::uint_fast8_t top_height;
@@ -65,7 +65,7 @@ namespace pixel_terrain::image {
                             png &image) const;
 
     public:
-        image_generator(options opt) : options_(opt) {}
+        worker(options opt) : options_(opt) {}
         void generate_region(std::shared_ptr<region_container> item) const;
     };
 } // namespace pixel_terrain::image

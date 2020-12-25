@@ -32,7 +32,7 @@ namespace pixel_terrain::image {
 
         void generate_single_region(std::filesystem::path const &region_file,
                                     std::filesystem::path const &out_file,
-                                    worker *worker, options opt) {
+                                    image_generator *generator, options opt) {
             anvil::region *r;
             try {
                 if (opt.cache_dir.empty()) {
@@ -48,7 +48,7 @@ namespace pixel_terrain::image {
                 return;
             }
 
-            worker->queue(std::shared_ptr<region_container>(
+            generator->queue(std::shared_ptr<region_container>(
                 new region_container(r, out_file)));
         }
 
@@ -65,8 +65,8 @@ namespace pixel_terrain::image {
                 }
             }
 
-            worker worker(opt);
-            worker.start();
+            image_generator generator(opt);
+            generator.start();
 
             std::filesystem::directory_iterator dirents(src_dir);
             int nfiles = std::distance(begin(dirents), end(dirents));
@@ -111,13 +111,13 @@ namespace pixel_terrain::image {
                 out_name.append(std::filesystem::path(std::to_string(z)));
                 out_name.append(PATH_STR_LITERAL(".png"));
                 out_file /= out_name;
-                generate_single_region(path.path(), out_file, &worker, opt);
+                generate_single_region(path.path(), out_file, &generator, opt);
 
                 pretty_printer::increment_progress_bar();
             }
 
             logger::L(logger::DEBUG, "Waiting for worker to finish...\n");
-            worker.finish();
+            generator.finish();
             pretty_printer::finish_progress_bar();
 
             if (opt.generate_range) {
