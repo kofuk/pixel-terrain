@@ -65,12 +65,16 @@ namespace {
         pixel_terrain::threaded_worker<int> worker(
             max(1, (int)std::thread::hardware_concurrency() - 1), &cb_slow);
         worker.start();
+        worker.queue_job(0);
+        worker.finish();
+        std::puts("\r\e[JDone.");
+    }
 
-        for (int i = 0;
-             i < max(1, (int)std::thread::hardware_concurrency() - 1); ++i) {
-            worker.queue_job(i);
-        }
-
+    void zero_item_test() {
+        std::puts("Running zero_item_test");
+        pixel_terrain::threaded_worker<int> worker(
+            max(1, (int)std::thread::hardware_concurrency() - 1), &cb_slow);
+        worker.start();
         worker.finish();
         std::puts("\r\e[JDone.");
     }
@@ -81,4 +85,5 @@ int main(void) {
     slow_consumer_test();
     slow_producer_test();
     few_item_test();
+    zero_item_test();
 }

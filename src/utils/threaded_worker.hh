@@ -105,6 +105,7 @@ namespace pixel_terrain {
             }
 
             for (std::thread *th : workers_) {
+                signal_cond_.notify_all();
                 th->join();
                 delete th;
             }
