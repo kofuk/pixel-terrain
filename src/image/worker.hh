@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-#ifndef GENERATOR_HH
-#define GENERATOR_HH
+#ifndef WORKER_HH
+#define WORKER_HH
 
+#include <array>
 #include <filesystem>
 #include <memory>
 
@@ -11,11 +12,11 @@
 #include "nbt/chunk.hh"
 
 namespace pixel_terrain::image {
-    constexpr std::int32_t PS_IS_TRANSPARENT = 1;
-    constexpr std::int32_t PS_BIOME_OVERRIDDEN = 1 << 1;
-
     class worker {
-        struct PixelState {
+        struct pixel_state {
+            static constexpr std::int32_t IS_TRANSPARENT = 1;
+            static constexpr std::int32_t BIOME_OVERRIDDEN = 1 << 1;
+
             std::uint_fast32_t flags;
             std::uint_fast8_t top_height;
             std::uint_fast8_t mid_height;
@@ -25,7 +26,7 @@ namespace pixel_terrain::image {
             std::uint_fast32_t bg_color;
             std::int32_t top_biome;
 
-            PixelState()
+            pixel_state()
                 : flags(0), top_height(0), mid_height(0), opaque_height(0),
                   fg_color(0x00000000), mid_color(0x00000000),
                   bg_color(0x00000000), top_biome(0) {}
@@ -35,31 +36,28 @@ namespace pixel_terrain::image {
             }
         };
 
+        using pixel_states = std::array<pixel_state, 512 * 512>;
+
         options options_;
 
-        static inline PixelState &get_pixel_state(
-            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_state,
-            int x, int y) {
+        static inline pixel_state &
+        get_pixel_state(std::shared_ptr<pixel_states> pixel_state, int x,
+                        int y) {
             return (*pixel_state)[y * 512 + x];
         }
 
-        std::shared_ptr<std::array<PixelState, 512 * 512>>
-        scan_chunk(anvil::chunk *chunk) const;
+        std::shared_ptr<pixel_states> scan_chunk(anvil::chunk *chunk) const;
 
-        void handle_biomes(std::shared_ptr<std::array<PixelState, 512 * 512>>
-                               pixel_states) const;
+        void handle_biomes(std::shared_ptr<pixel_states> pixel_states) const;
 
-        void handle_inclination(
-            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states)
-            const;
+        void
+        handle_inclination(std::shared_ptr<pixel_states> pixel_states) const;
 
-        void process_pipeline(std::shared_ptr<std::array<PixelState, 512 * 512>>
-                                  pixel_states) const;
+        void process_pipeline(std::shared_ptr<pixel_states> pixel_states) const;
 
-        void generate_image(
-            int chunk_x, int chunk_z,
-            std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states,
-            png &image) const;
+        void generate_image(int chunk_x, int chunk_z,
+                            std::shared_ptr<pixel_states> pixel_states,
+                            png &image) const;
 
         void generate_chunk(anvil::chunk *chunk, int chunk_x, int chunk_z,
                             png &image) const;

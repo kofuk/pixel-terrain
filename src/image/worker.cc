@@ -3,7 +3,6 @@
 /* Read whole mca files, and construct intermidiate representation of those,
    then decide pixel color and generate PNG image.. */
 
-#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -17,21 +16,20 @@
 #include "logger/logger.hh"
 
 namespace pixel_terrain::image {
-    std::shared_ptr<std::array<worker::PixelState, 512 * 512>>
+    std::shared_ptr<worker::pixel_states>
     worker::scan_chunk(anvil::chunk *chunk) const {
         int max_y = chunk->get_max_height();
         if (options_.nether) {
             if (max_y > 127) max_y = 127;
         }
 
-        std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states(
-            new std::array<PixelState, 512 * 512>);
+        std::shared_ptr<pixel_states> states(new pixel_states);
         for (int z = 0; z < 16; ++z) {
             for (int x = 0; x < 16; ++x) {
                 bool air_found = false;
                 std::string prev_block;
 
-                PixelState &pixel_state = get_pixel_state(pixel_states, x, z);
+                pixel_state &pixel_state = get_pixel_state(states, x, z);
 
                 for (int y = max_y; y >= 0; --y) {
                     std::string block;
@@ -75,7 +73,8 @@ namespace pixel_terrain::image {
                             pixel_state.top_height = y;
                             pixel_state.top_biome = chunk->get_biome(x, y, z);
                             if (is_biome_overridden(block)) {
-                                pixel_state.add_flags(PS_BIOME_OVERRIDDEN);
+                                pixel_state.add_flags(
+                                    pixel_state::BIOME_OVERRIDDEN);
                             }
                             if ((color & 0xff) == 0xff) {
                                 pixel_state.mid_color = color;
@@ -84,7 +83,8 @@ namespace pixel_terrain::image {
                                 pixel_state.opaque_height = y;
                                 break;
                             } else {
-                                pixel_state.add_flags(PS_IS_TRANSPARENT);
+                                pixel_state.add_flags(
+                                    pixel_state::IS_TRANSPARENT);
                             }
                         } else if (pixel_state.mid_color == 0x00000000) {
                             pixel_state.mid_color = color;
@@ -115,16 +115,16 @@ namespace pixel_terrain::image {
             }
         }
 
-        return pixel_states;
+        return states;
     }
 
-    void worker::handle_biomes(
-        std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states) const {
+    void
+    worker::handle_biomes(std::shared_ptr<pixel_states> pixel_states) const {
         /* process biome color overrides */
         for (int z = 0; z < 16; ++z) {
             for (int x = 0; x < 16; ++x) {
-                PixelState &pixel_state = get_pixel_state(pixel_states, x, z);
-                if (pixel_state.get_flag(PS_BIOME_OVERRIDDEN)) {
+                pixel_state &pixel_state = get_pixel_state(pixel_states, x, z);
+                if (pixel_state.get_flag(pixel_state::BIOME_OVERRIDDEN)) {
                     std::uint_fast32_t *color;
                     if (pixel_state.fg_color != 0x00000000) {
                         color = &(pixel_state.fg_color);
@@ -146,11 +146,11 @@ namespace pixel_terrain::image {
     }
 
     void worker::handle_inclination(
-        std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states) const {
+        std::shared_ptr<pixel_states> pixel_states) const {
         for (int z = 0; z < 16; ++z) {
             for (int x = 1; x < 16; ++x) {
-                PixelState &left = get_pixel_state(pixel_states, x - 1, z);
-                PixelState &cur = get_pixel_state(pixel_states, x, z);
+                pixel_state &left = get_pixel_state(pixel_states, x - 1, z);
+                pixel_state &cur = get_pixel_state(pixel_states, x, z);
                 if (left.opaque_height < cur.opaque_height) {
                     cur.bg_color = increase_brightness(cur.bg_color, 30);
                     if (x == 1) {
@@ -167,8 +167,8 @@ namespace pixel_terrain::image {
 
         for (int z = 1; z < 16; ++z) {
             for (int x = 0; x < 16; ++x) {
-                PixelState &cur = get_pixel_state(pixel_states, x, z);
-                PixelState &upper = get_pixel_state(pixel_states, x, z - 1);
+                pixel_state &cur = get_pixel_state(pixel_states, x, z);
+                pixel_state &upper = get_pixel_state(pixel_states, x, z - 1);
 
                 if (upper.opaque_height < cur.opaque_height) {
                     cur.bg_color = increase_brightness(cur.bg_color, 10);
@@ -187,19 +187,18 @@ namespace pixel_terrain::image {
         }
     }
 
-    void worker::process_pipeline(
-        std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states) const {
+    void
+    worker::process_pipeline(std::shared_ptr<pixel_states> pixel_states) const {
         handle_biomes(pixel_states);
         handle_inclination(pixel_states);
     }
 
-    void worker::generate_image(
-        int chunk_x, int chunk_z,
-        std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states,
-        png &image) const {
+    void worker::generate_image(int chunk_x, int chunk_z,
+                                std::shared_ptr<pixel_states> pixel_states,
+                                png &image) const {
         for (int z = 0; z < 16; ++z) {
             for (int x = 0; x < 16; ++x) {
-                PixelState &pixel_state = get_pixel_state(pixel_states, x, z);
+                pixel_state &pixel_state = get_pixel_state(pixel_states, x, z);
 
                 std::uint_fast32_t bg_color = increase_brightness(
                     pixel_state.mid_color,
@@ -217,8 +216,7 @@ namespace pixel_terrain::image {
 
     void worker::generate_chunk(anvil::chunk *chunk, int chunk_x, int chunk_z,
                                 png &image) const {
-        std::shared_ptr<std::array<PixelState, 512 * 512>> pixel_states =
-            scan_chunk(chunk);
+        std::shared_ptr<pixel_states> pixel_states = scan_chunk(chunk);
         process_pipeline(pixel_states);
         generate_image(chunk_x, chunk_z, pixel_states, image);
     }
