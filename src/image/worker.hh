@@ -38,15 +38,13 @@ namespace pixel_terrain::image {
 
         using pixel_states = std::array<pixel_state, 512 * 512>;
 
-        options options_;
-
         static inline pixel_state &
         get_pixel_state(std::shared_ptr<pixel_states> pixel_state, int x,
                         int y) {
             return (*pixel_state)[y * 512 + x];
         }
 
-        std::shared_ptr<pixel_states> scan_chunk(anvil::chunk *chunk) const;
+        std::shared_ptr<pixel_states> scan_chunk(anvil::chunk *chunk, options const &options) const;
 
         void handle_biomes(std::shared_ptr<pixel_states> pixel_states) const;
 
@@ -60,11 +58,10 @@ namespace pixel_terrain::image {
                             png &image) const;
 
         void generate_chunk(anvil::chunk *chunk, int chunk_x, int chunk_z,
-                            png &image) const;
+                            png &image, options const &options) const;
 
     public:
-        worker(options opt) : options_(opt) {}
-        void generate_region(std::shared_ptr<region_container> item) const;
+        void generate_region(region_container *item) const;
     };
 } // namespace pixel_terrain::image
 

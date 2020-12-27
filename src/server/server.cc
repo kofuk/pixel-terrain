@@ -22,9 +22,9 @@
 #include "server/request.hh"
 #include "server/server.hh"
 #include "server/writer.hh"
-#if _WIN32
+#ifdef OS_WIN
 #include "server/server_generic.hh"
-#else
+#elif defined(OS_LINUX)
 #include "server/server_unix_socket.hh"
 #endif
 
@@ -234,12 +234,12 @@ namespace pixel_terrain::server {
     } // namespace
 
     void launch_server(bool daemon_mode) {
-#ifdef _WIN32
+#ifdef OS_WIN
         if (daemon_mode) {
             std::cout << "Warning: Daemon mode has no effect on Windows.\n";
         }
         server_base *s = new server_generic();
-#else
+#elif defined(OS_LINUX)
         server_base *s = new server_unix_socket(daemon_mode);
 #endif
         s->start_server();

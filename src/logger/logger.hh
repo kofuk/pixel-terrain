@@ -15,12 +15,11 @@ namespace pixel_terrain::logger {
     __attribute__((format(printf, 2, 3))) void L(unsigned int log_level,
                                                  char const *fmt, ...);
 
-    /* void d(std::string message); */
-    /* void e(std::string message); */
-    /* void i(std::string message); */
-
-    void record_stat(bool regenerated);
+    void record_stat(bool regenerated, std::string const &label);
     void show_stat();
+
+    void progress_bar_increase_total(int n);
+    void progress_bar_process_one();
 } // namespace pixel_terrain::logger
 
 #endif

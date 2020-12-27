@@ -16,10 +16,10 @@
 namespace pixel_terrain {
     namespace {
         std::filesystem::path get_save_dir() {
-#ifdef _WIN32
-            std::filesystem::path base = std::getenv("APPDATA");
-#else
+#ifdef OS_LINUX
             std::filesystem::path base = std::getenv("HOME");
+#elif defined(OS_WIN)
+            std::filesystem::path base = std::getenv("APPDATA");
 #endif
             base /= PATH_STR_LITERAL(".minecraft");
             base /= PATH_STR_LITERAL("saves");

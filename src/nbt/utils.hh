@@ -8,7 +8,6 @@
 #include <cstring>
 #include <filesystem>
 #include <memory>
-#include <tuple>
 #include <utility>
 
 namespace pixel_terrain::nbt::utils {
@@ -99,9 +98,6 @@ namespace pixel_terrain::nbt::utils {
     zlib_decompress(unsigned char *data, std::size_t const len);
     std::pair<std::shared_ptr<std::uint8_t[]>, std::size_t>
     gzip_file_decompress(std::filesystem::path const &path);
-
-    std::tuple<int, int> parse_region_file_path(
-        std::filesystem::path const &file_path) noexcept(false);
 } // namespace pixel_terrain::nbt::utils
 
 #endif

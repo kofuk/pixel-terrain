@@ -68,7 +68,7 @@ namespace pixel_terrain::nbt::utils {
     std::pair<std::shared_ptr<std::uint8_t[]>, std::size_t>
     gzip_file_decompress(std::filesystem::path const &path) {
         gzFile in;
-#ifdef _WIN32
+#ifdef OS_WIN
         in = ::gzopen_w(path.c_str(), "r");
 #else
         in = ::gzopen(path.c_str(), "r");
@@ -91,42 +91,5 @@ namespace pixel_terrain::nbt::utils {
             std::shared_ptr<std::uint8_t[]>(
                 data, [](std::uint8_t *data) { delete[] data; }),
             all_out.size());
-    }
-
-    std::tuple<int, int> parse_region_file_path(
-        std::filesystem::path const &file_path) noexcept(false) {
-        std::string filename = file_path.filename().string();
-        if (filename.empty()) {
-            throw std::invalid_argument("Invalid file path");
-        }
-
-        std::vector<std::string> elements;
-        std::size_t prev = 0;
-        for (std::size_t i = 0; i < filename.size(); ++i) {
-            if (filename[i] == '.') {
-                elements.push_back(filename.substr(prev, i - prev));
-                prev = i + 1;
-            }
-        }
-        if (prev <= filename.size()) {
-            elements.push_back(filename.substr(prev));
-        }
-
-        if (elements.size() != 4 || elements[0] != "r" ||
-            elements[3] != "mca") {
-            throw std::invalid_argument("Invalid region filename format");
-        }
-
-        std::size_t idx;
-        int x = std::stoi(elements[1], &idx);
-        if (idx != elements[1].size()) {
-            throw std::invalid_argument("Invalid region x axis");
-        }
-        int z = std::stoi(elements[2], &idx);
-        if (idx != elements[2].size()) {
-            throw std::invalid_argument("Invalid region z axis");
-        }
-
-        return {x, z};
     }
 } // namespace pixel_terrain::nbt::utils

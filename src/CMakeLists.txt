@@ -1,6 +1,11 @@
 # SPDX-License-Identifier: MIT
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  add_definitions(-DOS_LINUX=1)
+elseif(WIN32)
+  add_definitions(-DOS_WIN=1)
+endif()
 
 set(PIXEL_TERRAIN_SRCS
   pixel-terrain.cc

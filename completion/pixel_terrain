@@ -41,7 +41,7 @@ _pixel_terrain() {
             ;;
 
         image)
-            local image_options=(-j --jobs -c --cache-dir -n --nether -o --out -r --gen-range -V)
+            local image_options=(-j --jobs -c --cache-dir -n --nether -o --out -r --gen-range -V -VV -VVV)
             case "$prev" in
                 -j|--jobs)
                     COMPREPLY=($(compgen -W "$(seq $(nproc))" -- "$cur"))

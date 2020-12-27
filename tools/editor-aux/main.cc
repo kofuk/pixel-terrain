@@ -14,11 +14,15 @@
 
 namespace {
     void print_usage() {
-        std::cout << R"(usage: lsp-aux TYPE OUT_FILE ARGS...
-TYPEs:
+        std::cout << &R"(
+usage: lsp-aux PLATFORM TYPE OUT_FILE ARGS...
+Platforms:
+  Linux
+  Windows
+Types:
   compile_flags.txt
   .dir-local.el
-)";
+)"[1];
     }
 
     void generate_compile_flags(std::vector<std::string> const &flags,
@@ -44,12 +48,18 @@ TYPEs:
         }
     }
 
-    void generate_dir_locals(std::vector<std::string> const &include_dirs,
-                             std::string const &out) {
+    void
+    generate_dir_locals(std::vector<std::string> const &include_dirs,
+                        std::vector<std::string> const &compile_definitions,
+                        std::string const &out) {
         std::ofstream of(out);
         of << "((c++-mode . ((flycheck-clang-include-path . (list ";
         for (std::string const &path : include_dirs) {
             of << "\"" << path << "\" ";
+        }
+        of << "))\n(flycheck-clang-definitions . (list ";
+        for (std::string const &def : compile_definitions) {
+            of << "\"" << def << "\" ";
         }
         of << ")))))\n";
     }
@@ -57,27 +67,48 @@ TYPEs:
 
 #ifndef TEST
 int main(int argc, char **argv) {
-    if (argc < 3) {
+    if (argc < 4) {
         print_usage();
         return 1;
     }
-    if (!strcmp(argv[1], "compile_flags.txt")) {
+
+    if (!strcmp(argv[2], "compile_flags.txt")) {
         std::vector<std::string> flags;
         flags.push_back("-Wall");
         flags.push_back("-Wextra");
         flags.push_back("-std=c++17");
-        for (int i = 3; i < argc; ++i) {
+
+        if (!std::strcmp(argv[1], "Linux")) {
+            flags.push_back("-DOS_LINUX=1");
+        } else if (!strcmp(argv[1], "Windows")) {
+            flags.push_back("-DOS_WIN=1");
+        } else {
+            print_usage();
+            return 1;
+        }
+
+        for (int i = 4; i < argc; ++i) {
             using namespace std::string_literals;
             flags.push_back("-I"s + argv[i]);
         }
-        generate_compile_flags(flags, argv[2]);
-    } else if (!strcmp(argv[1], ".dir-locals.el")) {
+        generate_compile_flags(flags, argv[3]);
+    } else if (!strcmp(argv[2], ".dir-locals.el")) {
         std::vector<std::string> include_dirs;
-        for (int i = 3; i < argc; ++i) {
+        std::vector<std::string> compile_definitions;
+        if (!std::strcmp(argv[1], "Linux")) {
+            compile_definitions.push_back("-DOS_LINUX=1");
+        } else if (!std::strcmp(argv[1], "Windows")) {
+            compile_definitions.push_back("-DOS_WIN=1");
+        } else {
+            print_usage();
+            return 1;
+        }
+
+        for (int i = 4; i < argc; ++i) {
             include_dirs.push_back(argv[i]);
         }
         escape_strings(include_dirs);
-        generate_dir_locals(include_dirs, argv[2]);
+        generate_dir_locals(include_dirs, compile_definitions, argv[3]);
     } else {
         print_usage();
         return 1;

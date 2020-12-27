@@ -14,9 +14,9 @@
 #include <stdexcept>
 #include <vector>
 
-#ifdef _WIN32
+#ifdef OS_WIN
 #include <fstream>
-#else
+#elif defined(OS_LINUX)
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -31,7 +31,7 @@ namespace pixel_terrain {
         bool mmapped = false;
         std::size_t data_len = 0;
         T *data;
-#ifdef _WIN32
+#ifdef OS_WIN
         path_string filename;
         bool write_mode = false;
 #endif
@@ -39,7 +39,7 @@ namespace pixel_terrain {
     public:
         /* open specified file in read-only mode. */
         file(std::filesystem::path const &filename) {
-#ifdef _WIN32
+#ifdef OS_WIN
             std::ifstream ifs(filename, std::ios::binary);
             if (!ifs) {
                 throw std::runtime_error("Unable to open file");
@@ -58,7 +58,7 @@ namespace pixel_terrain {
             data = new T[d.size()];
             copy(d.begin(), d.end(), data);
             data_len = d.size() / sizeof(T);
-#else
+#elif defined(OS_LINUX)
             int fd = open(filename.c_str(), O_RDONLY);
             if (fd < 0) {
                 throw std::runtime_error(strerror(errno));
@@ -121,7 +121,7 @@ namespace pixel_terrain {
                 }
             }
 
-#ifdef _WIN32
+#ifdef OS_WIN
             write_mode = writable;
             this->filename = filename;
             std::ifstream ifs(filename, std::ios::binary);
@@ -149,7 +149,7 @@ namespace pixel_terrain {
 
             data = new T[d.size()];
             std::copy(d.begin(), d.end(), data);
-#else
+#elif defined(OS_LINUX)
             int omode = 0;
             if (readable && writable) {
                 omode = O_RDWR;
@@ -189,7 +189,7 @@ namespace pixel_terrain {
         }
 
         ~file() {
-#ifdef _WIN32
+#ifdef OS_WIN
             if (write_mode) {
                 std::ofstream ofs(filename);
                 if (!ofs) {
@@ -201,7 +201,7 @@ namespace pixel_terrain {
                 /* TODO: check if ofstream::write success. */
             }
             delete[] data;
-#else
+#elif defined(OS_LINUX)
             if (mmapped) {
                 munmap(data, data_len);
             } else {
