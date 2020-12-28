@@ -11,9 +11,13 @@
 #include "image/blocks.hh"
 
 namespace pixel_terrain::image {
-    std::unordered_map<std::string_view, std::uint32_t> colors;
+    namespace {
+        using block_color_map =
+            std::unordered_map<std::string_view, std::uint32_t>;
+    }
 
-    void init_block_list() {
+    block_color_map init_block_list() {
+        block_color_map result;
         std::size_t off = 0;
         for (;;) {
             std::size_t len = static_cast<std::size_t>(block_colors_data[off]);
@@ -25,10 +29,14 @@ namespace pixel_terrain::image {
             off += len;
             std::uint32_t color;
             std::memcpy(&color, block_colors_data + off, sizeof(std::uint32_t));
-            colors[block_name] = color;
+            result[block_name] = color;
             off += 4;
         }
+
+        return result;
     }
+
+    block_color_map colors = init_block_list();
 
     bool is_biome_overridden(std::string const &block) {
         /* first, check if block is water or grass_block because the most

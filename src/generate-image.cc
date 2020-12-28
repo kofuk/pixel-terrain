@@ -105,8 +105,6 @@ namespace pixel_terrain {
 
         pixel_terrain::image::options options;
 
-        pixel_terrain::image::init_block_list();
-
         bool should_generate = true;
 
         for (;;) {
