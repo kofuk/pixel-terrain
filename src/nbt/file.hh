@@ -59,19 +59,20 @@ namespace pixel_terrain {
             copy(d.begin(), d.end(), data);
             data_len = d.size() / sizeof(T);
 #elif defined(OS_LINUX)
-            int fd = open(filename.c_str(), O_RDONLY);
+            int fd = ::open(filename.c_str(), O_RDONLY);
             if (fd < 0) {
                 throw std::runtime_error(strerror(errno));
             }
-            struct stat statbuf;
+            struct ::stat statbuf;
             if (fstat(fd, &statbuf) != 0) {
+                ::close(fd);
                 throw std::runtime_error(strerror(errno));
             }
 
             if ((statbuf.st_mode & S_IFMT) == S_IFREG) {
-                void *mem = mmap(nullptr, statbuf.st_size,
-                                 PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-                close(fd);
+                void *mem = ::mmap(nullptr, statbuf.st_size,
+                                   PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+                ::close(fd);
                 if (mem == MAP_FAILED) {
                     throw std::runtime_error(strerror(errno));
                 }
@@ -82,10 +83,10 @@ namespace pixel_terrain {
             } else {
                 std::vector<T> content;
                 char tmp[sizeof(T)];
-                ssize_t n_read;
-                while ((n_read = read(fd, tmp, sizeof(T))) > 0) {
+                ::ssize_t n_read;
+                while ((n_read = ::read(fd, tmp, sizeof(T))) > 0) {
                     if (n_read != sizeof(T)) {
-                        close(fd);
+                        ::close(fd);
                         throw std::runtime_error(strerror(errno));
                     }
                     content.push_back(*reinterpret_cast<T *>(tmp));
@@ -159,29 +160,30 @@ namespace pixel_terrain {
                 omode = O_WRONLY;
             }
             omode |= O_CREAT;
-            int fd = open(filename.c_str(), omode,
-                          S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+            int fd = ::open(filename.c_str(), omode,
+                            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
             if (fd < 0) {
                 throw std::runtime_error(strerror(errno));
             }
 
-            struct stat statbuf;
-            if (fstat(fd, &statbuf) == 0) {
+            struct ::stat statbuf;
+            if (::fstat(fd, &statbuf) == 0) {
                 if ((statbuf.st_mode & S_IFMT) != S_IFREG) {
+                    ::close(fd);
                     throw std::logic_error("file is not a regular file");
                 }
             }
 
-            if (posix_fallocate(fd, 0, data_len) != 0) {
+            if (::posix_fallocate(fd, 0, data_len) != 0) {
                 int errsave = errno;
-                close(fd);
+                ::close(fd);
                 throw std::runtime_error(strerror(errsave));
             }
-            void *mem = mmap(nullptr, data_len, PROT_READ | PROT_WRITE,
-                             MAP_SHARED, fd, 0);
+            void *mem = ::mmap(nullptr, data_len, PROT_READ | PROT_WRITE,
+                               MAP_SHARED, fd, 0);
             if (mem == MAP_FAILED) {
                 int errsave = errno;
-                close(fd);
+                ::close(fd);
                 throw std::runtime_error(strerror(errsave));
             }
             data = reinterpret_cast<T *>(mem);
@@ -203,7 +205,7 @@ namespace pixel_terrain {
             delete[] data;
 #elif defined(OS_LINUX)
             if (mmapped) {
-                munmap(data, data_len);
+                ::munmap(data, data_len);
             } else {
                 delete[] data;
             }
