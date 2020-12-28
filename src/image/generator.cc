@@ -134,7 +134,7 @@ namespace pixel_terrain::image {
 
     void image_generator::queue_all_in_dir(std::filesystem::path const &dir,
                                            options const &options) {
-        if (options.out_path_is_directory()) {
+        if (!options.out_path_is_directory()) {
             logger::L(logger::INFO, "Output path pointing a single file; this "
                                     "may cause unexpected result.\n");
         }
@@ -143,11 +143,9 @@ namespace pixel_terrain::image {
             try {
                 std::filesystem::create_directories(options.cache_dir());
             } catch (std::filesystem::filesystem_error const &e) {
-                using namespace std::literals::string_literals;
-                logger::L(logger::ERROR, "Cannot create cache directory: %s\n",
-                          e.what());
-
-                exit(1);
+                logger::L(logger::ERROR,
+                          "Cannot create cache directory for %s: %s\n",
+                          options.label().c_str(), e.what());
             }
         }
 

@@ -46,8 +46,6 @@ namespace pixel_terrain::image {
                               options const &options);
         void finish();
     };
-
-    void init_block_list();
 } // namespace pixel_terrain::image
 
 #endif
