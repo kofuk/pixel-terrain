@@ -33,12 +33,12 @@ namespace pixel_terrain::anvil {
 
         std::filesystem::path journal_path(journal_dir);
         journal_path /=
-            std::filesystem::path(filename).filename().append(".ptcache");
+            std::filesystem::path(filename).filename().concat(".ptcache");
         try {
             last_update = new file<std::uint64_t>(journal_path, 1024, "r+");
         } catch (...) {
             delete data;
-            throw std::current_exception();
+            std::rethrow_exception(std::current_exception());
         }
     }
 

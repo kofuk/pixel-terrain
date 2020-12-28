@@ -87,6 +87,13 @@ namespace pixel_terrain::image {
         logger::L(logger::DEBUG, "Preparing %s for queuing...\n",
                   region_file.filename().string().c_str());
 
+        if (region_file.extension().string() != ".mca") {
+            logger::L(logger::INFO,
+                      "Skipping %s because it is not a .mca file.\n",
+                      region_file.filename().string().c_str());
+            return;
+        }
+
         anvil::region *r;
         try {
             if (options.cache_dir().empty()) {
@@ -99,13 +106,6 @@ namespace pixel_terrain::image {
                       region_file.string().c_str());
             logger::L(logger::ERROR, "%s\n", e.what());
 
-            return;
-        }
-
-        if (region_file.extension().string() != ".mca") {
-            logger::L(logger::INFO,
-                      "Skipping %s because it is not a .mca file.\n",
-                      region_file.filename().string().c_str());
             return;
         }
 
