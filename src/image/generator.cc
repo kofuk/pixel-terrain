@@ -61,6 +61,8 @@ namespace pixel_terrain::image {
                         return std::make_pair("", false);
                     }
                 } else {
+                    logger::L(logger::DEBUG, "Formatting filename for %s.\n",
+                              input.string().c_str());
                     path_string out_name =
                         format_output_name(options.outname_format(), rx, rz) +
                         PATH_STR_LITERAL(".png");
@@ -82,6 +84,9 @@ namespace pixel_terrain::image {
 
     void image_generator::queue_region(std::filesystem::path const &region_file,
                                        options const &options) {
+        logger::L(logger::DEBUG, "Preparing %s for queuing...\n",
+                  region_file.filename().string().c_str());
+
         anvil::region *r;
         try {
             if (options.cache_dir().empty()) {
@@ -90,7 +95,7 @@ namespace pixel_terrain::image {
                 r = new anvil::region(region_file, options.cache_dir());
             }
         } catch (std::exception const &e) {
-            logger::L(logger::ERROR, "failed to read region: %s\n",
+            logger::L(logger::ERROR, "Failed to read region: %s\n",
                       region_file.string().c_str());
             logger::L(logger::ERROR, "%s\n", e.what());
 
@@ -113,13 +118,17 @@ namespace pixel_terrain::image {
             }
             out_file = out;
         } else {
+            logger::L(logger::DEBUG,
+                      "Output path for %s (%s) is not directory.\n",
+                      region_file.filename().string().c_str(),
+                      options.out_path().string().c_str());
             out_file = options.out_path();
         }
 
         logger::L(logger::DEBUG, "Output filename is %s.\n",
                   out_file.string().c_str());
 
-        thread_pool_->queue_job(new region_container(r, options, out_file));
+        queue(new region_container(r, options, out_file));
         logger::progress_bar_increase_total(1);
     }
 
@@ -135,7 +144,7 @@ namespace pixel_terrain::image {
                 std::filesystem::create_directories(options.cache_dir());
             } catch (std::filesystem::filesystem_error const &e) {
                 using namespace std::literals::string_literals;
-                logger::L(logger::ERROR, "cannot create cache directory: %s\n",
+                logger::L(logger::ERROR, "Cannot create cache directory: %s\n",
                           e.what());
 
                 exit(1);
@@ -151,7 +160,7 @@ namespace pixel_terrain::image {
     }
 
     void image_generator::start() {
-        logger::L(logger::DEBUG, "starting worker thread(s) ...\n");
+        logger::L(logger::DEBUG, "Starting worker thread(s) ...\n");
 
         thread_pool_->start();
     }

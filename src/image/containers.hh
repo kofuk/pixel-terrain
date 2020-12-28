@@ -33,7 +33,7 @@ namespace pixel_terrain::image {
         }
 
         void set_out_path(std::filesystem::path const &p) {
-            if (std::filesystem::exists(p)) {
+            if (!std::filesystem::exists(p)) {
                 out_path_is_dir_ = false;
             } else {
                 out_path_is_dir_ = std::filesystem::is_directory(p);
