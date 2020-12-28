@@ -6,6 +6,9 @@
 #include <array>
 #include <filesystem>
 #include <memory>
+#include <mutex>
+#include <set>
+#include <string>
 
 #include "graphics/png.hh"
 #include "image/containers.hh"
@@ -38,13 +41,17 @@ namespace pixel_terrain::image {
 
         using pixel_states = std::array<pixel_state, 512 * 512>;
 
+        mutable std::mutex unknown_blocks_mutex_;
+        mutable std::set<std::string> unknown_blocks_;
+
         static inline pixel_state &
         get_pixel_state(std::shared_ptr<pixel_states> pixel_state, int x,
                         int y) {
             return (*pixel_state)[y * 512 + x];
         }
 
-        std::shared_ptr<pixel_states> scan_chunk(anvil::chunk *chunk, options const &options) const;
+        std::shared_ptr<pixel_states> scan_chunk(anvil::chunk *chunk,
+                                                 options const &options) const;
 
         void handle_biomes(std::shared_ptr<pixel_states> pixel_states) const;
 
@@ -61,6 +68,7 @@ namespace pixel_terrain::image {
                             png &image, options const &options) const;
 
     public:
+        ~worker();
         void generate_region(region_container *item) const;
     };
 } // namespace pixel_terrain::image
