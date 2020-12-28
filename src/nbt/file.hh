@@ -181,9 +181,9 @@ namespace pixel_terrain {
             }
             void *mem = ::mmap(nullptr, data_len, PROT_READ | PROT_WRITE,
                                MAP_SHARED, fd, 0);
+            ::close(fd);
             if (mem == MAP_FAILED) {
                 int errsave = errno;
-                ::close(fd);
                 throw std::runtime_error(strerror(errsave));
             }
             data = reinterpret_cast<T *>(mem);
