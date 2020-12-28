@@ -150,7 +150,13 @@ namespace pixel_terrain::server {
                 return;
             }
 
-            anvil::region *r = new anvil::region(region_file);
+            anvil::region *r;
+            try {
+                r = new anvil::region(region_file);
+            } catch (...) {
+                response().set_response_code(404)->write_to(w);
+                return;
+            }
             anvil::chunk *chunk = r->get_chunk(chunk_x, chunk_z);
             if (chunk == nullptr) {
                 response().set_response_code(404)->write_to(w);
@@ -260,8 +266,8 @@ namespace pixel_terrain::server {
             return;
         }
 
-        long long int x;
-        long long int z;
+        int x;
+        int z;
         try {
             x = stoi(req->get_request_field("Coord-X"));
             z = stoi(req->get_request_field("Coord-Z"));

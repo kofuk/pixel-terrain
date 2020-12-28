@@ -13,9 +13,9 @@
 
 namespace pixel_terrain::anvil {
     class region {
-        std::unique_ptr<file<unsigned char>> data;
+        file<unsigned char> *data = nullptr;
         std::size_t len;
-        std::unique_ptr<file<std::uint64_t>> last_update;
+        file<std::uint64_t> *last_update = nullptr;
 
         std::size_t header_offset(int chunk_x, int chunk_z);
         std::size_t chunk_location_off(int chunk_x, int chunk_z);
@@ -27,6 +27,7 @@ namespace pixel_terrain::anvil {
         region(std::filesystem::path filename);
         region(std::filesystem::path filename,
                std::filesystem::path journal_dir);
+        ~region();
         std::pair<std::shared_ptr<unsigned char[]>, std::size_t>
         chunk_data(int chunk_x, int chunk_z);
         chunk *get_chunk(int chunk_x, int chunk_z);

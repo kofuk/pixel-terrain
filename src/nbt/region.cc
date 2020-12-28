@@ -7,6 +7,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -21,22 +22,29 @@
 
 namespace pixel_terrain::anvil {
     region::region(std::filesystem::path filename) {
-        data = std::unique_ptr<file<unsigned char>>(
-            new file<unsigned char>(filename));
+        data = new file<unsigned char>(filename);
         len = data->size();
     }
 
     region::region(std::filesystem::path filename,
                    std::filesystem::path journal_dir) {
-        data = std::unique_ptr<file<unsigned char>>(
-            new file<unsigned char>(filename));
+        data = new file<unsigned char>(filename);
         len = data->size();
 
         std::filesystem::path journal_path(journal_dir);
         journal_path /=
-            std::filesystem::path(filename).filename().string() + ".journal";
-        last_update = std::unique_ptr<file<uint64_t>>(
-            new file<std::uint64_t>(journal_path, 1024, "r+"));
+            std::filesystem::path(filename).filename().append(".ptcache");
+        try {
+            last_update = new file<std::uint64_t>(journal_path, 1024, "r+");
+        } catch (...) {
+            delete data;
+            throw std::current_exception();
+        }
+    }
+
+    region::~region() {
+        delete last_update;
+        delete data;
     }
 
     std::size_t region::header_offset(int chunk_x, int chunk_z) {
@@ -110,7 +118,7 @@ namespace pixel_terrain::anvil {
         }
 
         chunk *cur_chunk = new chunk(data, len);
-        if (last_update.get() != nullptr) {
+        if (last_update != nullptr) {
             if ((*last_update)[chunk_z * 32 + chunk_x] >=
                 cur_chunk->get_last_update()) {
                 delete cur_chunk;
