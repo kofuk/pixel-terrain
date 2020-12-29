@@ -81,45 +81,6 @@ if(${CMAKE_BUILD_TYPE} MATCHES Debug AND NOT MSVC)
   add_link_options(-fsanitize=address -fsanitize=leak)
 endif()
 
-add_custom_target(generate_editor_aux DEPENDS
-  ${PROJECT_SOURCE_DIR}/compile_flags.txt
-  ${PROJECT_SOURCE_DIR}/src/.dir-locals.el)
-
-if(OS_LINUX)
-  set(EDITOR_PLATFORM "Linux")
-elseif(OS_WIN)
-  set(EDITOR_PLATFORM "Windows")
-endif()
-
-get_target_property(ZLIB_INCLUDE_DIRS ${ZLIB_MOD_NAME} INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(PNG_INCLUDE_DIRS ${PNG_MOD_NAME} INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(REGETOPT_INCLUDE_DIRS regetopt INTERFACE_INCLUDE_DIRECTORIES)
-set(COMP_INCLUDE_DIRS "${ZLIB_INCLUDE_DIRS};${PNG_INCLUDE_DIRS};${REGETOPT_INCLUDE_DIRS};${CMAKE_BINARY_DIR};${PROJECT_SOURCE_DIR}/src")
-unset(REGETOPT_INCLUDE_DIRS)
-unset(PNG_INCLUDE_DIRS)
-unset(ZLIB_INCLUDE_DIRS)
-add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/compile_flags.txt
-  COMMENT "Generating compile_flags.txt"
-  COMMAND tools/editor-aux/editor-aux
-  ${EDITOR_PLATFORM}
-  compile_flags.txt
-  ${PROJECT_SOURCE_DIR}/compile_flags.txt
-  ${COMP_INCLUDE_DIRS}
-  DEPENDS editor-aux
-  VERBATIM)
-
-add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
-  COMMENT "Generating src/.dir-locals.el"
-  COMMAND tools/editor-aux/editor-aux
-  ${EDITOR_PLATFORM}
-  .dir-locals.el
-  ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
-  ${COMP_INCLUDE_DIRS}
-  DEPENDS editor-aux
-  VERBATIM)
-unset(COMP_INCLUDE_DIRS)
-unset(EDITOR_PLATFORM)
-
 configure_file(src/config.h.in ${CMAKE_BINARY_DIR}/config.h)
 
 if(UNIX)

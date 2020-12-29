@@ -1,11 +1,8 @@
-__pycache__
 /build
-/block/block_colors.merged
-/compile_flags.txt
-/src/.dir-locals.el
 /superbuild/build
 /third_party/zlib
 /third_party/libpng
 /third_party/regetopt
-/external
 /.vscode
+/.cache
+compile_commands.json
