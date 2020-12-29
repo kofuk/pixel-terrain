@@ -24,7 +24,7 @@ Make sure the following required dependencies installed:
 
 - CMake
 - Make (or other build system, such as Ninja)
-- C++ compiler which supports ISO C++17
+- C++ compiler which supports parts of C++20 feature
 - Git
 
 I recommend installing the following optional dependencies:

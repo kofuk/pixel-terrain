@@ -61,7 +61,7 @@ Types:
         for (std::string const &def : compile_definitions) {
             of << "\"" << def << "\" ";
         }
-        of << ")))))\n";
+        of << "))\n(flycheck-clang-language-standard . \"c++20\"))))\n";
     }
 } // namespace
 
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
         std::vector<std::string> flags;
         flags.push_back("-Wall");
         flags.push_back("-Wextra");
-        flags.push_back("-std=c++17");
+        flags.push_back("-std=c++20");
 
         if (!std::strcmp(argv[1], "Linux")) {
             flags.push_back("-DOS_LINUX=1");
