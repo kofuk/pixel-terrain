@@ -35,9 +35,8 @@ namespace pixel_terrain::image {
                 auto [out, ok] =
                     make_output_name_by_input(input, options.out_path());
                 if (!ok) {
-                    logger::L(logger::ERROR,
-                              "Cannot decide output name for %s.\n",
-                              input.filename().string().c_str());
+                    ELOG("Cannot decide output name for %s.\n",
+                         input.filename().string().c_str());
                     return std::make_pair("", false);
                 }
 
@@ -46,23 +45,21 @@ namespace pixel_terrain::image {
                 auto [rx, rz, ok] = parse_region_file_path(input);
 
                 if (!ok) {
-                    logger::L(logger::INFO,
-                              "Filename %s is not r.M.N.mca form; it'll be "
-                              "processed, but --outname-format won't work "
-                              "properly.\n",
-                              input.filename().string().c_str());
+                    ILOG("Filename %s is not r.M.N.mca form; it'll be "
+                         "processed, but --outname-format won't work "
+                         "properly.\n",
+                         input.filename().string().c_str());
 
                     auto [name, ok] =
                         make_output_name_by_input(input, options.out_path());
                     if (!ok) {
-                        logger::L(logger::ERROR,
-                                  "Cannot decide output name for %s.\n",
-                                  input.filename().string().c_str());
+                        ELOG("Cannot decide output name for %s.\n",
+                             input.filename().string().c_str());
                         return std::make_pair("", false);
                     }
                 } else {
-                    logger::L(logger::DEBUG, "Formatting filename for %s.\n",
-                              input.string().c_str());
+                    DLOG("Formatting filename for %s.\n",
+                         input.string().c_str());
                     path_string out_name =
                         format_output_name(options.outname_format(), rx, rz) +
                         PATH_STR_LITERAL(".png");
@@ -76,21 +73,20 @@ namespace pixel_terrain::image {
     } // namespace
 
     void image_generator::queue(region_container *item) {
-        logger::L(logger::DEBUG, "Queue: %s\n",
-                  item->get_output_path()->filename().string().c_str());
+        DLOG("Queue: %s\n",
+             item->get_output_path()->filename().string().c_str());
 
         thread_pool_->queue_job(item);
     }
 
     void image_generator::queue_region(std::filesystem::path const &region_file,
                                        options const &options) {
-        logger::L(logger::DEBUG, "Preparing %s for queuing...\n",
-                  region_file.filename().string().c_str());
+        DLOG("Preparing %s for queuing...\n",
+             region_file.filename().string().c_str());
 
         if (region_file.extension().string() != ".mca") {
-            logger::L(logger::INFO,
-                      "Skipping %s because it is not a .mca file.\n",
-                      region_file.filename().string().c_str());
+            ILOG("Skipping %s because it is not a .mca file.\n",
+                 region_file.filename().string().c_str());
             return;
         }
 
@@ -102,9 +98,8 @@ namespace pixel_terrain::image {
                 r = new anvil::region(region_file, options.cache_dir());
             }
         } catch (std::exception const &e) {
-            logger::L(logger::ERROR, "Failed to read region: %s\n",
-                      region_file.string().c_str());
-            logger::L(logger::ERROR, "%s\n", e.what());
+            ELOG("Failed to read region: %s\n", region_file.string().c_str());
+            ELOG("%s\n", e.what());
 
             return;
         }
@@ -113,20 +108,18 @@ namespace pixel_terrain::image {
         if (options.out_path_is_directory()) {
             auto [out, ok] = make_output_name(region_file, options);
             if (!ok) {
-                logger::L(logger::INFO, "Cannot decide output name for %s.\n",
-                          region_file.filename().string().c_str());
+                ILOG("Cannot decide output name for %s.\n",
+                     region_file.filename().string().c_str());
             }
             out_file = out;
         } else {
-            logger::L(logger::DEBUG,
-                      "Output path for %s (%s) is not directory.\n",
-                      region_file.filename().string().c_str(),
-                      options.out_path().string().c_str());
+            DLOG("Output path for %s (%s) is not directory.\n",
+                 region_file.filename().string().c_str(),
+                 options.out_path().string().c_str());
             out_file = options.out_path();
         }
 
-        logger::L(logger::DEBUG, "Output filename is %s.\n",
-                  out_file.string().c_str());
+        DLOG("Output filename is %s.\n", out_file.string().c_str());
 
         queue(new region_container(r, options, out_file));
         logger::progress_bar_increase_total(1);
@@ -135,17 +128,16 @@ namespace pixel_terrain::image {
     void image_generator::queue_all_in_dir(std::filesystem::path const &dir,
                                            options const &options) {
         if (!options.out_path_is_directory()) {
-            logger::L(logger::INFO, "Output path pointing a single file; this "
-                                    "may cause unexpected result.\n");
+            ILOG("Output path pointing a single file; this "
+                 "may cause unexpected result.\n");
         }
 
         if (!options.cache_dir().empty()) {
             try {
                 std::filesystem::create_directories(options.cache_dir());
             } catch (std::filesystem::filesystem_error const &e) {
-                logger::L(logger::ERROR,
-                          "Cannot create cache directory for %s: %s\n",
-                          options.label().c_str(), e.what());
+                ELOG("Cannot create cache directory for %s: %s\n",
+                     options.label().c_str(), e.what());
             }
         }
 
@@ -158,7 +150,7 @@ namespace pixel_terrain::image {
     }
 
     void image_generator::start() {
-        logger::L(logger::DEBUG, "Starting worker thread(s) ...\n");
+        DLOG("Starting worker thread(s) ...\n");
 
         thread_pool_->start();
     }

@@ -31,6 +31,18 @@ endif()
 
 include(cmake/test_utils.cmake)
 
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("char const*a=__FILE_NAME__;" HAVE_FILE_NAME_MACRO)
+if(NOT HAVE_FILE_NAME_MACRO)
+  if(OS_LINUX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} '-D__FILE_NAME__=\"$(notdir $(abspath $<))\"'")
+  else()
+    # MSVC defines filename-only __FILE__ macro
+    add_definitions("-D__FILE_NAME__=__FILE__")
+  endif()
+endif()
+unset(HAVE_FILE_NAME_MACRO)
+
 add_subdirectory(block)
 add_subdirectory(src)
 add_subdirectory(tools)

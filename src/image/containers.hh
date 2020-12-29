@@ -48,8 +48,8 @@ namespace pixel_terrain::image {
 
         void set_n_jobs(int n) {
             if (n <= 0) {
-                logger::L(logger::INFO, "Ignoring worker count because it is "
-                                        "equal to or less than 0.\n");
+                ILOG("Ignoring worker count because it is equal to or less "
+                     "than 0.\n");
                 return;
             }
             n_jobs_ = n;

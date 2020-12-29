@@ -41,7 +41,7 @@ namespace {
         using namespace pixel_terrain;
 
         if (generator) {
-            logger::L(logger::DEBUG, "Waiting for worker to finish...\n");
+            DLOG("Waiting for worker to finish...\n");
             generator->finish();
 
             delete generator;

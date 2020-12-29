@@ -48,9 +48,7 @@ namespace pixel_terrain::server {
             response() {}
 
             ~response() {
-                logger::L(logger::ERROR,
-                          "BUG: Response object discarded without writing "
-                          "its data");
+                ELOG("BUG: Response object discarded without writing its data");
             }
 
             void write_to(writer *w) {

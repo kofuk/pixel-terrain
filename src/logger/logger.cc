@@ -27,6 +27,8 @@ namespace pixel_terrain::logger {
         std::unordered_map<std::string, statistics> stats;
 
 #ifdef OS_LINUX
+        bool line_written = false;
+
         bool tty_initialized;
         bool is_tty;
 
@@ -41,7 +43,7 @@ namespace pixel_terrain::logger {
 
     unsigned int log_level;
 
-    void L(unsigned int log_level, char const *fmt, ...) {
+    void print_log(unsigned int log_level, char const *fmt, ...) {
         if (logger::log_level < log_level) return;
 
         std::va_list ap;
@@ -51,6 +53,7 @@ namespace pixel_terrain::logger {
 
 #ifdef OS_LINUX
         check_tty();
+        line_written = true;
 
         switch (log_level) {
         case logger::INFO:
@@ -101,15 +104,15 @@ namespace pixel_terrain::logger {
     }
 
     void show_stat() {
-        L(INFO, "STATISTICS\n");
+        print_log(INFO, "STATISTICS\n");
         for (auto itr = stats.begin(), E = stats.end(); itr != E; ++itr) {
             statistics s = itr->second;
-            L(INFO, "  %s\n",
-              itr->first.empty() ? "<no label>" : itr->first.c_str());
-            L(INFO, "   |- Chunks generated: %zu\n", s.generated);
-            L(INFO, "   |- Chunks reused:    %zu\n", s.reused);
-            L(INFO, "   |- %% reused:         %zu\n",
-              (s.reused * 100) / (s.generated + s.reused));
+            ILOG("  %s\n",
+                 itr->first.empty() ? "<no label>" : itr->first.c_str());
+            ILOG("   |- Chunks generated: %zu\n", s.generated);
+            ILOG("   |- Chunks reused:    %zu\n", s.reused);
+            ILOG("   |- %% reused:         %zu\n",
+                 (s.reused * 100) / (s.generated + s.reused));
         }
     }
 
@@ -130,10 +133,14 @@ namespace pixel_terrain::logger {
 #ifdef OS_LINUX
                 check_tty();
 
-                if (is_tty && log_level == 0)
-                    std::fprintf(stderr, "Generating...    %u%%\r", progress);
-                else
-                    std::fprintf(stderr, "Generating...    %u%%\n", progress);
+                line_written = false;
+                if (is_tty && !line_written) {
+                    std::fprintf(stderr, "Generating...    %u%%\e[J\r",
+                                 progress);
+                } else {
+                    std::fprintf(stderr, "Generating...    %u%%\e[J\n",
+                                 progress);
+                }
 
 #else
                 std::fprintf(stderr, "Generating...    %u%%\n", progress);

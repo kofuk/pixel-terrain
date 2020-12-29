@@ -36,9 +36,8 @@ namespace pixel_terrain::image {
                     try {
                         block = chunk->get_block(x, y, z);
                     } catch (std::exception const &e) {
-                        logger::L(logger::ERROR,
-                                  "Error occurred while obtaining block\n");
-                        logger::L(logger::ERROR, "%s\n", e.what());
+                        ELOG("Error occurred while obtaining block\n");
+                        ELOG("%s\n", e.what());
 
                         continue;
                     }
@@ -63,7 +62,8 @@ namespace pixel_terrain::image {
 
                     auto color_itr = colors.find(block);
                     if (color_itr == end(colors)) {
-                        std::unique_lock<std::mutex> lock(unknown_blocks_mutex_);
+                        std::unique_lock<std::mutex> lock(
+                            unknown_blocks_mutex_);
                         unknown_blocks_.insert(block);
                     } else {
                         std::uint_fast32_t color = color_itr->second;
@@ -222,15 +222,17 @@ namespace pixel_terrain::image {
     }
 
     worker::~worker() {
-        logger::L(logger::INFO, "Unknown blocks:\n");
-        for (std::string const &block : unknown_blocks_)
-            logger::L(logger::INFO, " %s\n", block.c_str());
+        if (!unknown_blocks_.empty()) {
+            ILOG("Unknown blocks:\n");
+            for (std::string const &block : unknown_blocks_)
+                ILOG(" %s\n", block.c_str());
+        }
     }
 
     void worker::generate_region(region_container *item) const {
         anvil::region *region = item->get_region();
-        logger::L(logger::DEBUG, "Generating %s...\n",
-                  item->get_output_path()->filename().string().c_str());
+        DLOG("Generating %s...\n",
+             item->get_output_path()->filename().string().c_str());
 
         png *image = nullptr;
 
@@ -251,10 +253,9 @@ namespace pixel_terrain::image {
 
                     chunk = region->get_chunk_if_dirty(chunk_x, chunk_z);
                 } catch (std::exception const &e) {
-                    logger::L(
-                        logger::DEBUG, "Warning: parse error in %s\n",
-                        item->get_output_path()->filename().string().c_str());
-                    logger::L(logger::DEBUG, "%s\n", e.what());
+                    DLOG("Warning: parse error in %s\n",
+                         item->get_output_path()->filename().string().c_str());
+                    DLOG("%s\n", e.what());
                     continue;
                 }
 
@@ -299,12 +300,11 @@ namespace pixel_terrain::image {
                             chunk = region->get_chunk_if_dirty(t_chunk_x,
                                                                t_chunk_z);
                         } catch (std::exception const &e) {
-                            logger::L(logger::DEBUG, "Parse error in %s\n",
-                                      item->get_output_path()
-                                          ->filename()
-                                          .string()
-                                          .c_str());
-                            logger::L(logger::DEBUG, "%s\n", e.what());
+                            DLOG("Parse error in %s\n", item->get_output_path()
+                                                            ->filename()
+                                                            .string()
+                                                            .c_str());
+                            DLOG("%s\n", e.what());
                             continue;
                         }
 
@@ -324,9 +324,8 @@ namespace pixel_terrain::image {
         }
 
         if (image == nullptr) {
-            logger::L(logger::DEBUG,
-                      "Exiting without generating; any chunk changed in %s\n",
-                      item->get_output_path()->filename().string().c_str());
+            DLOG("Exiting without generating; any chunk changed in %s\n",
+                 item->get_output_path()->filename().string().c_str());
 
             return;
         }
@@ -334,8 +333,8 @@ namespace pixel_terrain::image {
         image->save(*item->get_output_path());
         delete image;
 
-        logger::L(logger::DEBUG, "Generated %s\n",
-                  item->get_output_path()->filename().string().c_str());
+        DLOG("Generated %s\n",
+             item->get_output_path()->filename().string().c_str());
     }
 
 } // namespace pixel_terrain::image
