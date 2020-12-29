@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: MIT
 
 cmake_minimum_required(VERSION 3.15)
-project(pixel-terrain C CXX)
+project(pixel-terrain
+  VERSION 2.0.0
+  DESCRIPTION "Generate map image for your Minecraft worlds."
+  HOMEPAGE_URL "https://github.com/kofuk/pixel-terrain"
+  LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_STANDARD_REQUIRED ON)
@@ -22,6 +26,12 @@ else()
   set(PNG_MOD_NAME PNG::PNG)
 endif()
 set(REGETOPT_MOD_NAME regetopt_static)
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+set(CPACK_PACKAGE_CONTACT "Koki Fukuda <ko.fu.dev@gmail.com>")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.14), libpng16-16 (>= 1.6), libstdc++6 (>= 5.2), zlib1g (>= 1.2)")
+set(CPACK_DEBIAN_PACKAGE_SECTION "games")
+include(CPack)
 
 if(MSVC)
   set(OS_WIN Yes)
