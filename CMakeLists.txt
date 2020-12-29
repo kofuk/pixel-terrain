@@ -29,7 +29,26 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   set(OS_LINUX Yes)
 endif()
 
-include(cmake/test_utils.cmake)
+enable_testing()
+find_package(Boost COMPONENTS unit_test_framework)
+
+add_custom_target(test_executable)
+
+function(add_boost_test target_name test_name)
+  if(NOT Boost_FOUND)
+    return()
+  endif()
+
+  add_executable(${target_name} EXCLUDE_FROM_ALL ${ARGN})
+  target_include_directories(${target_name} PRIVATE SYSTEM ${Boost_INCLUDE_DIRS})
+  target_compile_definitions(${target_name} PRIVATE "BOOST_TEST_DYN_LINK=1")
+  target_compile_definitions(${target_name} PRIVATE "BOOST_TEST_MAIN")
+  target_link_libraries(${target_name} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+
+  add_dependencies(test_executable ${target_name})
+
+  add_test(NAME ${test_name} COMMAND ${target_name})
+endfunction()
 
 include(CheckCXXSourceCompiles)
 check_cxx_source_compiles("char const*a=__FILE_NAME__;" HAVE_FILE_NAME_MACRO)
@@ -89,6 +108,7 @@ add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
   DEPENDS editor-aux
   VERBATIM)
 unset(COMP_INCLUDE_DIRS)
+unset(EDITOR_PLATFORM)
 
 if(UNIX)
   install(FILES completion/pixel_terrain DESTINATION share/bash_completion/completions)
