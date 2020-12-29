@@ -174,7 +174,7 @@ namespace pixel_terrain::image {
 
         png_bytepp rows = new png_bytep[height];
 
-        for (int i = 0; i < height; ++i) {
+        for (unsigned int i = 0; i < height; ++i) {
             rows[i] = data + i * width * 4;
         }
 
