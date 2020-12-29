@@ -8,7 +8,7 @@
 #include <string>
 
 #include "pixel-terrain.hh"
-#include "version.hh"
+#include "config.h"
 
 namespace {
     struct subcommand {

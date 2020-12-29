@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR})
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   add_definitions(-DOS_LINUX=1)
 elseif(WIN32)

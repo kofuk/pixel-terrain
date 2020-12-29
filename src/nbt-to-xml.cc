@@ -6,11 +6,12 @@
 
 #include <regetopt.h>
 
+#include "config.h"
+
 #include "nbt/file.hh"
 #include "nbt/pull_parser/nbt_pull_parser.hh"
 #include "pixel-terrain.hh"
 #include "utils/path_hack.hh"
-#include "version.hh"
 
 namespace {
     void print_usage() {

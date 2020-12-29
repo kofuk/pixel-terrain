@@ -11,10 +11,10 @@
 
 #include <regetopt.h>
 
+#include "config.h"
 #include "nbt/region.hh"
 #include "pixel-terrain.hh"
 #include "utils/path_hack.hh"
-#include "version.hh"
 
 namespace {
     bool dump_coord(const std::string &filename, const std::string &outfmt,

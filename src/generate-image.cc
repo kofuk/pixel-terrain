@@ -9,12 +9,12 @@
 
 #include <regetopt.h>
 
+#include "config.h"
 #include "image/image.hh"
 #include "logger/logger.hh"
 #include "nbt/utils.hh"
 #include "pixel-terrain.hh"
 #include "utils/path_hack.hh"
-#include "version.hh"
 
 namespace {
     pixel_terrain::image::image_generator *generator;

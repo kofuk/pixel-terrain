@@ -6,9 +6,9 @@
 
 #include <regetopt.h>
 
+#include "config.h"
 #include "pixel-terrain.hh"
 #include "server/server.hh"
-#include "version.hh"
 
 namespace {
     void print_usage() {

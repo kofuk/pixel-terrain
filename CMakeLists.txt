@@ -120,6 +120,8 @@ add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/src/.dir-locals.el
 unset(COMP_INCLUDE_DIRS)
 unset(EDITOR_PLATFORM)
 
+configure_file(src/config.h.in ${CMAKE_BINARY_DIR}/config.h)
+
 if(UNIX)
   install(FILES completion/pixel_terrain DESTINATION share/bash_completion/completions)
 endif()
