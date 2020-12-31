@@ -27,9 +27,9 @@
 
 namespace pixel_terrain::image {
     namespace {
-        std::pair<std::filesystem::path, bool>
-        make_output_name(std::filesystem::path const &input,
-                         options const &options) {
+        auto make_output_name(std::filesystem::path const &input,
+                              options const &options)
+            -> std::pair<std::filesystem::path, bool> {
             std::filesystem::path out_file;
             if (options.outname_format().empty()) {
                 auto [out, ok] =
@@ -143,7 +143,9 @@ namespace pixel_terrain::image {
 
         for (std::filesystem::directory_entry const &path :
              std::filesystem::directory_iterator(dir)) {
-            if (path.is_directory()) continue;
+            if (path.is_directory()) {
+                continue;
+            }
 
             queue_region(path.path(), options);
         }

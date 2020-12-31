@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 
-#ifndef PNG_HH
-#define PNG_HH
+#ifndef GRAPHICS_PNG_HH
+#define GRAPHICS_PNG_HH
 
 #include <cstdint>
 #include <filesystem>
 #include <string>
 
-#include <pngconf.h>
+#include <png.h>
 
 #include "utils/path_hack.hh"
 
-namespace pixel_terrain::image {
+namespace pixel_terrain::graphics {
     class png {
         unsigned int width;
         unsigned int height;
@@ -20,18 +20,19 @@ namespace pixel_terrain::image {
 
     public:
         png(int width, int height);
-        png(std::filesystem::path path);
+        png(std::filesystem::path const &path);
         ~png();
 
-        int get_width();
-        int get_height();
+        [[nodiscard]] auto get_width() const -> unsigned int;
+        [[nodiscard]] auto get_height() const -> unsigned int;
         void fit(unsigned int width, unsigned int height);
-        void set_pixel(int x, int y, std::uint_fast32_t color);
-        std::uint_fast32_t get_pixel(int x, int y);
+        void set_pixel(unsigned int x, unsigned int y,
+                       std::uint_fast32_t color);
+        auto get_pixel(int x, int y) -> std::uint_fast32_t;
         void clear(int x, int y);
-        bool save(std::filesystem::path path);
-        bool save();
+        auto save(std::filesystem::path const &path) -> bool;
+        auto save() -> bool;
     };
-} // namespace pixel_terrain::image
+} // namespace pixel_terrain::graphics
 
 #endif

@@ -17,13 +17,13 @@ namespace pixel_terrain::image {
     class image_generator {
         image::worker *worker_;
         threaded_worker<region_container *> *thread_pool_;
-        region_container *fetch();
+        auto fetch() -> region_container *;
 
         void write_range_file(int start_x, int start_z, int end_x, int end_z,
                               options const &options);
 
     public:
-        image_generator(options options) {
+        image_generator(options const &options) {
             worker_ = new image::worker;
             thread_pool_ = new threaded_worker<region_container *>(
                 options.n_jobs(), [this](region_container *item) {

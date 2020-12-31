@@ -12,11 +12,13 @@
 
 #include "logger/logger.hh"
 #include "nbt/chunk.hh"
+#include "nbt/constants.hh"
 #include "nbt/pull_parser/nbt_pull_parser.hh"
 
 namespace pixel_terrain::anvil {
-    chunk::chunk(std::shared_ptr<unsigned char[]> data, std::size_t length)
-        : parser(nbt::nbt_pull_parser(data, length)) {
+    chunk::chunk(std::shared_ptr<unsigned char[]> data, // NOLINT
+                 std::size_t length)
+        : parser(nbt::nbt_pull_parser(std::move(data), length)) {
         palettes.fill(nullptr);
         block_states.fill(nullptr);
     }
@@ -30,7 +32,7 @@ namespace pixel_terrain::anvil {
         }
     }
 
-    std::uint64_t chunk::get_last_update() noexcept(false) {
+    auto chunk::get_last_update() noexcept(false) -> std::uint64_t {
         make_sure_field_parsed(FIELD_LAST_UPDATE);
 
         return last_update;
@@ -45,7 +47,7 @@ namespace pixel_terrain::anvil {
             if (ev != nbt::parser_event::TAG_START) {
                 throw std::runtime_error("Broken Sections");
             }
-            unsigned char y = 255;
+            unsigned char y = nbt::biomes::CHUNK_MAX_Y;
             /* parse first tag */
             ev = parser.next();
             if (ev == nbt::parser_event::TAG_END) {
@@ -59,9 +61,9 @@ namespace pixel_terrain::anvil {
              * for it to skip early. */
             if (parser.get_tag_type() == nbt::TAG_BYTE &&
                 parser.get_tag_name() == "Y") {
-                ev = parser.next();
+                parser.next();
                 y = parser.get_byte();
-                if (y >= 16) {
+                if (y >= nbt::biomes::PALETTE_Y_MAX) {
                     /* we just throw away content in invalid element. */
                     for (int level = 2; level != 0;) {
                         ev = parser.next();
@@ -74,13 +76,11 @@ namespace pixel_terrain::anvil {
 
                     ev = parser.next();
                     continue;
-                } else {
-                    ev = parser.next();
                 }
+                ev = parser.next();
             }
-            std::vector<std::string> *palette = new std::vector<std::string>;
-            std::vector<std::uint64_t> *block_state =
-                new std::vector<std::uint64_t>;
+            auto *palette = new std::vector<std::string>;
+            auto *block_state = new std::vector<std::uint64_t>;
             for (;;) {
                 if (parser.get_tag_name() == "BlockStates") {
                     if (parser.get_tag_type() != nbt::TAG_LONG_ARRAY) {
@@ -102,10 +102,10 @@ namespace pixel_terrain::anvil {
                                 if (parser.get_tag_type() == nbt::TAG_STRING &&
                                     parser.get_tag_name() == "Name") {
                                     /* parser_event::DATA */
-                                    ev = parser.next();
+                                    parser.next();
                                     palette->push_back(parser.get_string());
                                     /* parser_event::TAG_END */
-                                    ev = parser.next();
+                                    parser.next();
                                 } else {
                                     for (int i = 1; i != 0;) {
                                         ev = parser.next();
@@ -129,9 +129,9 @@ namespace pixel_terrain::anvil {
                     }
                     /* update only if this tag was parsed above. */
                     if (ev != nbt::parser_event::TAG_END) {
-                        ev = parser.next();
+                        parser.next();
                         y = parser.get_byte();
-                        ev = parser.next();
+                        parser.next();
                     }
                 } else {
                     /* skip others because they aren't needed. */
@@ -148,14 +148,15 @@ namespace pixel_terrain::anvil {
                 ev = parser.next();
                 if (ev == nbt::parser_event::TAG_START) {
                     continue;
-                } else if (ev == nbt::parser_event::TAG_END) {
-                    break;
-                } else {
-                    throw std::runtime_error("Broken Sections tag");
                 }
+                if (ev == nbt::parser_event::TAG_END) {
+                    break;
+                }
+
+                throw std::runtime_error("Broken Sections tag");
             }
 
-            if (y >= 16) {
+            if (y >= nbt::biomes::PALETTE_Y_MAX) {
                 delete palette;
                 delete block_state;
             } else {
@@ -179,7 +180,8 @@ namespace pixel_terrain::anvil {
                     parse_sections();
 
                     return;
-                } else if (f == FIELD_LAST_UPDATE) {
+                }
+                if (f == FIELD_LAST_UPDATE) {
                     ev = parser.next();
                     if (ev != nbt::parser_event::DATA ||
                         parser.get_tag_type() != nbt::TAG_LONG) {
@@ -189,7 +191,8 @@ namespace pixel_terrain::anvil {
 
                     parser.next();
                     return;
-                } else if (f == FIELD_BIOMES) {
+                }
+                if (f == FIELD_BIOMES) {
                     if (parser.get_tag_type() != nbt::TAG_INT_ARRAY) {
                         throw std::runtime_error("Biomes is not TAG_Int_Array");
                     }
@@ -198,7 +201,8 @@ namespace pixel_terrain::anvil {
                     }
 
                     return;
-                } else if (f == FIELD_DATA_VERSION) {
+                }
+                if (f == FIELD_DATA_VERSION) {
                     ev = parser.next();
                     if (ev != nbt::parser_event::DATA ||
                         parser.get_tag_type() != nbt::TAG_INT) {
@@ -219,22 +223,22 @@ namespace pixel_terrain::anvil {
     }
 
     void chunk::make_sure_field_parsed(unsigned char field) noexcept(false) {
-        if (!(loaded_fields & field)) {
+        if ((loaded_fields & field) == 0) {
             do {
                 parse_fields();
-            } while (!(loaded_fields & field) &&
+            } while ((loaded_fields & field) == 0 &&
                      parser.get_event_type() !=
                          nbt::parser_event::DOCUMENT_END);
 
-            if (!(loaded_fields & field)) {
+            if ((loaded_fields & field) == 0) {
                 throw std::runtime_error("Tag not found: " +
                                          std::to_string(field));
             }
         }
     }
 
-    unsigned char chunk::current_field() {
-        if (tag_structure.size() < 2 || tag_structure[0] != "") {
+    auto chunk::current_field() -> unsigned char {
+        if (tag_structure.size() < 2 || !tag_structure[0].empty()) {
             return 0;
         }
 
@@ -242,7 +246,7 @@ namespace pixel_terrain::anvil {
 
         if (tag_structure[1] == "DataVersion") {
             result = FIELD_DATA_VERSION;
-        } else if (tag_structure.size() >= 3 && tag_structure[0] == "" &&
+        } else if (tag_structure.size() >= 3 && tag_structure[0].empty() &&
                    tag_structure[1] == "Level") {
             if (tag_structure[2] == "Sections") {
                 result = FIELD_SECTIONS;
@@ -257,8 +261,8 @@ namespace pixel_terrain::anvil {
         return result;
     }
 
-    std::vector<std::string> *chunk::get_palette(unsigned char y) {
-        if (y >= 16) {
+    auto chunk::get_palette(unsigned char y) -> std::vector<std::string> * {
+        if (y >= nbt::biomes::PALETTE_Y_MAX) {
             return nullptr;
         }
 
@@ -267,35 +271,36 @@ namespace pixel_terrain::anvil {
         return palettes[y];
     }
 
-    int32_t chunk::get_biome(int32_t x, int32_t y, int32_t z) {
+    auto chunk::get_biome(int32_t x, int32_t y, int32_t z) -> int32_t {
         make_sure_field_parsed(FIELD_BIOMES);
 
-        if (biomes.size() == 256) {
-            return biomes[(z / 2) * 16 + (x / 2)];
-        } else if (biomes.size() == 1024) {
-            return biomes[(y / 64) * 256 + (z / 4) * 4 + (x / 4)];
+        if (biomes.size() == nbt::biomes::BIOME_DATA_OLD_VERSION_SIZE) {
+            return biomes[(z / 2) * 16 + (x / 2)]; // NOLINT
+        }
+        if (biomes.size() == nbt::biomes::BIOME_DATA_NEW_VERSION_SIZE) {
+            return biomes[(y / 64) * 256 + (z / 4) * 4 + (x / 4)]; // NOLINT
         }
         return 0;
     }
 
-    std::string chunk::get_block(int32_t x, int32_t y, int32_t z) {
-        if (x < 0 || 15 < x || y < 0 || 255 < y || z < 0 || 15 < z) {
+    auto chunk::get_block(int32_t x, int32_t y, int32_t z) -> std::string {
+        if (x < 0 || 15 < x || y < 0 || 255 < y || z < 0 || 15 < z) { // NOLINT
             return "";
         }
 
         make_sure_field_parsed(FIELD_DATA_VERSION);
 
-        unsigned char section_no = y / 16;
+        unsigned char section_no = y / nbt::biomes::PALETTE_Y_MAX;
 
-        y %= 16;
+        y %= nbt::biomes::PALETTE_Y_MAX;
 
         std::vector<std::string> *palette = palettes[section_no];
-        if (palette == nullptr || palette->size() == 0) {
+        if (palette == nullptr || palette->empty()) {
             return "minecraft:air";
         }
 
-        int bits = 4;
-        if (palette->size() - 1 > 15) {
+        unsigned int bits = 4;
+        if (palette->size() - 1 > 15) { // NOLINT
             bits = palette->size() - 1;
 
             /* calculate next squared number, in squared numbers larger than
@@ -304,40 +309,42 @@ namespace pixel_terrain::anvil {
             bits = bits | (bits >> 1);
             bits = bits | (bits >> 2);
             bits = bits | (bits >> 4);
-            bits = bits | (bits >> 8);
-            bits = bits | (bits >> 16);
+            bits = bits | (bits >> 8);  // NOLINT
+            bits = bits | (bits >> 16); // NOLINT
             bits += 1;
 
-            bits = log2(bits);
+            bits = static_cast<int>(log2(bits));
         }
 
-        int index = y * 16 * 16 + z * 16 + x;
+        int index = y * 16 * 16 + z * 16 + x; // NOLINT
         make_sure_field_parsed(FIELD_SECTIONS);
         std::vector<std::uint64_t> *states = block_states[section_no];
         int state;
-        bool stretches = data_version < 2529;
+        bool stretches =
+            data_version < nbt::biomes::NEED_STRETCH_DATA_VERSION_THRESHOLD;
         if (stretches) {
-            state = index * bits / 64;
+            state = index * bits / 64; // NOLINT
         } else {
-            state = index / (64 / bits);
+            state = index / (64 / bits); // NOLINT
         }
 
-        if (static_cast<std::uint64_t>(state) >= states->size())
+        if (static_cast<std::uint64_t>(state) >= states->size()) {
             return "minecraft:air";
+        }
 
         std::uint64_t data = (*states)[state];
 
         std::uint64_t shifted_data;
         if (stretches) {
-            shifted_data = data >> ((bits * index) % 64);
+            shifted_data = data >> ((bits * index) % 64); // NOLINT
         } else {
-            shifted_data = data >> (index % (64 / bits) * bits);
+            shifted_data = data >> (index % (64 / bits) * bits); // NOLINT
         }
 
-        if (stretches && 64 - ((bits * index) % 64) < bits) {
+        if (stretches && 64 - ((bits * index) % 64) < bits) { // NOLINT
             data = (*states)[state + 1];
 
-            int leftover = (bits - ((state + 1) * 64 % bits)) % bits;
+            int leftover = (bits - ((state + 1) * 64 % bits)) % bits; // NOLINT
             shifted_data =
                 ((data & (static_cast<std::int64_t>(pow(2, leftover)) - 1))
                  << (bits - leftover)) |
@@ -348,18 +355,19 @@ namespace pixel_terrain::anvil {
             shifted_data & (static_cast<std::int64_t>(pow(2, bits)) - 1);
 
         if (palette_id <= 0 ||
-            (*palette).size() <= static_cast<std::size_t>(palette_id))
+            (*palette).size() <= static_cast<std::size_t>(palette_id)) {
             return "minecraft:air";
+        }
 
         return (*palette)[palette_id];
     }
 
-    int chunk::get_max_height() {
+    auto chunk::get_max_height() -> int {
         make_sure_field_parsed(FIELD_SECTIONS);
 
-        for (int y = 15; y >= 0; --y) {
+        for (int y = nbt::biomes::SECTIONS_Y_DIV_COUNT - 1; y >= 0; --y) {
             if (palettes[y] != nullptr) {
-                return (y + 1) * 16 - 1;
+                return (y + 1) * nbt::biomes::BLOCK_PER_SECTION - 1;
             }
         }
         return 0;

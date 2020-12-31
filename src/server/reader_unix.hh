@@ -14,7 +14,8 @@ namespace pixel_terrain::server {
     public:
         reader_unix(int fd);
 
-        long int fill_buffer(char *buf, std::size_t len, std::size_t off);
+        auto fill_buffer(char *buf, std::size_t len, std::size_t off)
+            -> long int override;
     };
 } // namespace pixel_terrain::server
 

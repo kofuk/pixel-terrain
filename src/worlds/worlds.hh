@@ -13,13 +13,13 @@ namespace pixel_terrain {
         std::string save_file_path_;
 
     public:
-        world(std::filesystem::path const &);
+        world(std::filesystem::path const &save_path);
 
-        std::string get_name() const noexcept {
+        [[nodiscard]] auto get_name() const noexcept -> std::string {
             return name_;
         }
 
-        std::string get_save_file_path() const noexcept {
+        [[nodiscard]] auto get_save_file_path() const noexcept -> std::string {
             return save_file_path_;
         }
     };
@@ -31,14 +31,14 @@ namespace pixel_terrain {
     public:
         world_iterator();
 
-        world_iterator operator++();
-        world_iterator operator++(int);
-        world operator*() const;
-        bool operator==(world_iterator const &) const noexcept;
-        bool operator!=(world_iterator const &) const noexcept;
+        auto operator++() -> world_iterator;
+        auto operator++(int) -> world_iterator;
+        auto operator*() const -> world;
+        auto operator==(world_iterator const &another) const noexcept -> bool;
+        auto operator!=(world_iterator const &another) const noexcept -> bool;
 
-        world_iterator begin();
-        world_iterator end();
+        auto begin() -> world_iterator;
+        auto end() -> world_iterator;
     };
 } // namespace pixel_terrain
 

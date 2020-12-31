@@ -7,8 +7,8 @@
 #include <map>
 #include <string>
 
-#include "pixel-terrain.hh"
 #include "config.h"
+#include "pixel-terrain.hh"
 
 namespace {
     struct subcommand {
@@ -29,7 +29,7 @@ namespace {
           "List saved worlds and their information."}},
     };
 
-    inline bool is_non_option(char *arg) { return arg[0] != '-'; }
+    inline auto is_non_option(char const *arg) -> bool { return arg[0] != '-'; }
 
     [[noreturn]] void print_help_and_exit(int status) {
         std::fputs(&R"(
@@ -76,7 +76,7 @@ If you find a bug, please report it on https://github.com/kofuk/pixel-terrain/is
     }
 } // namespace
 
-int main(int argc, char **argv) {
+auto main(int argc, char **argv) -> int {
     int argoff = 1;
     bool after_subcommand = false;
     for (int i = 1; i < argc; ++i) {
@@ -84,9 +84,9 @@ int main(int argc, char **argv) {
             after_subcommand = true;
         }
 
-        if (!after_subcommand && !strcmp(argv[argoff], "--help")) {
+        if (!after_subcommand && strcmp(argv[argoff], "--help") == 0) {
             print_help_and_exit(0);
-        } else if (!strcmp(argv[i], "--version")) {
+        } else if (strcmp(argv[i], "--version") == 0) {
             /* We process --version option for all subcommands here. */
             print_version_and_exit();
         } else if (!after_subcommand) {
@@ -94,7 +94,9 @@ int main(int argc, char **argv) {
             print_help_and_exit(1);
         }
 
-        if (!after_subcommand) ++argoff;
+        if (!after_subcommand) {
+            ++argoff;
+        }
     }
 
     if (argc <= argoff) {

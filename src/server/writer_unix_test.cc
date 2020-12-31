@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(writer_unix_normal) {
     BOOST_TEST(w.get_current_offset() == 4);
     BOOST_TEST(w.get_current_buffer()[3] == '1');
 
-    w.write_data(10);
+    w.write_data(10); // NOLINT
     BOOST_TEST(w.get_current_offset() == 6);
     BOOST_TEST(w.get_current_buffer()[4] == '1');
     BOOST_TEST(w.get_current_buffer()[5] == '0');
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(writer_unix_exceed) {
 
     writer_unix w(fd);
 
-    for (int i = 0; i < 2048; ++i) {
+    for (int i = 0; i < 2048; ++i) { // NOLINT
         w.write_data(0);
     }
 
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(writer_unix_exceed) {
     BOOST_TEST(w.get_current_offset() == 1);
     BOOST_TEST(w.get_current_buffer()[0] == '1');
 
-    for (int i = 0; i < 2046; ++i) {
+    for (int i = 0; i < 2046; ++i) { // NOLINT
         w.write_data(1);
     }
     BOOST_TEST(w.get_current_offset() == 2047);
@@ -65,12 +65,12 @@ BOOST_AUTO_TEST_CASE(writer_unix_exceed) {
     BOOST_TEST(w.get_current_offset() == 1);
     BOOST_TEST(w.get_current_buffer()[0] == 'B');
 
-    for (int i = 0; i < 2046; ++i) {
+    for (int i = 0; i < 2046; ++i) { // NOLINT
         w.write_data(2);
     }
     BOOST_TEST(w.get_current_offset() == 2047);
 
-    w.write_data(10);
+    w.write_data(10); // NOLINT
     BOOST_TEST(w.get_current_offset() == 1);
     BOOST_TEST(w.get_current_buffer()[0] == '0');
 

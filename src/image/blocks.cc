@@ -16,13 +16,15 @@ namespace pixel_terrain::image {
             std::unordered_map<std::string_view, std::uint32_t>;
     }
 
-    block_color_map init_block_list() {
+    auto init_block_list() -> block_color_map {
         block_color_map result;
         std::size_t off = 0;
         for (;;) {
-            std::size_t len = static_cast<std::size_t>(block_colors_data[off]);
+            auto len = static_cast<std::size_t>(block_colors_data[off]);
             ++off;
-            if (len == 0) break;
+            if (len == 0) {
+                break;
+            }
 
             std::string_view block_name(
                 reinterpret_cast<char const *>(block_colors_data) + off, len);
@@ -38,22 +40,32 @@ namespace pixel_terrain::image {
 
     block_color_map colors = init_block_list();
 
-    bool is_biome_overridden(std::string const &block) {
+    auto is_biome_overridden(std::string const &block) -> bool {
+        using namespace std::string_literals;
+
         /* first, check if block is water or grass_block because the most
          * blocks are one of them. */
-        if (block == "water" || block == "grass_block") return true;
+        if (block == "water" || block == "grass_block") {
+            return true;
+        }
 
         /* next, capture grass, large_grass, seagrass and large_seagrass. */
-        if (block.size() >= 5 && block.find("grass") == block.size() - 5)
+        constexpr std::size_t grass_suffix_len = 5;
+        if (block.size() >= grass_suffix_len &&
+            block.find("grass") == block.size() - grass_suffix_len) {
             return true;
+        }
 
         /* next, check if block is leaf-family. */
-        if (block.find("leaves") != std::string::npos) return true;
+        if (block.find("leaves") != std::string::npos) {
+            return true;
+        }
 
         /* capture remains */
         if (block == "fern" || block == "large_fern" || block == "vine" ||
-            block == "bubble_column")
+            block == "bubble_column") {
             return true;
+        }
 
         return false;
     }

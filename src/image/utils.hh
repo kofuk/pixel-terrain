@@ -8,14 +8,16 @@
 #include "utils/path_hack.hh"
 
 namespace pixel_terrain::image {
-    std::pair<path_string, bool>
-    make_output_name_by_input(std::filesystem::path const &in_name,
-                              std::filesystem::path const &output_dir);
+    auto make_output_name_by_input(std::filesystem::path const &in_name,
+                                   std::filesystem::path const &output_dir)
+        -> std::pair<path_string, bool>;
 
-    path_string format_output_name(std::string const &format, int x, int z);
+    auto format_output_name(std::string const &format, int x, int z)
+        -> path_string;
 
-    std::tuple<int, int, bool> parse_region_file_path(
-        std::filesystem::path const &file_path) noexcept(false);
+    auto parse_region_file_path(
+        std::filesystem::path const &file_path) noexcept(false)
+        -> std::tuple<int, int, bool>;
 } // namespace pixel_terrain::image
 
 #endif

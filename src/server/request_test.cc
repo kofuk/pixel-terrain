@@ -11,6 +11,7 @@
 
 using namespace pixel_terrain::server;
 
+// NOLINTNEXTLINE
 char const *test_request[] = {"GET MMP/1.0\r\n"
                               "Coord-X: 10\r\n"
                               "Coord-Z: 20\r\n"
@@ -71,11 +72,15 @@ class test_reader : public reader {
 public:
     test_reader(int index) { test_data = test_request[index]; }
 
-    long int fill_buffer(char *buf, std::size_t len, std::size_t off) {
-        if (!test_data[this->off]) return -1;
-        std::size_t N = std::min(len - off, (std::size_t)5);
+    auto fill_buffer(char *buf, std::size_t len, std::size_t off)
+        -> long int override {
+        if (test_data[this->off] == 0) {
+            return -1;
+        }
+        std::size_t N =
+            std::min(len - off, static_cast<std::size_t>(5)); // NOLINT
         for (std::size_t i = 0; i < N; ++i) {
-            if (!test_data[this->off]) {
+            if (test_data[this->off] == 0) {
                 return i;
             }
             buf[off + i] = test_data[this->off];
@@ -87,7 +92,7 @@ public:
 
 BOOST_AUTO_TEST_CASE(request_normal) {
     reader *reader = new test_reader(0);
-    request *req = new request(reader);
+    auto *req = new request(reader);
     BOOST_TEST(req->parse_all());
     BOOST_TEST(req->get_method() == "GET");
     BOOST_TEST(req->get_protocol() == "MMP");
@@ -102,7 +107,7 @@ BOOST_AUTO_TEST_CASE(request_normal) {
 
 BOOST_AUTO_TEST_CASE(request_normal_no_space) {
     reader *reader = new test_reader(1);
-    request *req = new request(reader);
+    auto *req = new request(reader);
     BOOST_TEST(req->parse_all());
     BOOST_TEST(req->get_method() == "GET");
     BOOST_TEST(req->get_protocol() == "MMP");
@@ -117,7 +122,7 @@ BOOST_AUTO_TEST_CASE(request_normal_no_space) {
 
 BOOST_AUTO_TEST_CASE(request_illegal_sig_0) {
     reader *reader = new test_reader(2);
-    request *req = new request(reader);
+    auto *req = new request(reader);
     BOOST_TEST(!req->parse_all());
     delete req;
     delete reader;
@@ -125,7 +130,7 @@ BOOST_AUTO_TEST_CASE(request_illegal_sig_0) {
 
 BOOST_AUTO_TEST_CASE(request_illegal_sig_1) {
     reader *reader = new test_reader(3);
-    request *req = new request(reader);
+    auto *req = new request(reader);
     BOOST_TEST(!req->parse_all());
     delete req;
     delete reader;
@@ -133,15 +138,15 @@ BOOST_AUTO_TEST_CASE(request_illegal_sig_1) {
 
 BOOST_AUTO_TEST_CASE(request_illegal_sig_2) {
     reader *reader = new test_reader(4);
-    request *req = new request(reader);
+    auto *req = new request(reader);
     BOOST_TEST(!req->parse_all());
     delete req;
     delete reader;
 }
 
 BOOST_AUTO_TEST_CASE(request_empty_field) {
-    reader *reader = new test_reader(5);
-    request *req = new request(reader);
+    reader *reader = new test_reader(5); // NOLINT
+    auto *req = new request(reader);
     BOOST_TEST(req->parse_all());
     BOOST_TEST(req->get_field_count() == 2);
     BOOST_TEST(req->get_request_field("Coord-X") == "");
@@ -151,24 +156,24 @@ BOOST_AUTO_TEST_CASE(request_empty_field) {
 }
 
 BOOST_AUTO_TEST_CASE(request_illegal_field) {
-    reader *reader = new test_reader(6);
-    request *req = new request(reader);
+    reader *reader = new test_reader(6); // NOLINT
+    auto *req = new request(reader);
     BOOST_TEST(!req->parse_all());
     delete req;
     delete reader;
 }
 
 BOOST_AUTO_TEST_CASE(too_many_fields) {
-    reader *reader = new test_reader(7);
-    request *req = new request(reader);
+    reader *reader = new test_reader(7); // NOLINT
+    auto *req = new request(reader);
     BOOST_TEST(!req->parse_all());
     delete req;
     delete reader;
 }
 
 BOOST_AUTO_TEST_CASE(duplicate_fields) {
-    reader *reader = new test_reader(8);
-    request *req = new request(reader);
+    reader *reader = new test_reader(8); // NOLINT
+    auto *req = new request(reader);
     BOOST_TEST(req->parse_all());
     BOOST_TEST(req->get_request_field("Coord-Z") == "20");
     delete req;
@@ -176,8 +181,8 @@ BOOST_AUTO_TEST_CASE(duplicate_fields) {
 }
 
 BOOST_AUTO_TEST_CASE(non_crlf) {
-    reader *reader = new test_reader(9);
-    request *req = new request(reader);
+    reader *reader = new test_reader(9); // NOLINT
+    auto *req = new request(reader);
     BOOST_TEST(!req->parse_all());
     delete req;
     delete reader;

@@ -5,34 +5,43 @@
 namespace pixel_terrain::server {
     request::request(reader *r) : request_reader(r) {}
 
-    bool request::parse_sig(std::string const &line) {
+    auto request::parse_sig(std::string const &line) -> bool {
         std::size_t start = 0;
         std::size_t end;
-        for (end = start; end < line.size() && isalpha(line[end]); ++end) {
+        for (end = start;
+             end < line.size() && static_cast<bool>(isalpha(line[end]));
+             ++end) {
         }
-        if (end == line.size() || line[end] != ' ') return false;
+        if (end == line.size() || line[end] != ' ') {
+            return false;
+        }
         method = line.substr(start, end);
 
         start = end + 1;
 
         for (end = start; end < line.size() && line[end] != '/'; ++end) {
         }
-        if (end == line.size() || line[end] != '/') return false;
+        if (end == line.size() || line[end] != '/') {
+            return false;
+        }
         protocol = line.substr(start, end - start);
 
         start = end + 1;
 
         for (end = start;
-             end < line.size() && (isdigit(line[end]) || line[end] == '.');
+             end < line.size() &&
+             (static_cast<bool>(isdigit(line[end])) || line[end] == '.');
              ++end) {
         }
-        if (end != line.size()) return false;
+        if (end != line.size()) {
+            return false;
+        }
         version = line.substr(start, end - start);
 
         return true;
     }
 
-    std::string const request::read_request_line(bool *ok) {
+    auto request::read_request_line(bool *ok) -> std::string {
         std::size_t end = 0;
         bool has_cr = false;
     read_until_cr:
@@ -47,9 +56,9 @@ namespace pixel_terrain::server {
             }
         }
         if (!has_cr || end + 1 == n_in_buf) {
-            if (n_in_buf != 2048) {
-                long int n_read =
-                    request_reader->fill_buffer(int_buf, 2048, n_in_buf);
+            if (n_in_buf != sizeof(int_buf)) {
+                long int n_read = request_reader->fill_buffer(
+                    int_buf, sizeof(int_buf), n_in_buf);
                 if (n_read <= 0) {
                     *ok = false;
                     return "";
@@ -63,7 +72,7 @@ namespace pixel_terrain::server {
                 return "";
             }
         }
-        if (end >= 2048) {
+        if (end >= sizeof(int_buf)) {
             *ok = false;
             return "";
         }
@@ -73,7 +82,7 @@ namespace pixel_terrain::server {
         }
         std::string result(int_buf, int_buf + end - 1);
 
-        std::move(int_buf + end + 1, int_buf + 2048, int_buf);
+        std::move(int_buf + end + 1, int_buf + sizeof(int_buf), int_buf);
         n_in_buf -= end + 1;
 
         *ok = true;
@@ -81,7 +90,7 @@ namespace pixel_terrain::server {
         return result;
     }
 
-    bool request::parse_all() {
+    auto request::parse_all() -> bool {
         bool ok;
         std::string line = read_request_line(&ok);
         if (!ok || !parse_sig(line)) {
@@ -89,10 +98,12 @@ namespace pixel_terrain::server {
         }
 
         line = read_request_line(&ok);
-        for (; ok && line.size(); line = read_request_line(&ok)) {
+        for (; ok && !line.empty(); line = read_request_line(&ok)) {
             std::size_t pos_colon = line.find(':');
             std::string key = line.substr(0, pos_colon);
-            if (key.size() == 0) return false;
+            if (key.empty()) {
+                return false;
+            }
 
             if (pos_colon + 1 < line.size() && line[pos_colon + 1] == ' ') {
                 ++pos_colon;
@@ -101,7 +112,8 @@ namespace pixel_terrain::server {
             fields[key] = val;
 
             /* should be replaced by better way to avoid attack */
-            if (fields.size() > 5) {
+            constexpr std::size_t max_fields = 5;
+            if (fields.size() > max_fields) {
                 return false;
             }
         }
@@ -109,20 +121,22 @@ namespace pixel_terrain::server {
         return true;
     }
 
-    std::string const request::get_method() const noexcept { return method; }
+    auto request::get_method() const noexcept -> std::string { return method; }
 
-    std::string const request::get_protocol() const noexcept {
+    auto request::get_protocol() const noexcept -> std::string {
         return protocol;
     }
 
-    std::string const request::get_version() const noexcept { return version; }
+    auto request::get_version() const noexcept -> std::string {
+        return version;
+    }
 
-    std::size_t request::get_field_count() const noexcept {
+    auto request::get_field_count() const noexcept -> std::size_t {
         return fields.size();
     }
 
-    std::string const
-    request::get_request_field(std::string const &key) noexcept {
+    auto request::get_request_field(std::string const &key) noexcept
+        -> std::string {
         return fields[key];
     }
 

@@ -8,7 +8,8 @@
 namespace pixel_terrain::server {
     reader_unix::reader_unix(int fd) : fd(fd) {}
 
-    long int reader_unix::fill_buffer(char *buf, size_t len, size_t off) {
+    auto reader_unix::fill_buffer(char *buf, size_t len, size_t off)
+        -> long int {
         return read(fd, buf + off, len - off);
     }
 

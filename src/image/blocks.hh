@@ -11,7 +11,7 @@
 namespace pixel_terrain::image {
     extern std::unordered_map<std::string_view, std::uint32_t> colors;
 
-    bool is_biome_overridden(std::string const &block);
+    auto is_biome_overridden(std::string const &block) -> bool;
 } // namespace pixel_terrain::image
 
 #endif

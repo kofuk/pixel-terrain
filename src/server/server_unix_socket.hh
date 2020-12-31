@@ -10,8 +10,8 @@ namespace pixel_terrain::server {
         bool daemon_mode;
 
     public:
-        server_unix_socket(bool const daemon);
-        void start_server();
+        server_unix_socket(bool daemon);
+        void start_server() override;
     };
 } // namespace pixel_terrain::server
 

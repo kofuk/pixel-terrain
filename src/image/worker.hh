@@ -4,6 +4,7 @@
 #define WORKER_HH
 
 #include <array>
+#include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <mutex>
@@ -13,59 +14,110 @@
 #include "graphics/png.hh"
 #include "image/containers.hh"
 #include "nbt/chunk.hh"
+#include "nbt/constants.hh"
 
 namespace pixel_terrain::image {
     class worker {
-        struct pixel_state {
+        class pixel_state {
+            std::uint32_t flags_ = 0;
+            unsigned int top_height_ = 0;
+            unsigned int mid_height_ = 0;
+            unsigned int opaque_height_ = 0;
+            std::uint32_t fg_color_ = 0;
+            std::uint32_t mid_color_ = 0;
+            std::uint32_t bg_color_ = 0;
+            std::int32_t top_biome_ = 0;
+
+        public:
             static constexpr std::int32_t IS_TRANSPARENT = 1;
             static constexpr std::int32_t BIOME_OVERRIDDEN = 1 << 1;
 
-            std::uint_fast32_t flags;
-            std::uint_fast8_t top_height;
-            std::uint_fast8_t mid_height;
-            std::uint_fast8_t opaque_height;
-            std::uint_fast32_t fg_color;
-            std::uint_fast32_t mid_color;
-            std::uint_fast32_t bg_color;
-            std::int32_t top_biome;
+            void add_flags(std::int32_t flags) { this->flags_ |= flags; }
 
-            pixel_state()
-                : flags(0), top_height(0), mid_height(0), opaque_height(0),
-                  fg_color(0x00000000), mid_color(0x00000000),
-                  bg_color(0x00000000), top_biome(0) {}
-            void add_flags(std::int_fast32_t flags) { this->flags |= flags; }
-            bool get_flag(std::int_fast32_t field) {
-                return this->flags & field;
+            [[nodiscard]] auto get_flag(std::int32_t field) const -> bool {
+                return static_cast<bool>(this->flags_ & field);
+            }
+
+            void set_top_height(std::uint8_t top_height) {
+                top_height_ = top_height;
+            }
+
+            [[nodiscard]] auto top_height() const -> std::uint8_t {
+                return top_height_;
+            }
+
+            void set_mid_height(unsigned int mid_height) {
+                mid_height_ = mid_height;
+            }
+
+            [[nodiscard]] auto mid_height() const -> unsigned int {
+                return mid_height_;
+            }
+
+            void set_opaque_height(unsigned int opaque_height) {
+                opaque_height_ = opaque_height;
+            };
+
+            [[nodiscard]] auto opaque_height() const -> unsigned int {
+                return opaque_height_;
+            }
+
+            void set_fg_color(std::uint32_t color) { fg_color_ = color; }
+
+            [[nodiscard]] auto fg_color() const -> std::uint32_t {
+                return fg_color_;
+            }
+
+            void set_mid_color(std::uint32_t color) { mid_color_ = color; }
+
+            [[nodiscard]] auto mid_color() const -> std::uint32_t {
+                return mid_color_;
+            }
+
+            void set_bg_color(std::uint32_t color) { bg_color_ = color; }
+
+            [[nodiscard]] auto bg_color() const -> std::uint32_t {
+                return bg_color_;
+            }
+
+            void set_top_biome(std::int32_t biome) { top_biome_ = biome; }
+
+            [[nodiscard]] auto top_biome() const -> std::int32_t {
+                return top_biome_;
             }
         };
 
-        using pixel_states = std::array<pixel_state, 512 * 512>;
+        using pixel_states =
+            std::array<pixel_state, nbt::biomes::CHUNK_WIDTH *
+                                        nbt::biomes::CHUNK_PER_REGION_WIDTH *
+                                        nbt::biomes::CHUNK_WIDTH *
+                                        nbt::biomes::CHUNK_PER_REGION_WIDTH>;
 
         mutable std::mutex unknown_blocks_mutex_;
         mutable std::set<std::string> unknown_blocks_;
 
-        static inline pixel_state &
-        get_pixel_state(std::shared_ptr<pixel_states> pixel_state, int x,
-                        int y) {
-            return (*pixel_state)[y * 512 + x];
+        static inline auto get_pixel_state(pixel_states *states, int x, int y)
+            -> pixel_state & {
+            return (*states)[y * nbt::biomes::CHUNK_WIDTH *
+                                 nbt::biomes::CHUNK_PER_REGION_WIDTH +
+                             x];
         }
 
-        std::shared_ptr<pixel_states> scan_chunk(anvil::chunk *chunk,
-                                                 options const &options) const;
+        auto scan_chunk(anvil::chunk *chunk, options const &options) const
+            -> pixel_states *;
 
-        void handle_biomes(std::shared_ptr<pixel_states> pixel_states) const;
+        static void handle_biomes(pixel_states *pixel_states);
 
-        void
-        handle_inclination(std::shared_ptr<pixel_states> pixel_states) const;
+        static void handle_inclination(pixel_states *pixel_states);
 
-        void process_pipeline(std::shared_ptr<pixel_states> pixel_states) const;
+        static void process_pipeline(pixel_states *pixel_states);
 
-        void generate_image(int chunk_x, int chunk_z,
-                            std::shared_ptr<pixel_states> pixel_states,
-                            png &image) const;
+        static void generate_image(int chunk_x, int chunk_z,
+                                   pixel_states *pixel_states,
+                                   graphics::png &image);
 
         void generate_chunk(anvil::chunk *chunk, int chunk_x, int chunk_z,
-                            png &image, options const &options) const;
+                            graphics::png &image, options const &options) const;
 
     public:
         ~worker();

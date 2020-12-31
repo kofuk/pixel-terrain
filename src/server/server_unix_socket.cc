@@ -63,7 +63,7 @@ namespace pixel_terrain::server {
 
         void handle_request_unix(int const fd) {
             reader *r = new reader_unix(fd);
-            request *req = new request(r);
+            auto *req = new request(r);
             writer *w = new writer_unix(fd);
 
             handle_request(req, w);

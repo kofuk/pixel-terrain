@@ -34,6 +34,7 @@ namespace pixel_terrain::nbt {
 
     class nbt_pull_parser {
         unsigned char *data;
+        // NOLINTNEXTLINE(modernize-avoid-c-arrays)
         std::shared_ptr<unsigned char[]> sp_data;
         size_t length;
         size_t offset = 0;
@@ -55,38 +56,38 @@ namespace pixel_terrain::nbt {
             double double_data;
             std::string *string_data;
 
-            tag_data_container() {}
-            ~tag_data_container() {}
+            tag_data_container() = default;
+            ~tag_data_container() = default;
         };
         std::string last_tag_name;
         unsigned char last_tag_type;
 
         tag_data_container tag_data;
 
-        parser_event parse_tag_header();
+        auto parse_tag_header() -> parser_event;
         void parse_array_header();
         void parse_list_header();
-        parser_event parse_list_data();
+        auto parse_list_data() -> parser_event;
         void handle_tag_end();
 
     public:
-        nbt_pull_parser(std::shared_ptr<unsigned char[]> data,
-                        const size_t length);
-        nbt_pull_parser(unsigned char *data, const size_t length);
+        // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+        nbt_pull_parser(std::shared_ptr<unsigned char[]> data, size_t length);
+        nbt_pull_parser(unsigned char *data, size_t length);
 
-        parser_event next() noexcept(false);
+        auto next() noexcept(false) -> parser_event;
 
-        parser_event get_event_type() noexcept;
-        std::string get_tag_name();
-        unsigned char get_tag_type();
+        [[nodiscard]] auto get_event_type() noexcept -> parser_event;
+        [[nodiscard]] auto get_tag_name() -> std::string;
+        [[nodiscard]] auto get_tag_type() -> unsigned char;
 
-        unsigned char get_byte() const;
-        std::int16_t get_short() const;
-        std::int32_t get_int() const;
-        std::uint64_t get_long() const;
-        float get_float() const;
-        double get_double() const;
-        std::string get_string() const;
+        [[nodiscard]] auto get_byte() const -> unsigned char;
+        [[nodiscard]] auto get_short() const -> std::int16_t;
+        [[nodiscard]] auto get_int() const -> std::int32_t;
+        [[nodiscard]] auto get_long() const -> std::uint64_t;
+        [[nodiscard]] auto get_float() const -> float;
+        [[nodiscard]] auto get_double() const -> double;
+        [[nodiscard]] auto get_string() const -> std::string;
     };
 } // namespace pixel_terrain::nbt
 

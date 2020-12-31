@@ -35,7 +35,7 @@ namespace pixel_terrain::logger {
         inline void check_tty() {
             if (!tty_initialized) {
                 tty_initialized = true;
-                is_tty = ::isatty(STDERR_FILENO);
+                is_tty = static_cast<bool>(::isatty(STDERR_FILENO));
             }
         }
 #endif
@@ -44,7 +44,9 @@ namespace pixel_terrain::logger {
     unsigned int log_level;
 
     void print_log(unsigned int log_level, char const *fmt, ...) {
-        if (logger::log_level < log_level) return;
+        if (logger::log_level < log_level) {
+            return;
+        }
 
         std::va_list ap;
         va_start(ap, fmt);
@@ -57,22 +59,25 @@ namespace pixel_terrain::logger {
 
         switch (log_level) {
         case logger::INFO:
-            if (is_tty)
+            if (is_tty) {
                 std::fputs("\e[1mPixelTerrain-\e[1;32mINFO\e[0m: ", stderr);
-            else
+            } else {
                 std::fputs("PixelTerrain-INFO: ", stderr);
+            }
             break;
         case logger::DEBUG:
-            if (is_tty)
+            if (is_tty) {
                 std::fputs("\e[1mPixelTerrain-\e[1;33mDEBUG\e[0m: ", stderr);
-            else
+            } else {
                 std::fputs("PixelTerrain-DEBUG: ", stderr);
+            }
             break;
         case logger::ERROR:
-            if (is_tty)
+            if (is_tty) {
                 std::fputs("\e[1mPixelTerrain-\e[1;31mERROR\e[0m: ", stderr);
-            else
+            } else {
                 std::fputs("PixelTerrain-ERROR: ", stderr);
+            }
             break;
         }
 #else /* not OS_LINUX */
@@ -97,10 +102,11 @@ namespace pixel_terrain::logger {
     void record_stat(bool regenerated, std::string const &label) {
         std::unique_lock<std::mutex> lock(m);
 
-        if (regenerated)
+        if (regenerated) {
             ++stats[label].generated;
-        else
+        } else {
             ++stats[label].reused;
+        }
     }
 
     void show_stat() {
@@ -117,18 +123,22 @@ namespace pixel_terrain::logger {
     }
 
     namespace {
+        inline constexpr unsigned int COMPLETE_PROGRESS = 100;
+
         std::size_t progress_max;
         std::size_t progress_current;
-        unsigned int old_progress = 101;
+        unsigned int old_progress = COMPLETE_PROGRESS + 1;
 
         void progress_print() {
             unsigned int progress;
-            if (progress_max == 0)
+            if (progress_max == 0) {
                 progress = 0;
-            else if (progress_max <= progress_current)
-                progress = 100;
-            else
-                progress = (progress_current * 100) / progress_max;
+            } else if (progress_max <= progress_current) {
+                progress = COMPLETE_PROGRESS;
+            } else {
+                progress =
+                    (progress_current * COMPLETE_PROGRESS) / progress_max;
+            }
             if (old_progress != progress) {
 #ifdef OS_LINUX
                 check_tty();

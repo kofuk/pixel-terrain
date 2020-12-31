@@ -25,7 +25,7 @@ namespace pixel_terrain::server {
         write_data(std::to_string(num));
     }
 
-    char const *writer_unix::get_current_buffer() { return buf; }
+    auto writer_unix::get_current_buffer() -> char const * { return buf; }
 
-    size_t writer_unix::get_current_offset() { return off; }
+    auto writer_unix::get_current_offset() const -> std::size_t { return off; }
 } // namespace pixel_terrain::server

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <array>
+#include <bits/ranges_algo.h>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -12,6 +13,7 @@
 #include <regetopt.h>
 
 #include "pixel-terrain.hh"
+#include "utils/array.hh"
 #include "worlds/worlds.hh"
 
 namespace pixel_terrain {
@@ -34,7 +36,7 @@ Exit status:
             std::exit(status);
         }
 
-        std::vector<std::string> split_field_names(char const *arg) {
+        auto split_field_names(char const *arg) -> std::vector<std::string> {
             std::vector<std::string> fields;
             std::string current;
 
@@ -60,11 +62,10 @@ Exit status:
 
         std::array<std::string, 2> valid_fields = {"name", "path"};
 
-        bool is_valid_field_name(std::string const &field) {
-            for (std::string const &f : valid_fields) {
-                if (f == field) return true;
-            }
-            return false;
+        inline auto is_valid_field_name(std::string const &field) -> bool {
+            return std::ranges::any_of(
+                valid_fields,
+                [&field](std::string const &f) { return f == field; });
         }
 
         void warn_and_drop_unknown_fields(std::vector<std::string> *fields) {
@@ -85,20 +86,21 @@ Exit status:
             }
         }
 
-        struct ::re_option options[] = {
-            {"fields", re_required_argument, nullptr, 'F'},
-            {"quiet", re_no_argument, nullptr, 'q'},
-            {"help", re_no_argument, nullptr, 'h'},
-            {0, 0, 0, 0},
-        };
+        auto long_options = pixel_terrain::make_array<::re_option>(
+            ::re_option{"fields", re_required_argument, nullptr, 'F'},
+            ::re_option{"quiet", re_no_argument, nullptr, 'q'},
+            ::re_option{"help", re_no_argument, nullptr, 'h'},
+            ::re_option{nullptr, 0, nullptr, 0});
     } // namespace
 
-    int world_info_main(int argc, char **argv) {
+    auto world_info_main(int argc, char **argv) -> int {
         char const *only_fields = "name,path";
         bool quiet = false;
         for (;;) {
-            int c = regetopt(argc, argv, "Fqh", options, nullptr);
-            if (c < 0) break;
+            int c = regetopt(argc, argv, "Fqh", long_options.data(), nullptr);
+            if (c < 0) {
+                break;
+            }
 
             switch (c) {
             case 'F':

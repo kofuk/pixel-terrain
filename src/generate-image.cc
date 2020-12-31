@@ -14,6 +14,7 @@
 #include "logger/logger.hh"
 #include "nbt/utils.hh"
 #include "pixel-terrain.hh"
+#include "utils/array.hh"
 #include "utils/path_hack.hh"
 
 namespace {
@@ -23,24 +24,27 @@ namespace {
                         pixel_terrain::image::options options) {
         using namespace pixel_terrain;
 
-        if (options.label().empty()) options.set_label(src);
+        if (options.label().empty()) {
+            options.set_label(src);
+        }
 
-        if (!generator) {
+        if (generator == nullptr) {
             generator = new image::image_generator(options);
             generator->start();
         }
 
         std::filesystem::path src_path(src);
-        if (std::filesystem::is_directory(src_path))
+        if (std::filesystem::is_directory(src_path)) {
             generator->queue_all_in_dir(src, options);
-        else
+        } else {
             generator->queue_region(src, options);
+        }
     }
 
     void clean_up_generator() {
         using namespace pixel_terrain;
 
-        if (generator) {
+        if (generator != nullptr) {
             DLOG("Waiting for worker to finish...\n");
             generator->finish();
 
@@ -86,21 +90,21 @@ Output name format speficier:
  )"[1];
     }
 
-    struct re_option long_options[] = {
-        {"jobs", re_required_argument, nullptr, 'j'},
-        {"cache-dir", re_required_argument, nullptr, 'c'},
-        {"clear", re_no_argument, nullptr, 'C'},
-        {"generate", re_required_argument, nullptr, 'G'},
-        {"nether", re_no_argument, nullptr, 'n'},
-        {"out", re_required_argument, nullptr, 'o'},
-        {"outname-format", re_required_argument, nullptr, 'F'},
-        {"label", re_required_argument, nullptr, 'l'},
-        {"help", re_no_argument, nullptr, 'h'},
-        {0, 0, 0, 0}};
+    auto long_options = pixel_terrain::make_array<::re_option>(
+        ::re_option{"jobs", re_required_argument, nullptr, 'j'},
+        ::re_option{"cache-dir", re_required_argument, nullptr, 'c'},
+        ::re_option{"clear", re_no_argument, nullptr, 'C'},
+        ::re_option{"generate", re_required_argument, nullptr, 'G'},
+        ::re_option{"nether", re_no_argument, nullptr, 'n'},
+        ::re_option{"out", re_required_argument, nullptr, 'o'},
+        ::re_option{"outname-format", re_required_argument, nullptr, 'F'},
+        ::re_option{"label", re_required_argument, nullptr, 'l'},
+        ::re_option{"help", re_no_argument, nullptr, 'h'},
+        ::re_option{nullptr, 0, nullptr, 0});
 } // namespace
 
 namespace pixel_terrain {
-    int image_main(int argc, char **argv) {
+    auto image_main(int argc, char **argv) -> int {
         std::atexit(&clean_up_generator);
 
         pixel_terrain::image::options options;
@@ -108,7 +112,8 @@ namespace pixel_terrain {
         bool should_generate = true;
 
         for (;;) {
-            int opt = regetopt(argc, argv, "j:c:no:F:V", long_options, nullptr);
+            int opt = regetopt(argc, argv, "j:c:no:F:V", long_options.data(),
+                               nullptr);
             if (opt < 0) {
                 break;
             }
@@ -176,8 +181,9 @@ namespace pixel_terrain {
                 std::exit(1);
             }
 
-            for (int i = ::re_optind; i < argc; ++i)
+            for (int i = ::re_optind; i < argc; ++i) {
                 generate_image(argv[i], options);
+            }
         }
 
         return 0;

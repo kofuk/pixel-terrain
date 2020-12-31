@@ -82,7 +82,7 @@ namespace pixel_terrain {
                 data = reinterpret_cast<T *>(mem);
             } else {
                 std::vector<T> content;
-                char tmp[sizeof(T)];
+                char tmp[sizeof(T)]; // NOLINT(modernize-avoid-c-arrays)
                 ::ssize_t n_read;
                 while ((n_read = ::read(fd, tmp, sizeof(T))) > 0) {
                     if (n_read != sizeof(T)) {
@@ -104,7 +104,7 @@ namespace pixel_terrain {
         file(std::filesystem::path const &filename, std::size_t nmemb,
              std::string const &mode)
             : mmapped(true), data_len(sizeof(T) * nmemb) {
-            if (!mode.size()) {
+            if (mode.empty()) {
                 throw std::invalid_argument("mode cannot be empty");
             }
             bool readable = false;
@@ -212,11 +212,11 @@ namespace pixel_terrain {
 #endif
         }
 
-        T &operator[](size_t off) { return data[off]; }
+        [[nodiscard]] auto operator[](size_t off) -> T & { return data[off]; }
 
-        size_t size() { return data_len; }
+        [[nodiscard]] auto size() const -> size_t { return data_len; }
 
-        T *get_raw_data() { return data; }
+        [[nodiscard]] auto get_raw_data() -> T * { return data; }
     };
 } // namespace pixel_terrain
 

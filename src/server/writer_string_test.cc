@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(writer_string_num) {
     w.write_data(1);
     BOOST_TEST(static_cast<std::string>(w) == "1");
 
-    w.write_data(100);
+    w.write_data(100); // NOLINT
     BOOST_TEST(static_cast<std::string>(w) == "1100");
 }
 

@@ -14,11 +14,12 @@
 #include "config.h"
 #include "nbt/region.hh"
 #include "pixel-terrain.hh"
+#include "utils/array.hh"
 #include "utils/path_hack.hh"
 
 namespace {
-    bool dump_coord(const std::string &filename, const std::string &outfmt,
-                    int x, int z) {
+    auto dump_coord(const std::string &filename, const std::string &outfmt,
+                    int x, int z) -> bool {
         std::filesystem::path p(filename);
         std::string in_filename = p.filename().string();
         if (in_filename.size() > 4 &&
@@ -31,7 +32,9 @@ namespace {
         auto i = outname.begin();
         for (;;) {
             i = std::find(i, outname.end(), '%');
-            if (i == outname.end()) break;
+            if (i == outname.end()) {
+                break;
+            }
             switch (*(i + 1)) {
             case '1':
                 outname.erase(i, i + 2);
@@ -78,9 +81,11 @@ namespace {
         return true;
     }
 
-    bool dump_all(const std::string &filename, const std::string &outfmt) {
-        for (int x = 0; x < 32; ++x) {
-            for (int z = 0; z < 32; ++z) {
+    auto dump_all(const std::string &filename, const std::string &outfmt)
+        -> bool {
+        constexpr int chunk_size = 32;
+        for (int x = 0; x < chunk_size; ++x) {
+            for (int z = 0; z < chunk_size; ++z) {
                 if (!dump_coord(filename, outfmt, x, z)) {
                     return false;
                 }
@@ -100,20 +105,21 @@ Usage: pixel-terrain dump-nbt [option]... [--] <in file>...
 )"[1];
     }
 
-    struct re_option long_options[] = {
-        {"out", re_required_argument, nullptr, 'o'},
-        {"where", re_required_argument, nullptr, 's'},
-        {"help", re_no_argument, nullptr, 'h'},
-        {0, 0, 0, 0}};
+    auto long_options = pixel_terrain::make_array<::re_option>(
+        ::re_option{"out", re_required_argument, nullptr, 'o'},
+        ::re_option{"where", re_required_argument, nullptr, 's'},
+        ::re_option{"help", re_no_argument, nullptr, 'h'},
+        ::re_option{nullptr, 0, nullptr, 0});
 } // namespace
 
 namespace pixel_terrain {
-    int dump_nbt_main(int argc, char **argv) {
+    auto dump_nbt_main(int argc, char **argv) -> int {
         const char *outfmt = "%1+%2+%3.nbt";
         std::vector<std::pair<int, int>> coords;
 
         for (;;) {
-            int opt = regetopt(argc, argv, "o:s:", long_options, nullptr);
+            int opt =
+                regetopt(argc, argv, "o:s:", long_options.data(), nullptr);
             if (opt < 0) {
                 break;
             }
@@ -123,12 +129,13 @@ namespace pixel_terrain {
                 break;
 
             case 'O': {
-                int x, z;
+                int x;
+                int z;
                 if (std::sscanf(re_optarg, "( %d , %d )", &x, &z) != 2) {
                     std::cout << "Malformed coordinate. (example: \"(1,2)\")";
                     return 1;
                 }
-                coords.push_back({x, z});
+                coords.emplace_back(x, z);
             } break;
 
             case 'h':

@@ -7,6 +7,7 @@
 
 #include <condition_variable>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <system_error>
@@ -17,18 +18,24 @@ namespace pixel_terrain {
     namespace {
         enum class signal_type { JOB, TERMINATE };
 
-        template <typename T> struct worker_signal {
-            signal_type type;
-            T data;
+        template <typename T> class worker_signal {
+            signal_type type_;
+            T data_;
 
-            worker_signal(signal_type type, T data) : type(type), data(data) {}
+        public:
+            worker_signal(signal_type type, T data)
+                : type_(type), data_(data) {}
 
-            worker_signal(signal_type type) : type(type) {}
+            worker_signal(signal_type type) : type_(type) {}
+
+            [[nodiscard]] auto type() const -> signal_type { return type_; }
+
+            [[nodiscard]] auto data() const -> T const & { return data_; }
         };
     } // namespace
 
     template <typename T> class threaded_worker {
-        int n_workers_;
+        unsigned int n_workers_;
         std::function<void(T)> handler_;
 
         std::vector<std::thread *> workers_;
@@ -38,7 +45,7 @@ namespace pixel_terrain {
 
         std::queue<T> job_queue_;
 
-        worker_signal<T> fetch_job_block() {
+        auto fetch_job_block() -> worker_signal<T> {
             for (;;) {
                 std::unique_lock<std::mutex> queue_lock(queue_mtx_);
                 if (job_queue_.empty()) {
@@ -61,27 +68,32 @@ namespace pixel_terrain {
             for (;;) {
                 worker_signal<T> sig = fetch_job_block();
 
-                if (sig.type == signal_type::TERMINATE) break;
+                if (sig.type() == signal_type::TERMINATE) {
+                    break;
+                }
 
-                handler_(sig.data);
+                handler_(sig.data());
+            }
+        }
+
+    public:
+        threaded_worker(unsigned int n_workers, std::function<void(T)> handler)
+            : n_workers_(n_workers), handler_(std::move(handler)) {}
+
+        ~threaded_worker() {
+            if (!workers_.empty()) {
+                finish();
             }
         }
 
         threaded_worker(threaded_worker<T> const &) = delete;
-        threaded_worker<T> operator=(threaded_worker<T> const &) = delete;
+        auto operator=(threaded_worker<T> const &)
+            -> threaded_worker<T> = delete;
 
-    public:
-        threaded_worker(int n_workers, std::function<void(T)> handler)
-            : n_workers_(n_workers), handler_(handler) {}
-
-        ~threaded_worker() {
-            if (!workers_.empty()) finish();
-        }
-
-        bool start() {
+        auto start() -> bool {
             for (int i = 0; i < n_workers_; ++i) {
                 try {
-                    std::thread *th = new std::thread(
+                    auto *th = new std::thread(
                         &threaded_worker<T>::handle_jobs_internal, this);
                     workers_.push_back(th);
                 } catch (std::system_error const &) {

@@ -4,6 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <ostream>
 #include <set>
 #include <stdexcept>
@@ -52,24 +53,48 @@ namespace {
         std::cout << "usage: block_data_generator outfile infile...\n";
     }
 
-    struct block_color {
+    class block_color {
         /* Namespaced block ID */
-        std::string namespace_id;
+        std::string namespace_id_;
 
         /* Color components associated with this block, [r, g, b, a] in order.
          */
-        std::array<std::uint8_t, 4> color;
+        std::array<std::uint8_t, 4> color_;
 
-        bool operator==(block_color const &another) const {
-            return this->namespace_id == another.namespace_id;
+    public:
+        block_color() = default;
+
+        [[nodiscard]] auto namespace_id() const -> std::string const & {
+            return namespace_id_;
         }
 
-        bool operator<(block_color const &another) const {
-            return this->namespace_id < another.namespace_id;
+        [[nodiscard]] auto color() -> std::array<std::uint8_t, 4> & {
+            return color_;
         }
 
-        bool operator>(block_color const &another) const {
-            return this->namespace_id > another.namespace_id;
+        [[nodiscard]] auto color() const
+            -> std::array<std::uint8_t, 4> const & {
+            return color_;
+        }
+
+        void set_namespace_id(std::string const &namespace_id) {
+            namespace_id_ = namespace_id;
+        }
+
+        void set_color(std::array<std::uint8_t, 4> const &color) {
+            color_ = color;
+        }
+
+        auto operator==(block_color const &another) const -> bool {
+            return namespace_id_ == another.namespace_id_;
+        }
+
+        auto operator<(block_color const &another) const -> bool {
+            return namespace_id_ < another.namespace_id_; // NOLINT
+        }
+
+        auto operator>(block_color const &another) const -> bool {
+            return namespace_id_ > another.namespace_id_; // NOLINT
         }
     };
 
@@ -94,6 +119,8 @@ namespace {
 #else
 #include <cstdint>
 namespace {
+
+// NOLINTNEXTLINE: This header file is auto generated and designed to only to embed data.
 const std::uint8_t block_colors_data[] = {
 )";
     }
@@ -113,7 +140,7 @@ const std::uint8_t block_colors_data[] = {
         write_do_not_edit_mark(out_file);
     }
 
-    std::vector<std::string> split_field(std::string const &record) {
+    auto split_field(std::string const &record) -> std::vector<std::string> {
         std::vector<std::string> result;
         size_t beg = 0;
         for (size_t i = 0; i < record.size(); ++i) {
@@ -126,7 +153,8 @@ const std::uint8_t block_colors_data[] = {
         return result;
     }
 
-    bool load_colors(std::string in_name, std::set<block_color> *to) {
+    auto load_colors(std::string const &in_name, std::set<block_color> *to)
+        -> bool {
         std::ifstream in_file(in_name);
         if (!in_file) {
             std::cerr << "fatal: cannot open " << in_name << '\n';
@@ -148,13 +176,14 @@ const std::uint8_t block_colors_data[] = {
             }
 
             std::vector<std::string> fields = split_field(line);
-            if (fields.size() != 5) {
+            if (fields.size() != 5) { // NOLINT
                 std::cerr << "fatal: invalid line: " << in_name << ": "
                           << lineno << '\n';
                 return false;
             }
-            element.namespace_id = fields[0];
-            if (255 < element.namespace_id.size()) {
+            element.set_namespace_id(fields[0]);
+            if (std::numeric_limits<std::uint8_t>::max() <
+                element.namespace_id().size()) {
                 /* Namespace ID longer than 255 can't be saved because of
                    limitation of data structure. */
                 std::cerr << "fatal: namespace id too long: " << in_name << ": "
@@ -164,14 +193,15 @@ const std::uint8_t block_colors_data[] = {
 
             for (int c = 0; c < 4; ++c) {
                 try {
-                    int color = std::stoi(fields[c + 1], nullptr, 16);
-                    if (color < 0 || 255 < color) {
+                    int color = std::stoi(fields[c + 1], nullptr, 16); // NOLINT
+                    if (color < 0 ||
+                        std::numeric_limits<std::uint8_t>::max() < color) {
                         std::cerr
                             << "fatal: invalid color component (out of range): "
                             << in_name << ": " << lineno << '\n';
                         return false;
                     }
-                    element.color[c] = color;
+                    element.color()[c] = color;
                 } catch (std::invalid_argument const &e) {
                     std::cerr << "fatal: invalid color component: " << in_name
                               << ": " << lineno << '\n';
@@ -182,27 +212,27 @@ const std::uint8_t block_colors_data[] = {
             auto [_, inserted] = to->insert(element);
             if (!inserted) {
                 std::cerr << "warning: duplicate block: "
-                          << element.namespace_id << '\n';
+                          << element.namespace_id() << '\n';
             }
         }
 
         return true;
     }
 
-    bool write_content(std::set<block_color> const &elements,
-                       std::ostream &out_file) {
+    auto write_content(std::set<block_color> const &elements,
+                       std::ostream &out_file) -> bool {
         for (block_color const &element : elements) {
-            std::uint8_t block_id_len = (std::uint8_t)element.namespace_id.size();
+            auto block_id_len = (std::uint8_t)element.namespace_id().size();
             out_file << +block_id_len << ',';
-            for (char const &chr : element.namespace_id) {
+            for (char const &chr : element.namespace_id()) {
                 out_file << '\'' << chr << '\'';
                 out_file << ',';
             }
-            total_bytes += element.namespace_id.size() + 1;
+            total_bytes += element.namespace_id().size() + 1;
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
             for (int i = 3; i >= 0; --i) {
-                out_file << +element.color[i] << ',';
+                out_file << +element.color()[i] << ',';
             }
 #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
             for (int i = 0; i < 4; ++i) {
@@ -222,8 +252,8 @@ const std::uint8_t block_colors_data[] = {
 } // namespace
 
 #ifndef TEST
-int main(int argc, char **argv) {
-    if (argc < 2 || !strcmp(argv[1], "--help")) {
+auto main(int argc, char **argv) -> int {
+    if (argc < 2 || strcmp(argv[1], "--help") == 0) {
         print_usage();
         return 1;
     }

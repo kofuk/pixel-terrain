@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+#include <array>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -9,6 +10,7 @@
 #include "config.h"
 #include "pixel-terrain.hh"
 #include "server/server.hh"
+#include "utils/array.hh"
 
 namespace {
     void print_usage() {
@@ -44,21 +46,22 @@ PROTOCOL:
                    stdout);
     }
 
-    struct re_option long_options[] = {
-        {"daemon", re_no_argument, nullptr, 'd'},
-        {"overworld", re_required_argument, nullptr, 'o'},
-        {"nether", re_required_argument, nullptr, 'n'},
-        {"end", re_required_argument, nullptr, 'e'},
-        {"help", re_no_argument, nullptr, 'h'},
-        {0, 0, 0, 0}};
+    auto long_options = pixel_terrain::make_array<::re_option>(
+        ::re_option{"daemon", re_no_argument, nullptr, 'd'},
+        ::re_option{"overworld", re_required_argument, nullptr, 'o'},
+        ::re_option{"nether", re_required_argument, nullptr, 'n'},
+        ::re_option{"end", re_required_argument, nullptr, 'e'},
+        ::re_option{"help", re_no_argument, nullptr, 'h'},
+        ::re_option{nullptr, 0, nullptr, 0});
 } // namespace
 
 namespace pixel_terrain {
-    int server_main(int argc, char **argv) {
+    auto server_main(int argc, char **argv) -> int {
         bool daemon_mode = false;
 
         for (;;) {
-            int opt = regetopt(argc, argv, "do:n:e:", long_options, nullptr);
+            int opt =
+                regetopt(argc, argv, "do:n:e:", long_options.data(), nullptr);
             if (opt < 0) {
                 break;
             }

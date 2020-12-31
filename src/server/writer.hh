@@ -10,7 +10,7 @@ namespace pixel_terrain::server {
     public:
         virtual ~writer() = default;
         virtual void write_data(std::string const &data) = 0;
-        virtual void write_data(int const data) = 0;
+        virtual void write_data(int data) = 0;
     };
 } // namespace pixel_terrain::server
 

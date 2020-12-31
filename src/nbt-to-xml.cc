@@ -11,6 +11,7 @@
 #include "nbt/file.hh"
 #include "nbt/pull_parser/nbt_pull_parser.hh"
 #include "pixel-terrain.hh"
+#include "utils/array.hh"
 #include "utils/path_hack.hh"
 
 namespace {
@@ -27,7 +28,7 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
     std::string indent_str = "  ";
     bool pretty_print = true;
 
-    std::string get_tag_name(unsigned char tag_type) {
+    auto get_tag_name(unsigned char tag_type) -> std::string {
         using namespace pixel_terrain;
         using namespace std::string_literals;
 
@@ -77,7 +78,7 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
         }
     }
 
-    bool handle_file(const std::filesystem::path &file) {
+    auto handle_file(const std::filesystem::path &file) -> bool {
         using namespace pixel_terrain;
 
         pixel_terrain::file<unsigned char> *f;
@@ -97,8 +98,10 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
         while (ev != nbt::parser_event::DOCUMENT_END) {
             switch (ev) {
             case nbt::parser_event::DOCUMENT_START:
-                std::cout << "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-                if (pretty_print) std::cout << '\n';
+                std::cout << R"(<?xml version="1.0" encoding="utf-8"?>)";
+                if (pretty_print) {
+                    std::cout << '\n';
+                }
                 break;
 
             case nbt::parser_event::TAG_START:
@@ -180,7 +183,9 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
                     }
                 }
                 std::cout << "</" << get_tag_name(p.get_tag_type()) << '>';
-                if (pretty_print) std::cout << '\n';
+                if (pretty_print) {
+                    std::cout << '\n';
+                }
                 break;
 
             default:
@@ -200,19 +205,21 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
         return true;
     }
 
-    struct re_option long_options[] = {
-        {"indent", re_required_argument, nullptr, 's'},
-        {"no-prettify", re_no_argument, nullptr, 'u'},
-        {"help", re_no_argument, nullptr, 'h'},
-        {"version", re_no_argument, nullptr, 'v'},
-        {0, 0, 0, 0}};
+    auto long_options = pixel_terrain::make_array<::re_option>(
+        ::re_option{"indent", re_required_argument, nullptr, 's'},
+        ::re_option{"no-prettify", re_no_argument, nullptr, 'u'},
+        ::re_option{"help", re_no_argument, nullptr, 'h'},
+        ::re_option{"version", re_no_argument, nullptr, 'v'},
+        ::re_option{nullptr, 0, nullptr, 0});
 } // namespace
 
 namespace pixel_terrain {
-    int nbt_to_xml_main(int argc, char **argv) {
+    auto nbt_to_xml_main(int argc, char **argv) -> int {
         for (;;) {
-            int opt = regetopt(argc, argv, "s:u", long_options, nullptr);
-            if (opt < 0) break;
+            int opt = regetopt(argc, argv, "s:u", long_options.data(), nullptr);
+            if (opt < 0) {
+                break;
+            }
 
             switch (opt) {
             case 's':
@@ -236,6 +243,6 @@ namespace pixel_terrain {
             return 1;
         }
 
-        return !handle_file(argv[re_optind]);
+        return static_cast<int>(!handle_file(argv[re_optind]));
     }
 } // namespace pixel_terrain

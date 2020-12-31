@@ -17,22 +17,23 @@ namespace pixel_terrain::anvil {
         std::size_t len;
         file<std::uint64_t> *last_update = nullptr;
 
-        std::size_t header_offset(int chunk_x, int chunk_z);
-        std::size_t chunk_location_off(int chunk_x, int chunk_z);
-        std::size_t chunk_location_sectors(int chunk_x, int chunk_z);
+        static auto header_offset(int chunk_x, int chunk_z) -> std::size_t;
+        auto chunk_location_off(int chunk_x, int chunk_z) -> std::size_t;
+        auto chunk_location_sectors(int chunk_x, int chunk_z) -> std::size_t;
 
     public:
         /* Construct new region object from given buffer of *.mca file content
          */
-        region(std::filesystem::path filename);
-        region(std::filesystem::path filename,
-               std::filesystem::path journal_dir);
+        region(std::filesystem::path const &filename);
+        region(std::filesystem::path const &filename,
+               std::filesystem::path const &journal_dir);
         ~region();
-        std::pair<std::shared_ptr<unsigned char[]>, std::size_t>
-        chunk_data(int chunk_x, int chunk_z);
-        chunk *get_chunk(int chunk_x, int chunk_z);
-        chunk *get_chunk_if_dirty(int chunk_x, int chunk_z);
-        bool exists_chunk_data(int chunk_x, int chunk_z);
+        auto chunk_data(int chunk_x, int chunk_z)
+            -> std::pair<std::shared_ptr<unsigned char[]>, // NOLINT
+                         std::size_t>;
+        auto get_chunk(int chunk_x, int chunk_z) -> chunk *;
+        auto get_chunk_if_dirty(int chunk_x, int chunk_z) -> chunk *;
+        auto exists_chunk_data(int chunk_x, int chunk_z) -> bool;
     };
 } // namespace pixel_terrain::anvil
 

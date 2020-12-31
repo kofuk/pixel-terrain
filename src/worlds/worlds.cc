@@ -15,7 +15,7 @@
 
 namespace pixel_terrain {
     namespace {
-        std::filesystem::path get_save_dir() {
+        auto get_save_dir() -> std::filesystem::path {
 #ifdef OS_LINUX
             std::filesystem::path base = std::getenv("HOME");
 #elif defined(OS_WIN)
@@ -27,11 +27,14 @@ namespace pixel_terrain {
             return base;
         }
 
-        std::string read_world_name(std::filesystem::path const &save_path) {
+        auto read_world_name(std::filesystem::path const &save_path)
+            -> std::string {
             std::filesystem::path level_dat_path =
                 save_path / PATH_STR_LITERAL("level.dat");
             auto [data, len] = nbt::utils::gzip_file_decompress(level_dat_path);
-            if (len == 0) throw std::runtime_error("Cannot load level.dat");
+            if (len == 0) {
+                throw std::runtime_error("Cannot load level.dat");
+            }
             nbt::nbt_pull_parser parser(data, len);
 
             int nest_level = 0;
@@ -88,7 +91,7 @@ namespace pixel_terrain {
             return;
         }
 
-        for (std::filesystem::directory_entry entry : *dirents) {
+        for (std::filesystem::directory_entry const &entry : *dirents) {
             if (entry.is_directory() &&
                 std::filesystem::exists(entry.path() /
                                         PATH_STR_LITERAL("level.dat"))) {
@@ -99,38 +102,38 @@ namespace pixel_terrain {
         std::sort(std::begin(world_paths), std::end(world_paths));
     }
 
-    world_iterator world_iterator::operator++() {
+    auto world_iterator::operator++() -> world_iterator {
         ++index;
         return *this;
     }
 
-    world_iterator world_iterator::operator++(int) {
+    auto world_iterator::operator++(int) -> world_iterator {
         world_iterator tmp = *this;
         ++index;
         return tmp;
     }
 
-    world world_iterator::operator*() const {
+    auto world_iterator::operator*() const -> world {
         return world(world_paths[index]);
     }
 
-    bool world_iterator::operator==(world_iterator const &another) const
-        noexcept(true) {
+    auto world_iterator::operator==(world_iterator const &another) const
+        noexcept(true) -> bool {
         return index == another.index;
     }
 
-    bool world_iterator::operator!=(world_iterator const &another) const
-        noexcept(true) {
+    auto world_iterator::operator!=(world_iterator const &another) const
+        noexcept(true) -> bool {
         return index != another.index;
     }
 
-    world_iterator world_iterator::begin() {
+    auto world_iterator::begin() -> world_iterator {
         world_iterator b = *this;
         b.index = 0;
         return b;
     }
 
-    world_iterator world_iterator::end() {
+    auto world_iterator::end() -> world_iterator {
         world_iterator e = *this;
         e.index = e.world_paths.size();
         return e;

@@ -9,23 +9,29 @@
 #include <string>
 
 #include "graphics/color.hh"
+#include "graphics/constants.hh"
 #include "graphics/png.hh"
 #include "image/blocks.hh"
 #include "image/image.hh"
 #include "image/worker.hh"
 #include "logger/logger.hh"
+#include "nbt/constants.hh"
 
 namespace pixel_terrain::image {
-    std::shared_ptr<worker::pixel_states>
-    worker::scan_chunk(anvil::chunk *chunk, options const &options) const {
+    auto worker::scan_chunk(anvil::chunk *chunk, options const &options) const
+        -> worker::pixel_states * {
+        using namespace graphics;
+
         int max_y = chunk->get_max_height();
         if (options.is_nether()) {
-            if (max_y > 127) max_y = 127;
+            if (max_y > nbt::biomes::CHUNK_MAX_Y_NETHER) {
+                max_y = nbt::biomes::CHUNK_MAX_Y_NETHER;
+            }
         }
 
-        std::shared_ptr<pixel_states> states(new pixel_states);
-        for (int z = 0; z < 16; ++z) {
-            for (int x = 0; x < 16; ++x) {
+        auto *states = new pixel_states;
+        for (int z = 0; z < nbt::biomes::CHUNK_WIDTH; ++z) {
+            for (int x = 0; x < nbt::biomes::CHUNK_WIDTH; ++x) {
                 bool air_found = false;
                 std::string prev_block;
 
@@ -68,49 +74,52 @@ namespace pixel_terrain::image {
                     } else {
                         std::uint_fast32_t color = color_itr->second;
 
-                        if (pixel_state.fg_color == 0x00000000) {
-                            pixel_state.fg_color = color;
-                            pixel_state.top_height = y;
-                            pixel_state.top_biome = chunk->get_biome(x, y, z);
+                        if (pixel_state.fg_color() == 0x00000000) {
+                            pixel_state.set_fg_color(color);
+                            pixel_state.set_top_height(y);
+                            pixel_state.set_top_biome(
+                                chunk->get_biome(x, y, z));
                             if (is_biome_overridden(block)) {
                                 pixel_state.add_flags(
                                     pixel_state::BIOME_OVERRIDDEN);
                             }
-                            if ((color & 0xff) == 0xff) {
-                                pixel_state.mid_color = color;
-                                pixel_state.mid_height = y;
-                                pixel_state.bg_color = color;
-                                pixel_state.opaque_height = y;
+                            if (graphics::alpha(color) == color::CHAN_FULL) {
+                                pixel_state.set_mid_color(color);
+                                pixel_state.set_mid_height(y);
+                                pixel_state.set_bg_color(color);
+                                pixel_state.set_opaque_height(y);
                                 break;
-                            } else {
-                                pixel_state.add_flags(
-                                    pixel_state::IS_TRANSPARENT);
                             }
-                        } else if (pixel_state.mid_color == 0x00000000) {
-                            pixel_state.mid_color = color;
-                            pixel_state.mid_height = y;
-                            if ((color & 0xff) == 0xff) {
-                                pixel_state.bg_color = color;
-                                pixel_state.opaque_height = y;
+
+                            pixel_state.add_flags(pixel_state::IS_TRANSPARENT);
+                        } else if (pixel_state.mid_color() == color::CHAN_MIN) {
+                            pixel_state.set_mid_color(color);
+                            pixel_state.set_mid_height(y);
+                            if ((color & color::CHAN_MASK) ==
+                                color::CHAN_FULL) {
+                                pixel_state.set_bg_color(color);
+                                pixel_state.set_opaque_height(y);
                                 break;
                             }
                         } else {
-                            pixel_state.bg_color =
-                                blend_color(pixel_state.bg_color, color);
-                            if ((pixel_state.bg_color & 0xff) == 0xff) {
-                                pixel_state.opaque_height = y;
+                            pixel_state.set_bg_color(
+                                blend_color(pixel_state.bg_color(), color));
+                            if ((pixel_state.bg_color() & color::CHAN_MASK) ==
+                                color::CHAN_FULL) {
+                                pixel_state.set_opaque_height(y);
                                 break;
                             }
                         }
                     }
                 }
-                pixel_state.bg_color |= 0xff;
-                if (pixel_state.top_height == pixel_state.opaque_height) {
-                    pixel_state.fg_color = 0x00000000;
-                    pixel_state.mid_color = 0x00000000;
-                } else if (pixel_state.mid_height ==
-                           pixel_state.opaque_height) {
-                    pixel_state.mid_color = 0x00000000;
+                pixel_state.set_bg_color(pixel_state.bg_color() |
+                                         color::CHAN_FULL);
+                if (pixel_state.top_height() == pixel_state.opaque_height()) {
+                    pixel_state.set_fg_color(color::CHAN_MIN);
+                    pixel_state.set_mid_color(color::CHAN_MIN);
+                } else if (pixel_state.mid_height() ==
+                           pixel_state.opaque_height()) {
+                    pixel_state.set_mid_color(0x00000000);
                 }
             }
         }
@@ -118,114 +127,147 @@ namespace pixel_terrain::image {
         return states;
     }
 
-    void
-    worker::handle_biomes(std::shared_ptr<pixel_states> pixel_states) const {
+    void worker::handle_biomes(pixel_states *pixel_states) {
+        using namespace graphics;
+
         /* process biome color overrides */
-        for (int z = 0; z < 16; ++z) {
-            for (int x = 0; x < 16; ++x) {
+        for (int z = 0; z < nbt::biomes::CHUNK_WIDTH; ++z) {
+            for (int x = 0; x < nbt::biomes::CHUNK_WIDTH; ++x) {
                 pixel_state &pixel_state = get_pixel_state(pixel_states, x, z);
                 if (pixel_state.get_flag(pixel_state::BIOME_OVERRIDDEN)) {
-                    std::uint_fast32_t *color;
-                    if (pixel_state.fg_color != 0x00000000) {
-                        color = &(pixel_state.fg_color);
+                    std::uint32_t src_color;
+                    if (pixel_state.fg_color() != color::CHAN_MIN) {
+                        src_color = pixel_state.fg_color();
                     } else {
-                        color = &(pixel_state.bg_color);
+                        src_color = pixel_state.bg_color();
                     }
-                    std::int32_t biome = pixel_state.top_biome;
-                    if (biome == 6 || biome == 134) {
-                        *color = blend_color(*color, 0x665956ff, 0.5);
-                    } else if (biome == 21 || biome == 149 || biome == 23 ||
-                               biome == 151) {
-                        *color = blend_color(*color, 0x83bd7eff, 0.5);
-                    } else if (biome == 35 || biome == 163) {
-                        *color = blend_color(*color, 0xa8ab33ff, 0.5);
+                    std::int32_t biome = pixel_state.top_biome();
+                    constexpr double mix_half = 0.5;
+                    if (biome == nbt::biomes::SWAMP ||
+                        biome == nbt::biomes::SWAMP_HILLS) {
+                        src_color = blend_color(
+                            src_color, nbt::biomes::overrides::SWAMP, mix_half);
+                    } else if (biome == nbt::biomes::JUNGLE ||
+                               biome == nbt::biomes::MODIFIED_JUNGLE ||
+                               biome == nbt::biomes::JUNGLE_EDGE ||
+                               biome == nbt::biomes::MODIFIED_JUNGLE_EDGE) {
+                        src_color = blend_color(src_color,
+                                                nbt::biomes::overrides::JUNGLE,
+                                                mix_half);
+                    } else if (biome == nbt::biomes::SAVANNA ||
+                               biome == nbt::biomes::SHATTERED_SAVANNA) {
+                        src_color = blend_color(src_color,
+                                                nbt::biomes::overrides::SAVANNA,
+                                                mix_half);
+                    }
+                    if (pixel_state.fg_color() != color::CHAN_MIN) {
+                        pixel_state.set_fg_color(src_color);
+                    } else {
+                        pixel_state.set_bg_color(src_color);
                     }
                 }
             }
         }
     }
 
-    void worker::handle_inclination(
-        std::shared_ptr<pixel_states> pixel_states) const {
-        for (int z = 0; z < 16; ++z) {
-            for (int x = 1; x < 16; ++x) {
+    void worker::handle_inclination(pixel_states *pixel_states) {
+        constexpr int x_tone_change_ratio = 30;
+        constexpr int z_tone_change_ratio = 10;
+
+        for (int z = 0; z < nbt::biomes::CHUNK_WIDTH; ++z) {
+            for (int x = 1; x < nbt::biomes::CHUNK_WIDTH; ++x) {
                 pixel_state &left = get_pixel_state(pixel_states, x - 1, z);
                 pixel_state &cur = get_pixel_state(pixel_states, x, z);
-                if (left.opaque_height < cur.opaque_height) {
-                    cur.bg_color = increase_brightness(cur.bg_color, 30);
+                if (left.opaque_height() < cur.opaque_height()) {
+                    cur.set_bg_color(graphics::increase_brightness(
+                        cur.bg_color(), x_tone_change_ratio));
                     if (x == 1) {
-                        left.bg_color = increase_brightness(left.bg_color, 30);
+                        left.set_bg_color(graphics::increase_brightness(
+                            left.bg_color(), x_tone_change_ratio));
                     }
-                } else if (cur.opaque_height < left.opaque_height) {
-                    cur.bg_color = increase_brightness(cur.bg_color, -30);
+                } else if (cur.opaque_height() < left.opaque_height()) {
+                    cur.set_bg_color(graphics::increase_brightness(
+                        cur.bg_color(), -x_tone_change_ratio));
                     if (x == 1) {
-                        left.bg_color = increase_brightness(left.bg_color, -30);
+                        left.set_bg_color(graphics::increase_brightness(
+                            left.bg_color(), -x_tone_change_ratio));
                     }
                 }
             }
         }
 
-        for (int z = 1; z < 16; ++z) {
-            for (int x = 0; x < 16; ++x) {
+        for (int z = 1; z < nbt::biomes::CHUNK_WIDTH; ++z) {
+            for (int x = 0; x < nbt::biomes::CHUNK_WIDTH; ++x) {
                 pixel_state &cur = get_pixel_state(pixel_states, x, z);
                 pixel_state &upper = get_pixel_state(pixel_states, x, z - 1);
 
-                if (upper.opaque_height < cur.opaque_height) {
-                    cur.bg_color = increase_brightness(cur.bg_color, 10);
+                if (upper.opaque_height() < cur.opaque_height()) {
+                    cur.set_bg_color(graphics::increase_brightness(
+                        cur.bg_color(), z_tone_change_ratio));
                     if (z == 1) {
-                        upper.bg_color =
-                            increase_brightness(upper.bg_color, 10);
+                        upper.set_bg_color(graphics::increase_brightness(
+                            upper.bg_color(), z_tone_change_ratio));
                     }
-                } else if (cur.opaque_height < upper.opaque_height) {
-                    cur.bg_color = increase_brightness(cur.bg_color, -10);
+                } else if (cur.opaque_height() < upper.opaque_height()) {
+                    cur.set_bg_color(graphics::increase_brightness(
+                        cur.bg_color(), -z_tone_change_ratio));
                     if (z == 1) {
-                        upper.bg_color =
-                            increase_brightness(upper.bg_color, -10);
+                        upper.set_bg_color(graphics::increase_brightness(
+                            upper.bg_color(), -z_tone_change_ratio));
                     }
                 }
             }
         }
     }
 
-    void
-    worker::process_pipeline(std::shared_ptr<pixel_states> pixel_states) const {
+    void worker::process_pipeline(pixel_states *pixel_states) {
         handle_biomes(pixel_states);
         handle_inclination(pixel_states);
     }
 
     void worker::generate_image(int chunk_x, int chunk_z,
-                                std::shared_ptr<pixel_states> pixel_states,
-                                png &image) const {
-        for (int z = 0; z < 16; ++z) {
-            for (int x = 0; x < 16; ++x) {
+                                pixel_states *pixel_states,
+                                graphics::png &image) {
+        constexpr int height_tone_ratio = 3;
+
+        for (int z = 0; z < nbt::biomes::CHUNK_WIDTH; ++z) {
+            for (int x = 0; x < nbt::biomes::CHUNK_WIDTH; ++x) {
                 pixel_state &pixel_state = get_pixel_state(pixel_states, x, z);
 
-                std::uint_fast32_t bg_color = increase_brightness(
-                    pixel_state.mid_color,
-                    (pixel_state.mid_height - pixel_state.top_height) * 3);
+                std::uint_fast32_t bg_color = graphics::increase_brightness(
+                    pixel_state.mid_color(),
+                    static_cast<int>(pixel_state.mid_height() -
+                                     pixel_state.top_height()) *
+                        height_tone_ratio);
                 std::uint_fast32_t color =
-                    blend_color(pixel_state.fg_color, bg_color);
-                bg_color = increase_brightness(
-                    pixel_state.bg_color,
-                    (pixel_state.opaque_height - pixel_state.top_height) * 3);
-                color = blend_color(color, bg_color);
-                image.set_pixel(chunk_x * 16 + x, chunk_z * 16 + z, color);
+                    graphics::blend_color(pixel_state.fg_color(), bg_color);
+                bg_color = graphics::increase_brightness(
+                    pixel_state.bg_color(),
+                    static_cast<int>(pixel_state.opaque_height() -
+                                     pixel_state.top_height()) *
+                        height_tone_ratio);
+                color = graphics::blend_color(color, bg_color);
+                image.set_pixel(chunk_x * nbt::biomes::CHUNK_WIDTH + x,
+                                chunk_z * nbt::biomes::CHUNK_WIDTH + z, color);
             }
         }
     }
 
     void worker::generate_chunk(anvil::chunk *chunk, int chunk_x, int chunk_z,
-                                png &image, options const &options) const {
-        std::shared_ptr<pixel_states> pixel_states = scan_chunk(chunk, options);
+                                graphics::png &image,
+                                options const &options) const {
+        pixel_states *pixel_states = scan_chunk(chunk, options);
         process_pipeline(pixel_states);
         generate_image(chunk_x, chunk_z, pixel_states, image);
+        delete pixel_states;
     }
 
     worker::~worker() {
         if (!unknown_blocks_.empty()) {
             ILOG("Unknown blocks:\n");
-            for (std::string const &block : unknown_blocks_)
+            for (std::string const &block : unknown_blocks_) {
                 ILOG(" %s\n", block.c_str());
+            }
         }
     }
 
@@ -234,14 +276,17 @@ namespace pixel_terrain::image {
         DLOG("Generating %s...\n",
              item->get_output_path()->filename().string().c_str());
 
-        png *image = nullptr;
+        graphics::png *image = nullptr;
 
         /* minumum range of chunk update is radius of 3, so we can capture
            all updated chunk with step of 6. but, we set this 4 since
            4 can divide 16, our image (chunk) width. */
-        for (int chunk_z = 0; chunk_z < 32; chunk_z += 4) {
+        constexpr int scan_chunk_step = 4;
+        for (int chunk_z = 0; chunk_z < nbt::biomes::CHUNK_PER_REGION_WIDTH;
+             chunk_z += scan_chunk_step) {
             int prev_chunk_x = -1;
-            for (int chunk_x = 0; chunk_x < 32; ++chunk_x) {
+            for (int chunk_x = 0; chunk_x < nbt::biomes::CHUNK_PER_REGION_WIDTH;
+                 ++chunk_x) {
                 anvil::chunk *chunk;
 
                 try {
@@ -267,14 +312,19 @@ namespace pixel_terrain::image {
                 if (image == nullptr) {
                     if (std::filesystem::exists(*item->get_output_path())) {
                         try {
-                            image = new png(*item->get_output_path());
-                            image->fit(512, 512);
+                            image = new graphics::png(*item->get_output_path());
+                            image->fit(nbt::biomes::BLOCK_PER_REGION_WIDTH,
+                                       nbt::biomes::BLOCK_PER_REGION_WIDTH);
 
                         } catch (std::exception const &) {
-                            image = new png(512, 512);
+                            image = new graphics::png(
+                                nbt::biomes::BLOCK_PER_REGION_WIDTH,
+                                nbt::biomes::BLOCK_PER_REGION_WIDTH);
                         }
                     } else {
-                        image = new png(512, 512);
+                        image = new graphics::png(
+                            nbt::biomes::BLOCK_PER_REGION_WIDTH,
+                            nbt::biomes::BLOCK_PER_REGION_WIDTH);
                     }
                 }
 
@@ -284,9 +334,13 @@ namespace pixel_terrain::image {
 
                 delete chunk;
 
-                int start_x =
-                    chunk_x - 3 > prev_chunk_x ? chunk_x - 3 : prev_chunk_x + 1;
-                int end_x = chunk_x + 4 > 32 ? 32 : chunk_x + 4;
+                int start_x = chunk_x - scan_chunk_step + 1 > prev_chunk_x
+                                  ? chunk_x - scan_chunk_step + 1
+                                  : prev_chunk_x + 1;
+                int end_x = chunk_x + scan_chunk_step >
+                                    nbt::biomes::CHUNK_PER_REGION_WIDTH
+                                ? nbt::biomes::CHUNK_PER_REGION_WIDTH
+                                : chunk_x + scan_chunk_step;
 
                 for (int t_chunk_x = start_x; t_chunk_x < end_x; ++t_chunk_x) {
                     for (int t_chunk_z = chunk_z + 1; t_chunk_z < chunk_z + 4;
