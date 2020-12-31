@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <memory>
 #include <utility>
+#include <vector>
 
 namespace pixel_terrain::nbt::utils {
     static inline void swap_chars(std::uint8_t *a, std::uint8_t *b) {
@@ -102,9 +103,9 @@ namespace pixel_terrain::nbt::utils {
     }
 
     auto zlib_decompress(std::uint8_t *data, std::size_t len)
-        -> std::pair<std::shared_ptr<std::uint8_t[]>, std::size_t>; // NOLINT
+        -> std::vector<std::uint8_t> *;
     auto gzip_file_decompress(std::filesystem::path const &path)
-        -> std::pair<std::shared_ptr<std::uint8_t[]>, std::size_t>; // NOLINT
+        -> std::vector<std::uint8_t> *;
 } // namespace pixel_terrain::nbt::utils
 
 #endif

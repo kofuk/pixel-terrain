@@ -14,6 +14,7 @@
 namespace pixel_terrain::anvil {
     class chunk {
         nbt::nbt_pull_parser parser;
+        std::vector<std::uint8_t> *chunk_data_;
 
         std::array<std::vector<std::string> *, nbt::biomes::PALETTE_Y_MAX>
             palettes;
@@ -37,8 +38,7 @@ namespace pixel_terrain::anvil {
         void make_sure_field_parsed(unsigned char field) noexcept(false);
 
     public:
-        // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-        chunk(std::shared_ptr<unsigned char[]> data, std::size_t length);
+        chunk(std::vector<std::uint8_t> *data);
         ~chunk();
 
         [[nodiscard]] auto get_last_update() noexcept(false) -> std::uint64_t;

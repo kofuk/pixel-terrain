@@ -67,11 +67,6 @@ namespace pixel_terrain::nbt {
         }
     } // namespace
 
-    // NOLINTNEXTLINE
-    nbt_pull_parser::nbt_pull_parser(std::shared_ptr<unsigned char[]> data,
-                                     const size_t length)
-        : data(data.get()), sp_data(data), length(length) {}
-
     nbt_pull_parser::nbt_pull_parser(unsigned char *data, const size_t length)
         : data(data), length(length) {}
 

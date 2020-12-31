@@ -64,18 +64,22 @@ namespace {
             std::filesystem::path infile(filename);
             pixel_terrain::anvil::region r =
                 pixel_terrain::anvil::region(infile);
-            auto [data, len] = r.chunk_data(x, z);
+            std::vector<std::uint8_t> *data = r.chunk_data(x, z);
+            if (data == nullptr) {
+                std::cerr << outname << ": Chunk not exists.\n";
+                return false;
+            }
 
             std::filesystem::path outfile(outname);
             std::ofstream out(outfile, std::ios::binary);
             if (!out) {
-                std::cerr << outname << ": unable to open output file\n";
+                std::cerr << outname << ": Unable to open output file.\n";
                 return false;
             }
 
-            out.write(reinterpret_cast<char *>(data.get()), len);
+            out.write(reinterpret_cast<char *>(data->data()), data->size());
         } catch (...) {
-            std::cerr << outname << ": error dumping nbt\n";
+            std::cerr << outname << ": Error dumping nbt.\n";
             return false;
         }
         return true;

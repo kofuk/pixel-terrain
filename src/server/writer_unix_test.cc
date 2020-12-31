@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(writer_unix_normal) {
     writer_unix w(fd);
     w.write_data("ABC");
     BOOST_TEST(w.get_current_offset() == 3);
-    BOOST_TEST(strncmp(w.get_current_buffer(), "ABC", 3) == 0);
+    BOOST_TEST(memcmp(w.get_current_buffer(), "ABC", 3) == 0);
 
     w.write_data(1);
     BOOST_TEST(w.get_current_offset() == 4);

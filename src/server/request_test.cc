@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <algorithm>
+#include <cstdint>
 #include <string>
 
 #include <boost/test/tools/interface.hpp>
@@ -72,13 +73,13 @@ class test_reader : public reader {
 public:
     test_reader(int index) { test_data = test_request[index]; }
 
-    auto fill_buffer(char *buf, std::size_t len, std::size_t off)
+    auto fill_buffer(std::uint8_t *buf, std::size_t len, std::size_t off)
         -> long int override {
         if (test_data[this->off] == 0) {
             return -1;
         }
         std::size_t N =
-            std::min(len - off, static_cast<std::size_t>(5)); // NOLINT
+            std::min(len - off, static_cast<std::size_t>(4));
         for (std::size_t i = 0; i < N; ++i) {
             if (test_data[this->off] == 0) {
                 return i;

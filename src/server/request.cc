@@ -58,7 +58,7 @@ namespace pixel_terrain::server {
         if (!has_cr || end + 1 == n_in_buf) {
             if (n_in_buf != sizeof(int_buf)) {
                 long int n_read = request_reader->fill_buffer(
-                    int_buf, sizeof(int_buf), n_in_buf);
+                    int_buf.data(), sizeof(int_buf), n_in_buf);
                 if (n_read <= 0) {
                     *ok = false;
                     return "";
@@ -80,9 +80,10 @@ namespace pixel_terrain::server {
             *ok = false;
             return "";
         }
-        std::string result(int_buf, int_buf + end - 1);
+        std::string result(int_buf.cbegin(), int_buf.cbegin() + end - 1);
 
-        std::move(int_buf + end + 1, int_buf + sizeof(int_buf), int_buf);
+        std::move(int_buf.begin() + end + 1, int_buf.begin() + sizeof(int_buf),
+                  int_buf.begin());
         n_in_buf -= end + 1;
 
         *ok = true;

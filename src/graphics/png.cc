@@ -39,9 +39,9 @@ namespace pixel_terrain::graphics {
             throw std::runtime_error(strerror(errno));
         }
 
-        unsigned char sig[PNG_SIG_LEN]; // NOLINT(modernize-avoid-c-arrays)
-        std::fread(sig, 1, PNG_SIG_LEN, in);
-        if (!png_check_sig(sig, PNG_SIG_LEN)) {
+        std::array<std::uint8_t, PNG_SIG_LEN> sig;
+        std::fread(sig.data(), 1, PNG_SIG_LEN, in);
+        if (!png_check_sig(sig.data(), PNG_SIG_LEN)) {
             throw std::runtime_error("corrupted png file");
         }
 

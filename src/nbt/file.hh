@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -56,7 +57,7 @@ namespace pixel_terrain {
             } while (!ifs.eof());
 
             data = new T[d.size()];
-            copy(d.begin(), d.end(), data);
+            copy(d.cbegin(), d.cend(), data);
             data_len = d.size() / sizeof(T);
 #elif defined(OS_LINUX)
             int fd = ::open(filename.c_str(), O_RDONLY);
@@ -82,21 +83,23 @@ namespace pixel_terrain {
                 data = reinterpret_cast<T *>(mem);
             } else {
                 std::vector<T> content;
-                char tmp[sizeof(T)]; // NOLINT(modernize-avoid-c-arrays)
+                std::array<std::uint8_t, sizeof(T)> buf;
                 ::ssize_t n_read;
-                while ((n_read = ::read(fd, tmp, sizeof(T))) > 0) {
+                while ((n_read = ::read(fd, buf.data(), sizeof(T))) > 0) {
                     if (n_read != sizeof(T)) {
                         ::close(fd);
                         throw std::runtime_error(strerror(errno));
                     }
-                    content.push_back(*reinterpret_cast<T *>(tmp));
+                    T tmp;
+                    std::copy(buf.cbegin(), buf.cend(), &tmp);
+                    content.push_back(tmp);
                 }
                 if (n_read < 0) {
                     throw std::runtime_error("file size % sizeof(T) != 0");
                 }
 
                 data = new T[content.size()];
-                std::copy(std::begin(content), std::end(content), data);
+                std::copy(content.cbegin(), content.cend(), data);
             }
 #endif
         }
@@ -149,7 +152,7 @@ namespace pixel_terrain {
             }
 
             data = new T[d.size()];
-            std::copy(d.begin(), d.end(), data);
+            std::copy(d.cbegin(), d.cend(), data);
 #elif defined(OS_LINUX)
             int omode = 0;
             if (readable && writable) {

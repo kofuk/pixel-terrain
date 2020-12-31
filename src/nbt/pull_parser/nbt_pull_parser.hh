@@ -4,7 +4,6 @@
 #define NBT_PULL_PARSER_HH
 
 #include <cstdint>
-#include <memory>
 #include <stack>
 #include <string>
 #include <vector>
@@ -34,8 +33,6 @@ namespace pixel_terrain::nbt {
 
     class nbt_pull_parser {
         unsigned char *data;
-        // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-        std::shared_ptr<unsigned char[]> sp_data;
         size_t length;
         size_t offset = 0;
 
@@ -71,8 +68,6 @@ namespace pixel_terrain::nbt {
         void handle_tag_end();
 
     public:
-        // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-        nbt_pull_parser(std::shared_ptr<unsigned char[]> data, size_t length);
         nbt_pull_parser(unsigned char *data, size_t length);
 
         auto next() noexcept(false) -> parser_event;

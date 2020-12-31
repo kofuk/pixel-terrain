@@ -4,6 +4,7 @@
 #define READER_GENERIC_HH
 
 #include <cstddef>
+#include <cstdint>
 
 #include "server/reader.hh"
 
@@ -14,7 +15,8 @@ namespace pixel_terrain::server {
     public:
         reader_generic();
 
-        long int fill_buffer(char *buf, std::size_t len, std::size_t off);
+        long int fill_buffer(std::uint8_t *buf, std::size_t len,
+                             std::size_t off);
     };
 } // namespace pixel_terrain::server
 

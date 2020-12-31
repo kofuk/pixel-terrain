@@ -7,6 +7,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "nbt/pull_parser/nbt_pull_parser.hh"
 #include "nbt/utils.hh"
@@ -31,11 +32,12 @@ namespace pixel_terrain {
             -> std::string {
             std::filesystem::path level_dat_path =
                 save_path / PATH_STR_LITERAL("level.dat");
-            auto [data, len] = nbt::utils::gzip_file_decompress(level_dat_path);
-            if (len == 0) {
+            std::vector<std::uint8_t> *data =
+                nbt::utils::gzip_file_decompress(level_dat_path);
+            if (data == nullptr) {
                 throw std::runtime_error("Cannot load level.dat");
             }
-            nbt::nbt_pull_parser parser(data, len);
+            nbt::nbt_pull_parser parser(data->data(), data->size());
 
             int nest_level = 0;
             std::array<std::string, 3> nbt_path = {"", "Data", "LevelName"};

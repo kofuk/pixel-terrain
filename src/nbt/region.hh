@@ -3,9 +3,11 @@
 #ifndef REGION_HH
 #define REGION_HH
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "nbt/chunk.hh"
 #include "nbt/file.hh"
@@ -29,8 +31,7 @@ namespace pixel_terrain::anvil {
                std::filesystem::path const &journal_dir);
         ~region();
         auto chunk_data(int chunk_x, int chunk_z)
-            -> std::pair<std::shared_ptr<unsigned char[]>, // NOLINT
-                         std::size_t>;
+            -> std::vector<std::uint8_t> *;
         auto get_chunk(int chunk_x, int chunk_z) -> chunk *;
         auto get_chunk_if_dirty(int chunk_x, int chunk_z) -> chunk *;
         auto exists_chunk_data(int chunk_x, int chunk_z) -> bool;

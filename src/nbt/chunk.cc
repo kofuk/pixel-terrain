@@ -9,6 +9,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "logger/logger.hh"
 #include "nbt/chunk.hh"
@@ -16,14 +17,15 @@
 #include "nbt/pull_parser/nbt_pull_parser.hh"
 
 namespace pixel_terrain::anvil {
-    chunk::chunk(std::shared_ptr<unsigned char[]> data, // NOLINT
-                 std::size_t length)
-        : parser(nbt::nbt_pull_parser(std::move(data), length)) {
+    chunk::chunk(std::vector<std::uint8_t> *data)
+        : parser(nbt::nbt_pull_parser(data->data(), data->size())),
+          chunk_data_(data) {
         palettes.fill(nullptr);
         block_states.fill(nullptr);
     }
 
     chunk::~chunk() {
+        delete chunk_data_;
         for (std::vector<std::string> *e : palettes) {
             delete e;
         }

@@ -14,7 +14,7 @@ namespace pixel_terrain::server {
 
         static constexpr std::size_t IO_BUF_SIZE = 2048;
 
-        char int_buf[IO_BUF_SIZE]; // NOLINT(modernize-avoid-c-arrays)
+        std::array<std::uint8_t, IO_BUF_SIZE> int_buf;
         std::size_t n_in_buf = 0;
 
         std::string method;
