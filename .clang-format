@@ -3,6 +3,7 @@ AccessModifierOffset: -4
 AlignEscapedNewlines: Left
 AllowShortIfStatementsOnASingleLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
+AlwaysBreakTemplateDeclarations: true
 BreakBeforeBraces: Attach
 IndentWidth: 4
 NamespaceIndentation: All
