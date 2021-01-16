@@ -71,7 +71,8 @@ namespace pixel_terrain::anvil {
                   data->get_raw_data() + b_off + 3, buf.begin() + 1);
 
         std::int32_t result;
-        std::copy(buf.cbegin(), buf.cend(), &result);
+        std::memcpy(&result, buf.data(), sizeof(std::int32_t));
+        result = nbt::utils::to_host_byte_order(result);
 
         return result;
     }
@@ -97,7 +98,7 @@ namespace pixel_terrain::anvil {
 
         location_off *= 4096; // NOLINT
 
-        if (location_off >= len) {
+        if (location_off + 4 >= len) {
             return nullptr;
         }
 
