@@ -146,8 +146,8 @@ namespace pixel_terrain::anvil {
 
         auto *cur_chunk = new chunk(data);
         if (last_update != nullptr) {
-            if ((*last_update)[chunk_z * nbt::biomes::CHUNK_WIDTH + chunk_x] >=
-                cur_chunk->get_last_update()) {
+            if ((*last_update)[chunk_z * nbt::biomes::CHUNK_PER_REGION_WIDTH +
+                               chunk_x] >= cur_chunk->get_last_update()) {
                 delete cur_chunk;
                 return nullptr;
             }

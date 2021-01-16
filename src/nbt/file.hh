@@ -28,9 +28,10 @@
 #include "utils/path_hack.hh"
 
 namespace pixel_terrain {
-    template <typename T> class file {
+    template <typename T>
+    class file {
         bool mmapped = false;
-        std::size_t data_len = 0;
+        std::size_t nmemb = 0;
         T *data;
 #ifdef OS_WIN
         path_string filename;
@@ -49,7 +50,8 @@ namespace pixel_terrain {
             std::vector<T> d;
             T buf[1024];
             do {
-                ifs.read(reinterpret_cast<char *>(buf), sizeof(T) * 1024);
+                ifs.read(reinterpret_cast<std::uint8_t *>(buf),
+                         sizeof(T) * 1024);
                 if (ifs.gcount() % sizeof(T) != 0) {
                     throw std::runtime_error("Corrupted data.");
                 }
@@ -58,7 +60,7 @@ namespace pixel_terrain {
 
             data = new T[d.size()];
             copy(d.cbegin(), d.cend(), data);
-            data_len = d.size() / sizeof(T);
+            nmemb = d.size() / sizeof(T);
 #elif defined(OS_LINUX)
             int fd = ::open(filename.c_str(), O_RDONLY);
             if (fd < 0) {
@@ -79,7 +81,7 @@ namespace pixel_terrain {
                 }
 
                 mmapped = true;
-                data_len = statbuf.st_size;
+                nmemb = statbuf.st_size / sizeof(T);
                 data = reinterpret_cast<T *>(mem);
             } else {
                 std::vector<T> content;
@@ -91,7 +93,7 @@ namespace pixel_terrain {
                         throw std::runtime_error(strerror(errno));
                     }
                     T tmp;
-                    std::copy(buf.cbegin(), buf.cend(), &tmp);
+                    std::memcpy(&tmp, buf.data(), buf.size());
                     content.push_back(tmp);
                 }
                 if (n_read < 0) {
@@ -106,7 +108,7 @@ namespace pixel_terrain {
 
         file(std::filesystem::path const &filename, std::size_t nmemb,
              std::string const &mode)
-            : mmapped(true), data_len(sizeof(T) * nmemb) {
+            : mmapped(true), nmemb(nmemb) {
             if (mode.empty()) {
                 throw std::invalid_argument("mode cannot be empty");
             }
@@ -177,13 +179,13 @@ namespace pixel_terrain {
                 }
             }
 
-            if (::posix_fallocate(fd, 0, data_len) != 0) {
+            if (::posix_fallocate(fd, 0, nmemb * sizeof(T)) != 0) {
                 int errsave = errno;
                 ::close(fd);
                 throw std::runtime_error(strerror(errsave));
             }
-            void *mem = ::mmap(nullptr, data_len, PROT_READ | PROT_WRITE,
-                               MAP_SHARED, fd, 0);
+            void *mem = ::mmap(nullptr, nmemb * sizeof(T),
+                               PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
             ::close(fd);
             if (mem == MAP_FAILED) {
                 int errsave = errno;
@@ -202,13 +204,14 @@ namespace pixel_terrain {
                     return;
                 }
 
-                ofs.write(reinterpret_cast<char *>(data), data_len);
+                ofs.write(reinterpret_cast<std::uint8_t *>(data),
+                          sizeof(T) * nmemb);
                 /* TODO: check if ofstream::write success. */
             }
             delete[] data;
 #elif defined(OS_LINUX)
             if (mmapped) {
-                ::munmap(data, data_len);
+                ::munmap(data, sizeof(T) * nmemb);
             } else {
                 delete[] data;
             }
@@ -217,7 +220,7 @@ namespace pixel_terrain {
 
         [[nodiscard]] auto operator[](size_t off) -> T & { return data[off]; }
 
-        [[nodiscard]] auto size() const -> size_t { return data_len; }
+        [[nodiscard]] auto size() const -> size_t { return nmemb; }
 
         [[nodiscard]] auto get_raw_data() -> T * { return data; }
     };
