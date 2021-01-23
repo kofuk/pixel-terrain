@@ -1,0 +1,15 @@
+;; SPDX-License-Identifier: MIT
+
+nbt-path = *path-component
+
+path-component = tag-name-component / array-index-compoent / list-index-component
+
+tag-name-component = path-separator *(ALPHA / DIGIT)
+array-index-component = array-index-open 1*DIGIT array-index-close
+list-index-component = list-index-open 1*DIGIT list-index-close
+
+path-separator = %x2F           ; /
+array-index-open = %x5B         ; [
+array-index-close = %x5D        ; ]
+list-index-open = %x3C          ; <
+list-index-close = %x3E         ; >

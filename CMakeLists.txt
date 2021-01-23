@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.15)
 project(pixel-terrain
-  VERSION 2.0.0
+  VERSION 2.2.0
   DESCRIPTION "Generate map image for your Minecraft worlds."
   HOMEPAGE_URL "https://github.com/kofuk/pixel-terrain"
   LANGUAGES C CXX)
@@ -73,8 +73,8 @@ endif()
 unset(HAVE_FILE_NAME_MACRO)
 
 add_subdirectory(block)
-add_subdirectory(src)
 add_subdirectory(tools)
+add_subdirectory(src)
 
 if(${CMAKE_BUILD_TYPE} MATCHES Debug AND NOT MSVC)
   add_compile_options(-fsanitize=address -fsanitize=leak)

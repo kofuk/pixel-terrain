@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+
+9,   0,   3,   'f', 'o', 'o', # TAG_List named "foo",
+     0,                       # with element type TAG_End,
+     0,   0,   0,   0         # and its count is 0.

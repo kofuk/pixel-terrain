@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+
+9,   0,   3,   'f', 'o', 'o', # TAG_List named "foo",
+     3,                       # with element type TAG_Int,
+     0,   0,   0,   2,        # and its count is 2.
+     0,   0,   0,   1,        # foo[0] = 1
+     0,   0,   0,   2         # foo[1] = 2

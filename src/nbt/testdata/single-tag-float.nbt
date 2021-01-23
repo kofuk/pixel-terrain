@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT
+
+5,   0,   3,   'f', 'o', 'o',                       # TAG_Float named "foo",
+     0b01000000, 0b10100000, 0b00000000, 0b00000000 # with payload 5.0f
