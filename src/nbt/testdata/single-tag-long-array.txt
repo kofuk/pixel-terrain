@@ -1,0 +1,6 @@
+# SPADIX-License-Identifier: MIT
+
+12,  0,   3,   'f', 'o', 'o',              # TAG_Long_Array named "foo",
+     0,   0,   0,   2,                     # with 2 elements.
+     0,   0,   0,   0,   0,   0,   0,   1, # foo[0] = 1
+     0,   0,   0,   0,   0,   0,   0,   2  # foo[1] = 2

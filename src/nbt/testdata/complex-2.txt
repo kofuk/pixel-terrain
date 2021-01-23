@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+
+ 9,   0,   3,   'f', 'o', 'o', # TAG_List named "foo",
+      10,                      # with element type TAG_Compound,
+      0,   0,   0,   2,        # and its count is 2.
+
+           # foo[0] (type: TAG_Compound)
+           1,   0,   3,   'b', 'a', 'r', # TAG_Byte named "bar",
+                1,                       # with payload 1.
+           1,   0,   3,   'b', 'a', 'z', # TAG_Byte named "baz",
+                2,                       # with payload 2.
+           0,                            # end of foo[0]
+
+           # foo[1] (type: TAG_Compound)
+           1,   0,   6,   'f', 'o', 'o', 'b', 'a', 'r', # TAG_Byte named "foobar",
+                3,                                      # with payload 3
+           0                                            # end of foo[1]

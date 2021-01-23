@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: MIT
+
+# Structure:
+#
+# <TAG_Compound name="">
+#   <TAG_Compound name="foo">
+#     <TAG_Byte name="foo1">
+#       2
+#     </TAG_Byte>
+#     <TAG_Byte name="foo2">
+#       1
+#     </TAG_Byte>
+#   </TAG_Compound>
+#   <TAG_Int_Array name="bar">
+#     <element>3</element>
+#     <element>1</element>
+#     <element>4</element>
+#   </TAG_Int_Array>
+#   <TAG_Compound name="baz">
+#     <TAG_Int name="foo">
+#       3
+#     </TAG_Int>
+#     <TAG_Compound name="bar">
+#       <TAG_Byte_Array name="abc">
+#         <element>1</element>
+#         <element>4</element>
+#         <element>1</element>
+#         <element>4</element>
+#         <element>2</element>
+#       </TAG_Byte_Array>
+#       <TAG_Byte_Array name="def">
+#         <element>1</element>
+#         <element>7</element>
+#         <element>3</element>
+#         <element>2</element>
+#       </TAG_Byte_Array>
+#     </TAG_Compound>
+#   </TAG_Compound>
+# </TAG_Compound>
+
+10,  0,   0, # TAG_Compound /
+     10,  0,   3,   'f', 'o', 'o', # TAG_Compound /foo
+          1,   0,   4,   'f', 'o', 'o', '1', # TAG_Byte /foo/foo1
+               2,                            # 2
+          1,   0,   4,   'f', 'o', 'o', '2', # TAG_Byte /foo/foo2
+               1,                            # 1
+          0,                       # End of /foo
+     11,  0,   3,   'b', 'a', 'r', # TAG_Int_Array /bar
+          0,   0,   0,   3,        # len(/bar) = 3
+          0,   0,   0,   3,        # 3
+          0,   0,   0,   1,        # 1
+          0,   0,   0,   4,        # 4
+     10,  0,   3,   'b', 'a', 'z', # TAG_Compound /baz
+          3,   0,   3,   'f', 'o', 'o', # TAG_Int /baz/foo
+               0,   0,   0,   3,        # 3
+          10,  0,   3,   'b', 'a', 'r', # TAG_Compound /baz/bar
+               7,   0,   3,   'a', 'b', 'c', # TAG_Byte_Array /baz/bar/abc
+                    0,   0,   0,   5,        # len(/baz/bar/abc) = 5
+                    1,                       # 1
+                    4,                       # 4
+                    1,                       # 1
+                    4,                       # 4
+                    2,                       # 2
+               7,   0,   3,   'd', 'e', 'f', # TAG_Byte_Array /baz/bar/def
+                    0,   0,   0,   4,        # len(/baz/bar/def) = 4
+                    1,                       # 1
+                    7,                       # 7
+                    3,                       # 3
+                    3,                       # 2
+               0,                       # End of  /baz/bar
+          0,                       # End of /baz
+     0       # End of /
