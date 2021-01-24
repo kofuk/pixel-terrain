@@ -21,11 +21,14 @@
  * DATA STRUCTURE
  *
  * |-------------------|-------------------------|
- * | len(block_id)     | length of block_id      |
+ * | block_id.size()   | length of block_id      |
  * | block_id (string) | block id (byte by byte) |
  * | .                 |                         |
  * | .                 |                         |
  * | .                 |                         |
+ * | padding.size()    |                         |
+ * | padding           |                         |
+ * | ...               |                         |
  * | color[0]          |                         |
  * | color[1]          |                         |
  * | color[2]          |                         |
@@ -75,6 +78,18 @@ namespace {
         [[nodiscard]] auto color() const
             -> std::array<std::uint8_t, 4> const & {
             return color_;
+        }
+
+        [[nodiscard]] auto required_padding() const -> unsigned int {
+            unsigned int size = namespace_id_.size() + 2;
+            if (size % 4 == 0) {
+                return 0;
+            }
+            return 4 - size % 4;
+        }
+
+        [[nodiscard]] auto total_length() const -> unsigned int {
+            return 2 + namespace_id_.size() + required_padding() + 4;
         }
 
         void set_namespace_id(std::string const &namespace_id) {
@@ -228,7 +243,11 @@ const std::uint8_t block_colors_data[] = {
                 out_file << '\'' << chr << '\'';
                 out_file << ',';
             }
-            total_bytes += element.namespace_id().size() + 1;
+            out_file << element.required_padding() << ',';
+            for (unsigned int i = 0, len = element.required_padding(); i < len; ++i) {
+                out_file << "0,";
+            }
+            total_bytes += element.total_length();
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
             for (int i = 3; i >= 0; --i) {

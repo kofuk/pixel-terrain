@@ -29,6 +29,7 @@ namespace pixel_terrain::image {
             std::string_view block_name(
                 reinterpret_cast<char const *>(block_colors_data) + off, len);
             off += len;
+            off += 1 + static_cast<std::size_t>(block_colors_data[off]);
             std::uint32_t color;
             std::memcpy(&color, block_colors_data + off, sizeof(std::uint32_t));
             result[block_name] = color;
