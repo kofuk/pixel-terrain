@@ -105,13 +105,12 @@ namespace pixel_terrain::nbt {
     };
 
     namespace factory {
-        using tag_payload_factory = std::function<tag_payload *(
-            tag::data_iterator *, tag::data_iterator const &)>;
-        using tag_factory = std::function<tag *(tag::data_iterator *,
-                                                tag::data_iterator const &)>;
-
-        extern std::vector<tag_factory> tag_factories;
-        extern std::vector<tag_payload_factory> payload_factories;
+        // NOLINTNEXTLINE
+        extern std::pair<tag *, tag::data_iterator> (*tag_factories[])(
+            tag::data_iterator const &first, tag::data_iterator const &last);
+        extern std::pair<tag_payload *, tag::data_iterator> (
+            *payload_factories[])(tag::data_iterator const &first, // NOLINT
+                                  tag::data_iterator const &last);
     } // namespace factory
 
     class tag_byte_payload : public tag_payload {
@@ -440,9 +439,10 @@ namespace pixel_terrain::nbt {
         }
     };
 
-    auto parse_type_and_name(tag::data_iterator *first,
+    auto parse_type_and_name(tag::data_iterator const &first,
                              tag::data_iterator const &last)
-        -> std::optional<std::pair<tag_type, std::string>>;
+        -> std::pair<std::optional<std::pair<tag_type, std::string>>,
+                     tag::data_iterator>;
 
     template <tag_type TT>
     class basic_tag : public tag {
@@ -453,33 +453,34 @@ namespace pixel_terrain::nbt {
     public:
         ~basic_tag() { delete data_; }
 
-        static auto parse_buffer(data_iterator *first,
-                                 data_iterator const &last) -> basic_tag<TT> * {
-            auto hdr = parse_type_and_name(first, last);
+        static auto parse_buffer(data_iterator const &first,
+                                 data_iterator const &last)
+            -> std::pair<basic_tag<TT> *, data_iterator> {
+            auto [hdr, itr] = parse_type_and_name(first, last);
             if (!hdr) {
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
             auto [type, name] = *hdr;
             if (type != TT) {
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
             auto *result = new basic_tag<TT>;
 
             result->name_ = name;
 
-            tag_payload *p =
-                factory::payload_factories[static_cast<std::uint8_t>(TT)](first,
+            auto [p, payload_end] =
+                factory::payload_factories[static_cast<std::uint8_t>(TT)](itr,
                                                                           last);
             if (p == nullptr) {
                 delete result;
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
             result->data_ = p;
 
-            return result;
+            return std::make_pair(result, payload_end);
         }
 
         auto data() -> tag_payload * override { return data_; }

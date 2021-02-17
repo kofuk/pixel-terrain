@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE(single_tag_byte_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("single-tag-byte.nbt");
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_byte::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_byte::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t != nullptr);
         BOOST_TEST(t->name() == "foo");
         BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_BYTE);
@@ -80,85 +80,89 @@ BOOST_AUTO_TEST_CASE(single_tag_byte_test) {
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_end::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_end::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_short::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_short::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_int::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_int::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_long::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_long::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_float::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_float::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_double::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_double::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_byte_array::parse_buffer(&itr, data.end());
+        auto [t, itr] =
+            nbt::tag_byte_array::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_string::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_string::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_list::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_list::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_compound::parse_buffer(&itr, data.end());
+        auto [t, itr] =
+            nbt::tag_compound::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_int_array::parse_buffer(&itr, data.end());
+        auto [t, itr] =
+            nbt::tag_int_array::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_long_array::parse_buffer(&itr, data.end());
+        auto [t, itr] =
+            nbt::tag_long_array::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
@@ -168,8 +172,8 @@ BOOST_AUTO_TEST_CASE(single_tag_short_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("single-tag-short.nbt");
 
     {
-        nbt::tag::data_iterator itr = data.begin();
-        auto *t = nbt::tag_short::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_short::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t != nullptr);
         BOOST_TEST(t->name() == "foo");
         BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_SHORT);
@@ -178,8 +182,8 @@ BOOST_AUTO_TEST_CASE(single_tag_short_test) {
     }
 
     {
-        nbt::tag::data_iterator itr = data.cbegin();
-        auto *t = nbt::tag_byte::parse_buffer(&itr, data.end());
+        auto [t, itr] = nbt::tag_byte::parse_buffer(data.begin(), data.end());
+        (void)itr;
         BOOST_TEST(t == nullptr);
         delete t;
     }
@@ -188,8 +192,8 @@ BOOST_AUTO_TEST_CASE(single_tag_short_test) {
 BOOST_AUTO_TEST_CASE(single_tag_int_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("single-tag-int.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_int::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_int::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_INT);
@@ -200,8 +204,8 @@ BOOST_AUTO_TEST_CASE(single_tag_int_test) {
 BOOST_AUTO_TEST_CASE(single_tag_long_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("single-tag-long.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_long::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_long::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_LONG);
@@ -212,8 +216,8 @@ BOOST_AUTO_TEST_CASE(single_tag_long_test) {
 BOOST_AUTO_TEST_CASE(single_tag_float_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("single-tag-float.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_float::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_float::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_FLOAT);
@@ -226,8 +230,8 @@ BOOST_AUTO_TEST_CASE(single_tag_double_test) {
     std::vector<std::uint8_t> data =
         *get_embedded_data("single-tag-double.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_double::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_double::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_DOUBLE);
@@ -240,8 +244,8 @@ BOOST_AUTO_TEST_CASE(single_tag_byte_array_test) {
     std::vector<std::uint8_t> data =
         *get_embedded_data("single-tag-byte-array.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_byte_array::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_byte_array::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_BYTE_ARRAY);
@@ -256,8 +260,8 @@ BOOST_AUTO_TEST_CASE(single_tag_string_test) {
     std::vector<std::uint8_t> data =
         *get_embedded_data("single-tag-string.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_string::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_string::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_STRING);
@@ -269,8 +273,8 @@ BOOST_AUTO_TEST_CASE(single_tag_list_int) {
     std::vector<std::uint8_t> data =
         *get_embedded_data("single-tag-list-int.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_list::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_list::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_LIST);
@@ -285,8 +289,8 @@ BOOST_AUTO_TEST_CASE(simple_tag_compound_test) {
     std::vector<std::uint8_t> data =
         *get_embedded_data("simple-tag-compound.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_compound::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_compound::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_COMPOUND);
@@ -304,8 +308,8 @@ BOOST_AUTO_TEST_CASE(single_tag_int_array_test) {
     std::vector<std::uint8_t> data =
         *get_embedded_data("single-tag-int-array.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_int_array::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_int_array::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->type() == nbt::tag_type::TAG_INT_ARRAY);
@@ -321,8 +325,8 @@ BOOST_AUTO_TEST_CASE(single_tag_long_array_test) {
     std::vector<std::uint8_t> data =
         *get_embedded_data("single-tag-long-array.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_long_array::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_long_array::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->type() == nbt::tag_type::TAG_LONG_ARRAY);
@@ -337,14 +341,14 @@ BOOST_AUTO_TEST_CASE(single_tag_long_array_test) {
 BOOST_AUTO_TEST_CASE(tag_multiple_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("tag-multiple.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t1 = nbt::tag_byte::parse_buffer(&itr, data.end());
+    auto [t1, itr] = nbt::tag_byte::parse_buffer(data.begin(), data.end());
     BOOST_TEST(t1 != nullptr);
     BOOST_TEST(t1->name() == "foo");
     BOOST_TEST(**t1->typed_data<nbt::tag_byte_payload>() == 3);
     delete t1;
 
-    auto *t2 = nbt::tag_short::parse_buffer(&itr, data.end());
+    auto [t2, itr_2] = nbt::tag_short::parse_buffer(itr, data.end());
+    (void)itr_2;
     BOOST_TEST(t2 != nullptr);
     BOOST_TEST(t2->name() == "bar");
     BOOST_TEST(**t1->typed_data<nbt::tag_short_payload>() == 4);
@@ -354,8 +358,7 @@ BOOST_AUTO_TEST_CASE(tag_multiple_test) {
 BOOST_AUTO_TEST_CASE(broken_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("broken.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_byte::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_byte::parse_buffer(data.begin(), data.end());
     BOOST_TEST(t == nullptr);
     delete t;
 }
@@ -363,8 +366,8 @@ BOOST_AUTO_TEST_CASE(broken_test) {
 BOOST_AUTO_TEST_CASE(nested_list_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("nested-list.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_list::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_list::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     BOOST_TEST(t->data()->type() == nbt::tag_type::TAG_LIST);
@@ -383,8 +386,8 @@ BOOST_AUTO_TEST_CASE(nested_list_test) {
 BOOST_AUTO_TEST_CASE(complex_1_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("complex-1.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_compound::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_compound::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
     auto *payload = t->typed_data<nbt::tag_compound_payload>();
@@ -403,8 +406,8 @@ BOOST_AUTO_TEST_CASE(complex_1_test) {
 BOOST_AUTO_TEST_CASE(complex_2_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("complex-2.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_list::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_list::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
 
@@ -441,8 +444,8 @@ BOOST_AUTO_TEST_CASE(complex_2_test) {
 BOOST_AUTO_TEST_CASE(complex_3_test) {
     std::vector<std::uint8_t> data = *get_embedded_data("complex-3.nbt");
 
-    nbt::tag::data_iterator itr = data.begin();
-    auto *t = nbt::tag_compound::parse_buffer(&itr, data.end());
+    auto [t, itr] = nbt::tag_compound::parse_buffer(data.begin(), data.end());
+    (void)itr;
     BOOST_TEST(t != nullptr);
     BOOST_TEST(t->name() == "foo");
 
@@ -463,7 +466,7 @@ BOOST_AUTO_TEST_CASE(complex_3_test) {
     BOOST_TEST(inner_2 != nullptr);
     BOOST_TEST(inner_2->type() == nbt::tag_type::TAG_INT);
     BOOST_TEST(**static_cast<nbt::tag_int *>(inner_2)
-                    ->typed_data<nbt::tag_int_payload>() == 3);
+                     ->typed_data<nbt::tag_int_payload>() == 3);
 
     delete t;
 }

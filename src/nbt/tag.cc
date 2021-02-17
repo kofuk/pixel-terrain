@@ -7,9 +7,11 @@
 #include <functional>
 #include <optional>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
+#include "nbt/pull_parser/nbt_pull_parser.hh"
 #include "nbt/tag.hh"
 
 namespace pixel_terrain::nbt {
@@ -171,489 +173,337 @@ namespace pixel_terrain::nbt {
         }
     } // namespace
 
-    auto parse_type_and_name(tag::data_iterator *first,
+    auto parse_type_and_name(tag::data_iterator const &first,
                              tag::data_iterator const &last)
-        -> std::optional<std::pair<tag_type, std::string>> {
-        if (last <= *first + 3) {
-            return std::nullopt;
+        -> std::pair<std::optional<std::pair<tag_type, std::string>>,
+                     tag::data_iterator> {
+        if (last <= first + 3) {
+            return std::make_pair(std::nullopt, first);
         }
 
-        std::uint8_t type_id = **first;
-        ++(*first);
+        std::uint8_t type_id = *first;
+        tag::data_iterator itr = first + 1;
 
-        if (12 < type_id) {
-            return std::nullopt;
+        if (num_types < static_cast<std::size_t>(type_id)) {
+            return std::make_pair(std::nullopt, first);
         }
 
         tag_type ty = static_cast<tag_type>(type_id);
         if (ty == tag_type::TAG_END) {
-            return std::make_pair(tag_type::TAG_END, "");
+            return std::make_pair(std::make_pair(tag_type::TAG_END, ""), itr);
         }
 
         std::uint16_t name_len;
-        ordered_copy(*first, *first + sizeof(std::uint16_t), &name_len);
-        (*first) += sizeof(std::uint16_t);
+        ordered_copy(itr, itr + sizeof(std::uint16_t), &name_len);
+        itr += sizeof(std::uint16_t);
 
-        if (last < *first + name_len) {
-            return std::nullopt;
+        if (last < itr + name_len) {
+            return std::make_pair(std::nullopt, first);
         }
 
-        std::string name(*first, *first + name_len);
-        (*first) += name_len;
+        std::string name(itr, itr + name_len);
+        itr += name_len;
 
-        return std::make_pair(ty, name);
+        return std::make_pair(std::make_pair(ty, name), itr);
     }
 
     namespace factory {
         namespace {
-            auto tag_end(tag::data_iterator *first,
-                         tag::data_iterator const &last) -> tag_end * {
-                auto *t = nbt::tag_end::parse_buffer(first, last);
+            template <tag_type TT>
+            auto make_tag(tag::data_iterator const &first,
+                          tag::data_iterator const &last)
+                -> std::pair<tag *, tag::data_iterator> {
+                auto [t, itr] = nbt::basic_tag<TT>::parse_buffer(first, last);
                 if (t == nullptr) {
                     delete t;
-                    return nullptr;
+                    return std::make_pair(nullptr, first);
                 }
 
-                return t;
+                return std::make_pair(t, itr);
             }
 
-            auto tag_byte(tag::data_iterator *first,
-                          tag::data_iterator const &last) -> tag_byte * {
-                auto *t = nbt::tag_byte::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
+            auto make_tag_end_payload(tag::data_iterator const &first,
+                                      tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                return std::make_pair(new tag_null_payload, first);
             }
 
-            auto tag_short(tag::data_iterator *first,
-                           tag::data_iterator const &last) -> tag_short * {
-                auto *t = nbt::tag_short::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_int(tag::data_iterator *first,
-                         tag::data_iterator const &last) -> tag_int * {
-                auto *t = nbt::tag_int::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_long(tag::data_iterator *first,
-                          tag::data_iterator const &last) -> tag_long * {
-                auto *t = nbt::tag_long::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_float(tag::data_iterator *first,
-                           tag::data_iterator const &last) -> tag_float * {
-                auto *t = nbt::tag_float::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_double(tag::data_iterator *first,
-                            tag::data_iterator const &last) -> tag_double * {
-                auto *t = nbt::tag_double::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_byte_array(tag::data_iterator *first,
-                                tag::data_iterator const &last)
-                -> tag_byte_array * {
-                auto *t = nbt::tag_byte_array::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_string(tag::data_iterator *first,
-                            tag::data_iterator const &last) -> tag_string * {
-                auto *t = nbt::tag_string::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_list(tag::data_iterator *first,
-                          tag::data_iterator const &last) -> tag_list * {
-                auto *t = nbt::tag_list::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_compound(tag::data_iterator *first,
-                              tag::data_iterator const &last)
-                -> tag_compound * {
-                auto *t = nbt::tag_compound::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_int_array(tag::data_iterator *first,
-                               tag::data_iterator const &last)
-                -> tag_int_array * {
-                auto *t = nbt::tag_int_array::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_long_array(tag::data_iterator *first,
-                                tag::data_iterator const &last)
-                -> tag_long_array * {
-                auto *t = nbt::tag_long_array::parse_buffer(first, last);
-                if (t == nullptr) {
-                    delete t;
-                    return nullptr;
-                }
-
-                return t;
-            }
-
-            auto tag_end_payload(tag::data_iterator *first,
-                                 tag::data_iterator const &last)
-                -> tag_null_payload * {
-                return new tag_null_payload;
-            }
-
-            auto tag_byte_payload(tag::data_iterator *first,
-                                  tag::data_iterator const &last)
-                -> tag_byte_payload * {
-                if (*first <= last) {
+            auto make_tag_byte_payload(tag::data_iterator const &first,
+                                       tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (first <= last) {
                     auto *p = new nbt::tag_byte_payload;
-                    **p = **first;
-                    ++(*first);
-                    return p;
+                    **p = *first;
+                    return std::make_pair(p, first + 1);
                 }
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
-            auto tag_short_payload(tag::data_iterator *first,
-                                   tag::data_iterator const &last)
-                -> tag_short_payload * {
-                if (*first + sizeof(std::int16_t) <= last) {
+            auto make_tag_short_payload(tag::data_iterator const &first,
+                                        tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (first + sizeof(std::int16_t) <= last) {
                     auto *p = new nbt::tag_short_payload;
                     std::int16_t result;
-                    ordered_copy(*first, *first + sizeof(std::int16_t),
-                                 &result);
+                    ordered_copy(first, first + sizeof(std::int16_t), &result);
                     **p = result;
-                    *first += sizeof(std::int16_t);
-                    return p;
+                    return std::make_pair(p, first + sizeof(std::int16_t));
                 }
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
-            auto tag_int_payload(tag::data_iterator *first,
-                                 tag::data_iterator const &last)
-                -> tag_int_payload * {
-                if (*first + sizeof(std::int32_t) <= last) {
+            auto make_tag_int_payload(tag::data_iterator const &first,
+                                      tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (first + sizeof(std::int32_t) <= last) {
                     auto *p = new nbt::tag_int_payload;
                     std::int32_t result;
-                    ordered_copy(*first, *first + sizeof(std::int32_t),
-                                 &result);
+                    ordered_copy(first, first + sizeof(std::int32_t), &result);
                     **p = result;
-                    *first += sizeof(std::int32_t);
-                    return p;
+                    return std::make_pair(p, first + sizeof(std::int32_t));
                 }
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
-            auto tag_long_payload(tag::data_iterator *first,
-                                  tag::data_iterator const &last)
-                -> tag_long_payload * {
-                if (*first + sizeof(std::int32_t) <= last) {
+            auto make_tag_long_payload(tag::data_iterator const &first,
+                                       tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (first + sizeof(std::int32_t) <= last) {
                     auto *p = new nbt::tag_long_payload;
                     std::uint64_t result;
-                    ordered_copy(*first, *first + sizeof(std::uint64_t),
-                                 &result);
+                    ordered_copy(first, first + sizeof(std::uint64_t), &result);
                     **p = result;
-                    *first += sizeof(std::uint64_t);
-                    return p;
+                    return std::make_pair(p, first + sizeof(std::uint64_t));
                 }
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
-            auto tag_float_payload(tag::data_iterator *first,
-                                   tag::data_iterator const &last)
-                -> tag_float_payload * {
-                if (*first + sizeof(std::int32_t) <= last) {
+            auto make_tag_float_payload(tag::data_iterator const &first,
+                                        tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (first + sizeof(std::int32_t) <= last) {
                     auto *p = new nbt::tag_float_payload;
                     float result;
-                    ordered_copy(*first, *first + sizeof(float), &result);
+                    ordered_copy(first, first + sizeof(float), &result);
                     **p = result;
-                    *first += sizeof(float);
-                    return p;
+                    return std::make_pair(p, first + sizeof(float));
                 }
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
-            auto tag_double_payload(tag::data_iterator *first,
-                                    tag::data_iterator const &last)
-                -> tag_double_payload * {
-                if (*first + sizeof(double) <= last) {
+            auto make_tag_double_payload(tag::data_iterator const &first,
+                                         tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (first + sizeof(double) <= last) {
                     auto *p = new nbt::tag_double_payload;
                     double result;
-                    ordered_copy(*first, *first + sizeof(double), &result);
+                    ordered_copy(first, first + sizeof(double), &result);
                     **p = result;
-                    *first += sizeof(double);
-                    return p;
+                    return std::make_pair(p, first + sizeof(double));
                 }
-                return nullptr;
+                return std::make_pair(nullptr, first);
             }
 
-            auto tag_byte_array_payload(tag::data_iterator *first,
-                                        tag::data_iterator const &last)
-                -> tag_byte_array_payload * {
-                if (last < *first + sizeof(std::uint32_t)) {
-                    return nullptr;
+            auto make_tag_byte_array_payload(tag::data_iterator const &first,
+                                             tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (last < first + sizeof(std::uint32_t)) {
+                    return std::make_pair(nullptr, first);
                 }
 
                 std::uint32_t len;
-                ordered_copy(*first, *first + sizeof(std::uint32_t), &len);
-                *first += sizeof(std::uint32_t);
+                ordered_copy(first, first + sizeof(std::uint32_t), &len);
+                tag::data_iterator itr = first + sizeof(std::uint32_t);
 
-                if (last < *first + len) {
-                    return nullptr;
+                if (last < itr + len) {
+                    return std::make_pair(nullptr, first);
                 }
 
                 auto *p = new nbt::tag_byte_array_payload;
                 for (unsigned int i = 0; i < len; ++i) {
-                    std::uint8_t item = **first;
-                    ++(*first);
+                    std::uint8_t item = *itr;
+                    ++itr;
                     (*p)->push_back(item);
                 }
 
-                return p;
+                return std::make_pair(p, itr);
             }
 
-            auto tag_string_payload(tag::data_iterator *first,
-                                    tag::data_iterator const &last)
-                -> tag_string_payload * {
-                if (last < *first + sizeof(std::uint16_t)) {
-                    return nullptr;
+            auto make_tag_string_payload(tag::data_iterator const &first,
+                                         tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (last < first + sizeof(std::uint16_t)) {
+                    return std::make_pair(nullptr, first);
                 }
 
                 std::uint16_t len;
-                ordered_copy(*first, *first + sizeof(std::uint16_t), &len);
-                *first += sizeof(std::uint16_t);
+                ordered_copy(first, first + sizeof(std::uint16_t), &len);
+                tag::data_iterator itr = first + sizeof(std::uint16_t);
 
-                if (last < *first + len) {
-                    return nullptr;
+                if (last < itr + len) {
+                    return std::make_pair(nullptr, first);
                 }
 
                 auto *p = new nbt::tag_string_payload;
-                **p = std::string(*first, *first + len);
-                *first += len;
+                **p = std::string(itr, itr + len);
 
-                return p;
+                return std::make_pair(p, itr + len);
             }
 
-            auto tag_list_payload(tag::data_iterator *first,
-                                  tag::data_iterator const &last)
-                -> tag_list_payload * {
-                if (last < *first + 3) {
-                    return nullptr;
+            auto make_tag_list_payload(tag::data_iterator const &first,
+                                       tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (last < first + 3) {
+                    return std::make_pair(nullptr, first);
                 }
-                std::uint8_t payload_type_id = **first;
-                ++(*first);
+                std::uint8_t payload_type_id = *first;
+                tag::data_iterator itr = first + 1;
                 if (12 <= payload_type_id) {
-                    return nullptr;
+                    return std::make_pair(nullptr, first);
                 }
                 tag_type payload_type = static_cast<tag_type>(payload_type_id);
 
                 std::uint32_t len;
-                ordered_copy(*first, *first + sizeof(std::uint32_t), &len);
-                *first += sizeof(std::uint32_t);
+                ordered_copy(itr, itr + sizeof(std::uint32_t), &len);
+                itr += sizeof(std::uint32_t);
 
                 auto *p = new nbt::tag_list_payload;
                 p->set_payload_type(payload_type);
 
                 for (unsigned int i = 0; i < len; ++i) {
-                    tag_payload *item =
-                        payload_factories[payload_type_id](first, last);
+                    auto [item, out_itr] =
+                        payload_factories[payload_type_id](itr, last);
                     if (item == nullptr) {
                         delete p;
-                        return nullptr;
+                        return std::make_pair(nullptr, first);
                     }
                     (*p)->push_back(item);
+                    itr = out_itr;
                 }
 
-                return p;
+                return std::make_pair(p, itr);
             }
 
-            auto tag_compound_payload(tag::data_iterator *first,
-                                      tag::data_iterator const &last)
-                -> tag_compound_payload * {
+            auto make_tag_compound_payload(tag::data_iterator const &first,
+                                           tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
                 auto *p = new nbt::tag_compound_payload;
 
+                tag::data_iterator itr = first;
+
                 for (;;) {
-                    if (last < *first) {
+                    if (last < itr) {
                         delete p;
-                        return nullptr;
+                        return std::make_pair(nullptr, first);
                     }
 
-                    std::uint8_t tag_type_id = **first;
+                    std::uint8_t tag_type_id = *itr;
                     if (12 < tag_type_id) {
                         delete p;
-                        return nullptr;
+                        return std::make_pair(nullptr, first);
                     }
                     if (static_cast<tag_type>(tag_type_id) ==
                         tag_type::TAG_END) {
-                        ++(*first);
+                        ++itr;
                         break;
                     }
 
-                    tag *item = tag_factories[tag_type_id](first, last);
+                    auto [item, out_itr] =
+                        tag_factories[tag_type_id](itr, last);
                     if (item == nullptr) {
                         delete p;
-                        return nullptr;
+                        return std::make_pair(nullptr, first);
                     }
 
                     (*p)->push_back(item);
+                    itr = out_itr;
                 }
 
-                return p;
+                return std::make_pair(p, itr);
             }
 
-            auto tag_int_array_payload(tag::data_iterator *first,
-                                       tag::data_iterator const &last)
-                -> tag_int_array_payload * {
-                if (last <= *first + sizeof(std::uint32_t)) {
-                    return nullptr;
+            auto make_tag_int_array_payload(tag::data_iterator const &first,
+                                            tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (last <= first + sizeof(std::uint32_t)) {
+                    return std::make_pair(nullptr, first);
                 }
 
                 std::uint32_t len;
-                ordered_copy(*first, *first + sizeof(std::uint32_t), &len);
-                *first += sizeof(std::uint32_t);
+                ordered_copy(first, first + sizeof(std::uint32_t), &len);
+                tag::data_iterator itr = first + sizeof(std::uint32_t);
 
-                if (last < *first + len * sizeof(std::int32_t)) {
-                    return nullptr;
+                if (last < first + len * sizeof(std::int32_t)) {
+                    return std::make_pair(nullptr, first);
                 }
 
                 auto *p = new nbt::tag_int_array_payload;
                 for (unsigned int i = 0; i < len; ++i) {
                     std::int32_t item;
-                    ordered_copy(*first, *first + sizeof(std::int32_t), &item);
-                    *first += sizeof(std::int32_t);
+                    ordered_copy(itr, itr + sizeof(std::int32_t), &item);
+                    itr += sizeof(std::int32_t);
                     (*p)->push_back(item);
                 }
 
-                return p;
+                return std::make_pair(p, itr);
             }
 
-            auto tag_long_array_payload(tag::data_iterator *first,
-                                        tag::data_iterator const &last)
-                -> tag_long_array_payload * {
-                if (last < *first + sizeof(std::uint32_t)) {
-                    return nullptr;
+            auto make_tag_long_array_payload(tag::data_iterator const &first,
+                                             tag::data_iterator const &last)
+                -> std::pair<tag_payload *, tag::data_iterator> {
+                if (last < first + sizeof(std::uint32_t)) {
+                    return std::make_pair(nullptr, first);
                 }
 
                 std::uint32_t len;
-                ordered_copy(*first, *first + sizeof(std::uint32_t), &len);
-                *first += sizeof(std::uint32_t);
+                ordered_copy(first, first + sizeof(std::uint32_t), &len);
+                tag::data_iterator itr = first + sizeof(std::uint32_t);
 
-                if (last < *first + len * sizeof(std::uint64_t)) {
-                    return nullptr;
+                if (last < itr + len * sizeof(std::uint64_t)) {
+                    return std::make_pair(nullptr, first);
                 }
 
                 auto *p = new nbt::tag_long_array_payload;
                 for (unsigned int i = 0; i < len; ++i) {
                     std::uint64_t item;
-                    ordered_copy(*first, *first + sizeof(std::int64_t), &item);
-                    *first += sizeof(std::uint64_t);
+                    ordered_copy(itr, itr + sizeof(std::int64_t), &item);
+                    itr += sizeof(std::uint64_t);
                     (*p)->push_back(item);
                 }
 
-                return p;
-            }
-
-            std::vector<tag_factory> make_tag_factory_list() {
-                std::vector<tag_factory> result;
-
-                result.push_back(tag_end);
-                result.push_back(tag_byte);
-                result.push_back(tag_short);
-                result.push_back(tag_int);
-                result.push_back(tag_long);
-                result.push_back(tag_float);
-                result.push_back(tag_double);
-                result.push_back(tag_byte_array);
-                result.push_back(tag_string);
-                result.push_back(tag_list);
-                result.push_back(tag_compound);
-                result.push_back(tag_int_array);
-                result.push_back(tag_long_array);
-
-                return result;
-            }
-
-            std::vector<tag_payload_factory> make_tag_payload_factory_list() {
-                std::vector<tag_payload_factory> result;
-
-                result.push_back(tag_end_payload);
-                result.push_back(tag_byte_payload);
-                result.push_back(tag_short_payload);
-                result.push_back(tag_int_payload);
-                result.push_back(tag_long_payload);
-                result.push_back(tag_float_payload);
-                result.push_back(tag_double_payload);
-                result.push_back(tag_byte_array_payload);
-                result.push_back(tag_string_payload);
-                result.push_back(tag_list_payload);
-                result.push_back(tag_compound_payload);
-                result.push_back(tag_int_array_payload);
-                result.push_back(tag_long_array_payload);
-
-                return result;
+                return std::make_pair(p, itr);
             }
         } // namespace
 
-        std::vector<tag_factory> tag_factories = make_tag_factory_list();
-        std::vector<tag_payload_factory> payload_factories =
-            make_tag_payload_factory_list();
+        // NOLINTNEXTLINE
+        std::pair<tag *, tag::data_iterator> (*tag_factories[])(
+            tag::data_iterator const &first, tag::data_iterator const &last) = {
+            &make_tag<tag_type::TAG_END>,
+            &make_tag<tag_type::TAG_BYTE>,
+            &make_tag<tag_type::TAG_SHORT>,
+            &make_tag<tag_type::TAG_INT>,
+            &make_tag<tag_type::TAG_LONG>,
+            &make_tag<tag_type::TAG_FLOAT>,
+            &make_tag<tag_type::TAG_DOUBLE>,
+            &make_tag<tag_type::TAG_BYTE_ARRAY>,
+            &make_tag<tag_type::TAG_STRING>,
+            &make_tag<tag_type::TAG_LIST>,
+            &make_tag<tag_type::TAG_COMPOUND>,
+            &make_tag<tag_type::TAG_INT_ARRAY>,
+            &make_tag<tag_type::TAG_LONG_ARRAY>,
+        };
+
+        // NOLINTNEXTLINE
+        std::pair<tag_payload *, tag::data_iterator> (*payload_factories[])(
+            tag::data_iterator const &first, tag::data_iterator const &last) = {
+            &make_tag_end_payload,        &make_tag_byte_payload,
+            &make_tag_short_payload,      &make_tag_int_payload,
+            &make_tag_long_payload,       &make_tag_float_payload,
+            &make_tag_double_payload,     &make_tag_byte_array_payload,
+            &make_tag_string_payload,     &make_tag_list_payload,
+            &make_tag_compound_payload,   &make_tag_int_array_payload,
+            &make_tag_long_array_payload,
+        };
     } // namespace factory
 
     template <>

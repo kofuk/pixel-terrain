@@ -11,8 +11,8 @@ namespace pixel_terrain::nbt {
     auto nbt::parse_buffer(std::vector<std::uint8_t>::const_iterator first,
                            std::vector<std::uint8_t>::const_iterator last)
         -> bool {
-        auto *root = tag_compound::parse_buffer(&first, last);
-        if (root == nullptr || last < first) {
+        auto [root, itr] = tag_compound::parse_buffer(first, last);
+        if (root == nullptr || last < itr) {
             delete root;
             return false;
         }
