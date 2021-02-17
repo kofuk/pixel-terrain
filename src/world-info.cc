@@ -97,7 +97,7 @@ Exit status:
         char const *only_fields = "name,path";
         bool quiet = false;
         for (;;) {
-            int c = regetopt(argc, argv, "Fqh", long_options.data(), nullptr);
+            int c = regetopt(argc, argv, "F:qh", long_options.data(), nullptr);
             if (c < 0) {
                 break;
             }
