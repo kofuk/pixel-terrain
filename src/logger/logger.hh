@@ -27,11 +27,11 @@ namespace pixel_terrain::logger {
                                      fmt __VA_OPT__(, ) __VA_ARGS__)
 #define DLOG(fmt, ...)                                              \
     pixel_terrain::logger::print_log(pixel_terrain::logger::DEBUG,  \
-                                     "%s(%d): " fmt, __FILE_NAME__, \
+                                     "%s(%d): " fmt, __FILE__, \
                                      __LINE__ __VA_OPT__(, ) __VA_ARGS__)
 
 #define ELOG(fmt, ...)                                              \
     pixel_terrain::logger::print_log(pixel_terrain::logger::ERROR,  \
-                                     "%s(%d): " fmt, __FILE_NAME__, \
+                                     "%s(%d): " fmt, __FILE__, \
                                      __LINE__ __VA_OPT__(, ) __VA_ARGS__)
 #endif
