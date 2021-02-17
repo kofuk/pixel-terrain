@@ -39,6 +39,13 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   set(OS_LINUX Yes)
 endif()
 
+option(USE_V3_NBT_PARSER "Use experimental NBT parser")
+if(USE_V3_NBT_PARSER)
+  add_definitions(-DUSE_V3_NBT_PARSER=1)
+else()
+  add_definitions(-DUSE_V3_NBT_PARSER=0)
+endif()
+
 enable_testing()
 find_package(Boost COMPONENTS unit_test_framework)
 

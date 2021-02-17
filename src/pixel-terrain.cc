@@ -9,6 +9,7 @@
 
 #include "config.h"
 #include "pixel-terrain.hh"
+#include "utils/array.hh"
 
 namespace {
     struct subcommand {
@@ -58,9 +59,28 @@ Subcommands:
         std::exit(status);
     }
 
+    struct feature {
+        std::string feature;
+        bool enabled;
+    };
+
+    auto features = pixel_terrain::make_array<feature>(
+        feature{"v3_nbt_parser", USE_V3_NBT_PARSER});
+
     [[noreturn]] void print_version_and_exit() {
         std::printf("%s %d.%d.%d\n", PRODUCT_NAME, VERSION_MAJOR, VERSION_MINOR,
                     VERSION_REVISION);
+
+        std::puts("\nFeatures:");
+        for (int i = 0; auto f : features) {
+            if (static_cast<bool>(i) && i % 3 == 0) {
+                std::puts("");
+            }
+            std::printf(" %s=%s", f.feature.c_str(), f.enabled ? "on" : "off");
+            ++i;
+        }
+        std::puts("");
+
         std::fputs(R"(
 Copyright (C) 2020  Koki Fukuda
 Pixel Terrain is Free and Open Source software distributed under the condition

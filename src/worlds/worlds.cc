@@ -9,7 +9,12 @@
 #include <string>
 #include <vector>
 
+#if USE_V3_NBT_PARSER
+#include "nbt/nbt-path.hh"
+#include "nbt/nbt.hh"
+#else
 #include "nbt/pull_parser/nbt_pull_parser.hh"
+#endif
 #include "nbt/utils.hh"
 #include "utils/path_hack.hh"
 #include "worlds.hh"
@@ -37,6 +42,22 @@ namespace pixel_terrain {
             if (data == nullptr) {
                 throw std::runtime_error("Cannot load level.dat");
             }
+#if USE_V3_NBT_PARSER
+            auto *leveldat =
+                nbt::nbt::from_iterator(data->cbegin(), data->cend());
+            auto name_path = nbt::nbt_path::compile("//Data/LevelName");
+            auto *world_name_node =
+                leveldat->query<nbt::tag_string_payload>(name_path);
+            if (world_name_node == nullptr) {
+                throw std::runtime_error("Invalid level.dat");
+            }
+            std::string result = **world_name_node;
+            delete world_name_node;
+            delete leveldat;
+            delete data;
+
+            return result;
+#else // not USE_V3_NBT_PARSER
             nbt::nbt_pull_parser parser(data->data(), data->size());
 
             int nest_level = 0;
@@ -75,6 +96,7 @@ namespace pixel_terrain {
             }
 
             throw std::runtime_error("Invalid level.dat");
+#endif // USE_V3_NBT_PARSER
         }
     } // namespace
 
