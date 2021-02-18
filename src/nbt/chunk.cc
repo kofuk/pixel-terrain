@@ -11,21 +11,46 @@
 #include <string>
 #include <vector>
 
-#include "logger/logger.hh"
 #include "nbt/chunk.hh"
 #include "nbt/constants.hh"
+#if USE_V3_NBT_PARSER
+#include "nbt/nbt.hh"
+#include "nbt/tag.hh"
+#else
 #include "nbt/pull_parser/nbt_pull_parser.hh"
+#endif
 
 namespace pixel_terrain::anvil {
+#if USE_V3_NBT_PARSER
+    chunk::chunk(std::vector<std::uint8_t> const &data) {
+        palettes.fill(nullptr);
+        block_states.fill(nullptr);
+
+        auto *nbt_file = nbt::nbt::from_iterator(data.begin(), data.end());
+        if (nbt_file == nullptr) {
+            throw std::runtime_error("Parse error");
+        }
+        try {
+            init_fields(*nbt_file);
+        } catch (std::runtime_error const &e) {
+            delete nbt_file;
+            throw e;
+        }
+        delete nbt_file;
+    }
+#else
     chunk::chunk(std::vector<std::uint8_t> *data)
         : parser(nbt::nbt_pull_parser(data->data(), data->size())),
           chunk_data_(data) {
         palettes.fill(nullptr);
         block_states.fill(nullptr);
     }
+#endif
 
     chunk::~chunk() {
+#if !USE_V3_NBT_PARSER
         delete chunk_data_;
+#endif
         for (std::vector<std::string> *e : palettes) {
             delete e;
         }
@@ -34,12 +59,121 @@ namespace pixel_terrain::anvil {
         }
     }
 
+#if USE_V3_NBT_PARSER
+    namespace {
+        auto const sections_path = nbt::nbt_path::compile("//Level/Sections");
+        auto const last_update_path =
+            nbt::nbt_path::compile("//Level/LastUpdate");
+        auto const y_path = nbt::nbt_path::compile("/Y");
+        auto const block_states_path = nbt::nbt_path::compile("/BlockStates");
+        auto const palette_path = nbt::nbt_path::compile("/Palette");
+        auto const name_path = nbt::nbt_path::compile("/Name");
+        auto const biomes_path = nbt::nbt_path::compile("//Level/Biomes");
+        auto const data_version_path = nbt::nbt_path::compile("//DataVersion");
+    } // namespace
+
+    void chunk::init_fields(nbt::nbt const &nbt_file) noexcept(false) {
+        auto *sections_node =
+            nbt_file.query<nbt::tag_list_payload>(sections_path);
+        if (sections_node == nullptr) {
+            throw std::runtime_error("Sections data not found");
+        }
+        if (sections_node->payload_type() != nbt::tag_type::TAG_COMPOUND) {
+            nbt::tag_type got_type = sections_node->payload_type();
+            delete sections_node;
+            throw std::runtime_error("Invalid Sections data type: " +
+                                     nbt::tag_type_repr(got_type));
+        }
+        for (std::size_t i = 0, E = (*sections_node)->size(); i < E; ++i) {
+            auto *node = sections_node->get<nbt::tag_compound_payload>(i);
+
+            auto *y_node = node->query<nbt::tag_byte_payload>(y_path);
+            if (y_node == nullptr) {
+                continue;
+            }
+            std::uint8_t y = **y_node;
+            delete y_node;
+
+            if (y < 0 || 16 <= y) {
+                /* Out of range. */
+                continue;
+            }
+
+            auto *block_states_node =
+                node->query<nbt::tag_long_array_payload>(block_states_path);
+            if (block_states_node == nullptr) {
+                /* If there's no BlockStates, there's no way to
+                   refer to Palette, so we continue here. */
+                continue;
+            }
+            auto *states = new std::vector<std::uint64_t>;
+            for (std::uint64_t state : **block_states_node) {
+                states->push_back(state);
+            }
+            block_states[static_cast<std::size_t>(y)] = states;
+            delete block_states_node;
+
+            auto *palette_node =
+                node->query<nbt::tag_list_payload>(palette_path);
+            if (palette_node == nullptr ||
+                palette_node->payload_type() != nbt::tag_type::TAG_COMPOUND) {
+                delete palette_node;
+                continue;
+            }
+
+            auto *palette = new std::vector<std::string>;
+            for (std::size_t j = 0, F = (*palette_node)->size(); j < F; ++j) {
+                auto *element_node =
+                    palette_node->get<nbt::tag_compound_payload>(j);
+                auto *name_node =
+                    element_node->query<nbt::tag_string_payload>(name_path);
+                if (name_node == nullptr) {
+                    continue;
+                }
+                palette->push_back(**name_node);
+                delete name_node;
+            }
+            palettes[static_cast<std::size_t>(y)] = palette;
+
+            delete palette_node;
+        }
+        delete sections_node;
+
+        auto *last_update_node =
+            nbt_file.query<nbt::tag_long_payload>(last_update_path);
+        if (last_update_node == nullptr) {
+            throw std::runtime_error("LastUpdate data not found");
+        }
+        last_update = **last_update_node;
+        delete last_update_node;
+
+        auto *biomes_node =
+            nbt_file.query<nbt::tag_int_array_payload>(biomes_path);
+        if (biomes_node == nullptr) {
+            throw std::runtime_error("Biomes data not found");
+        }
+        biomes = **biomes_node;
+        delete biomes_node;
+
+        auto *data_version_node =
+            nbt_file.query<nbt::tag_int_payload>(data_version_path);
+        if (data_version_node == nullptr) {
+            throw std::runtime_error("DataVersion data not found");
+        }
+        data_version = **data_version_node;
+        delete data_version_node;
+    }
+#endif
+
     auto chunk::get_last_update() noexcept(false) -> std::uint64_t {
+#if !USE_V3_NBT_PARSER
         make_sure_field_parsed(FIELD_LAST_UPDATE);
+#endif
 
         return last_update;
     }
 
+#if !USE_V3_NBT_PARSER
     void chunk::parse_sections() {
         nbt::parser_event ev = parser.next();
         for (;;) {
@@ -262,19 +396,24 @@ namespace pixel_terrain::anvil {
 
         return result;
     }
+#endif // not USE_V3_NBT_PARSER
 
     auto chunk::get_palette(unsigned char y) -> std::vector<std::string> * {
         if (y >= nbt::biomes::PALETTE_Y_MAX) {
             return nullptr;
         }
 
+#if !USE_V3_NBT_PARSER
         make_sure_field_parsed(FIELD_SECTIONS);
+#endif
 
         return palettes[y];
     }
 
     auto chunk::get_biome(int32_t x, int32_t y, int32_t z) -> int32_t {
+#if !USE_V3_NBT_PARSER
         make_sure_field_parsed(FIELD_BIOMES);
+#endif
 
         if (biomes.size() == nbt::biomes::BIOME_DATA_OLD_VERSION_SIZE) {
             return biomes[(z / 2) * 16 + (x / 2)]; // NOLINT
@@ -290,7 +429,9 @@ namespace pixel_terrain::anvil {
             return "";
         }
 
+#if !USE_V3_NBT_PARSER
         make_sure_field_parsed(FIELD_DATA_VERSION);
+#endif
 
         unsigned char section_no = y / nbt::biomes::PALETTE_Y_MAX;
 
@@ -319,7 +460,9 @@ namespace pixel_terrain::anvil {
         }
 
         int index = y * 16 * 16 + z * 16 + x; // NOLINT
+#if !USE_V3_NBT_PARSER
         make_sure_field_parsed(FIELD_SECTIONS);
+#endif
         std::vector<std::uint64_t> *states = block_states[section_no];
         int state;
         bool stretches =
@@ -365,7 +508,9 @@ namespace pixel_terrain::anvil {
     }
 
     auto chunk::get_max_height() -> int {
+#if !USE_V3_NBT_PARSER
         make_sure_field_parsed(FIELD_SECTIONS);
+#endif
 
         for (int y = nbt::biomes::SECTIONS_Y_DIV_COUNT - 1; y >= 0; --y) {
             if (palettes[y] != nullptr) {

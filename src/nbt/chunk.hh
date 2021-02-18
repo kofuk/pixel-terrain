@@ -9,12 +9,18 @@
 #include <vector>
 
 #include "nbt/constants.hh"
+#if USE_V3_NBT_PARSER
+#include "nbt/nbt.hh"
+#else
 #include "nbt/pull_parser/nbt_pull_parser.hh"
+#endif
 
 namespace pixel_terrain::anvil {
     class chunk {
+#if !USE_V3_NBT_PARSER
         nbt::nbt_pull_parser parser;
         std::vector<std::uint8_t> *chunk_data_;
+#endif
 
         std::array<std::vector<std::string> *, nbt::biomes::PALETTE_Y_MAX>
             palettes;
@@ -24,6 +30,9 @@ namespace pixel_terrain::anvil {
         std::vector<std::int32_t> biomes;
         std::uint64_t last_update;
         std::int32_t data_version;
+#if USE_V3_NBT_PARSER
+        void init_fields(nbt::nbt const &nbt_file) noexcept(false);
+#else
         unsigned char loaded_fields = 0;
         std::vector<std::string> tag_structure;
 
@@ -36,9 +45,14 @@ namespace pixel_terrain::anvil {
         void parse_sections();
         auto current_field() -> unsigned char;
         void make_sure_field_parsed(unsigned char field) noexcept(false);
+#endif
 
     public:
+#if USE_V3_NBT_PARSER
+        chunk(std::vector<std::uint8_t> const &data);
+#else
         chunk(std::vector<std::uint8_t> *data);
+#endif
         ~chunk();
 
         [[nodiscard]] auto get_last_update() noexcept(false) -> std::uint64_t;

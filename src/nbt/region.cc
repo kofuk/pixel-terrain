@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 
+#include "logger/logger.hh"
 #include "nbt/constants.hh"
 #include "nbt/file.hh"
 #include "nbt/region.hh"
@@ -129,7 +130,12 @@ namespace pixel_terrain::anvil {
             return nullptr;
         }
 
+#if USE_V3_NBT_PARSER
+        auto *cur_chunk = new chunk(*data);
+        delete data;
+#else
         auto *cur_chunk = new chunk(data);
+#endif
         return cur_chunk;
     }
 
@@ -144,7 +150,19 @@ namespace pixel_terrain::anvil {
             return nullptr;
         }
 
+#if USE_V3_NBT_PARSER
+        chunk *cur_chunk;
+        try {
+            cur_chunk = new chunk(*data);
+        } catch (std::runtime_error const &e) {
+            ELOG("Error parsing chunk: %s\n", e.what());
+            delete data;
+            return nullptr;
+        }
+        delete data;
+#else
         auto *cur_chunk = new chunk(data);
+#endif
         if (last_update != nullptr) {
             if ((*last_update)[chunk_z * nbt::biomes::CHUNK_PER_REGION_WIDTH +
                                chunk_x] >= cur_chunk->get_last_update()) {

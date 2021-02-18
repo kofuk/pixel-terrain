@@ -29,7 +29,7 @@ namespace pixel_terrain::nbt {
                       std::vector<std::uint8_t>::const_iterator last) -> nbt *;
 
         template <class Tp, class = std::is_convertible<Tp, tag_payload>>
-        auto query(nbt_path path) -> Tp * {
+        auto query(nbt_path path) const -> Tp * {
             if (root_ == nullptr) {
                 return nullptr;
             }
