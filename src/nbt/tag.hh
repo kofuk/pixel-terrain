@@ -74,6 +74,7 @@ namespace pixel_terrain::nbt {
 
             if (result == nullptr ||
                 cxx_to_nbt_type<Tp>::type() != result->type()) {
+                delete result;
                 return nullptr;
             }
 
@@ -654,6 +655,7 @@ namespace pixel_terrain::nbt {
 
             if (result == nullptr ||
                 cxx_to_nbt_type<Tp>::type() != result->type()) {
+                delete result;
                 return nullptr;
             }
 

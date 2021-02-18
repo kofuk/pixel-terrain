@@ -330,8 +330,8 @@ BOOST_AUTO_TEST_SUITE(parser)
         (void)itr_2;
         BOOST_TEST(t2 != nullptr);
         BOOST_TEST(t2->name() == "bar");
-        BOOST_TEST(**t1->typed_data<nbt::tag_short_payload>() == 4);
-        delete t1;
+        BOOST_TEST(**t2->typed_data<nbt::tag_short_payload>() == 4);
+        delete t2;
     }
 
     BOOST_AUTO_TEST_CASE(broken) {

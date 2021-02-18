@@ -140,6 +140,7 @@ BOOST_FIXTURE_TEST_SUITE(query, F)
         auto *inner = tag->query<tag_int_payload>(path);
         BOOST_TEST(inner != nullptr);
         BOOST_TEST(**inner == 3);
+        delete inner;
         delete tag;
     }
 
