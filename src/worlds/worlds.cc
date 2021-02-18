@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+#include "nbt/tag.hh"
 #include <algorithm>
 #include <array>
 #include <cstdlib>
@@ -32,76 +33,131 @@ namespace pixel_terrain {
 
             return base;
         }
-
-        auto read_world_name(std::filesystem::path const &save_path)
-            -> std::string {
-            std::filesystem::path level_dat_path =
-                save_path / PATH_STR_LITERAL("level.dat");
-            std::vector<std::uint8_t> *data =
-                nbt::utils::gzip_file_decompress(level_dat_path);
-            if (data == nullptr) {
-                throw std::runtime_error("Cannot load level.dat");
-            }
-#if USE_V3_NBT_PARSER
-            auto *leveldat =
-                nbt::nbt::from_iterator(data->cbegin(), data->cend());
-            auto name_path = nbt::nbt_path::compile("//Data/LevelName");
-            auto *world_name_node =
-                leveldat->query<nbt::tag_string_payload>(name_path);
-            if (world_name_node == nullptr) {
-                throw std::runtime_error("Invalid level.dat");
-            }
-            std::string result = **world_name_node;
-            delete world_name_node;
-            delete leveldat;
-            delete data;
-
-            return result;
-#else // not USE_V3_NBT_PARSER
-            nbt::nbt_pull_parser parser(data->data(), data->size());
-
-            int nest_level = 0;
-            std::array<std::string, 3> nbt_path = {"", "Data", "LevelName"};
-            int should_satisfy_level = 0;
-            for (;;) {
-                nbt::parser_event ev = parser.next();
-                if (ev == nbt::parser_event::TAG_START) {
-                    if (nest_level < 3) {
-                        if (parser.get_tag_name() == nbt_path[nest_level]) {
-                            ++should_satisfy_level;
-                            if (should_satisfy_level == 3) {
-                                parser.next();
-                                break;
-                            }
-                        }
-                    }
-
-                    ++nest_level;
-                } else if (ev == nbt::parser_event::TAG_END) {
-                    --nest_level;
-                    if (nest_level < should_satisfy_level) {
-                        throw std::runtime_error("Invalid level.dat");
-                    }
-                }
-            }
-
-            if (should_satisfy_level == 3 &&
-                parser.get_event_type() == nbt::parser_event::DATA &&
-                parser.get_tag_type() == nbt::TAG_STRING) {
-                std::string name = parser.get_string();
-                /* XXX: Avoid memory leak. (I'll rewrite NBT parser soon; this
-                        is temporary implementation) */
-                parser.next();
-                return name;
-            }
-
-            throw std::runtime_error("Invalid level.dat");
-#endif // USE_V3_NBT_PARSER
-        }
     } // namespace
 
+    auto world::parse_level_dat(std::filesystem::path const &save_path)
+        -> bool {
+        std::filesystem::path level_dat_path =
+            save_path / PATH_STR_LITERAL("level.dat");
+        std::vector<std::uint8_t> *data =
+            nbt::utils::gzip_file_decompress(level_dat_path);
+        if (data == nullptr) {
+            return false;
+        }
+#if USE_V3_NBT_PARSER
+        auto *leveldat = nbt::nbt::from_iterator(data->cbegin(), data->cend());
+        auto *world_name_node = leveldat->query<nbt::tag_string_payload>(
+            nbt::nbt_path::compile("//Data/LevelName"));
+        if (world_name_node == nullptr) {
+            return false;
+        }
+        name_ = **world_name_node;
+        delete world_name_node;
+
+        auto *dimensions_node = leveldat->query<nbt::tag_compound_payload>(
+            nbt::nbt_path::compile("//Data/WorldGenSettings/dimensions"));
+        if (dimensions_node != nullptr) {
+            for (auto *tag : **dimensions_node) {
+                dimensions_.push_back(tag->name());
+            }
+        }
+        delete dimensions_node;
+
+        auto *game_version_node = leveldat->query<nbt::tag_string_payload>(
+            nbt::nbt_path::compile("//Data/Version/Name"));
+        if (game_version_node != nullptr) {
+            game_version_ = **game_version_node;
+        }
+        delete game_version_node;
+
+        auto *hardcore_node = leveldat->query<nbt::tag_byte_payload>(
+            nbt::nbt_path::compile("//Data/hardcore"));
+        if (hardcore_node != nullptr) {
+            is_hardcore_ = **hardcore_node != 0;
+        }
+        delete hardcore_node;
+
+        auto *datapacks_node = leveldat->query<nbt::tag_compound_payload>(
+            nbt::nbt_path::compile("//Data/DataPacks"));
+        if (datapacks_node != nullptr) {
+
+            auto *enabled_datapacks_node =
+                datapacks_node->query<nbt::tag_list_payload>(
+                    nbt::nbt_path::compile("/Enabled"));
+            if (enabled_datapacks_node != nullptr &&
+                enabled_datapacks_node->payload_type() ==
+                    nbt::tag_type::TAG_STRING) {
+                for (auto *p : **enabled_datapacks_node) {
+                    enabled_datapacks_.push_back(
+                        **static_cast<nbt::tag_string_payload *>(p));
+                }
+            }
+            delete enabled_datapacks_node;
+
+            auto *disabled_datapacks_node =
+                datapacks_node->query<nbt::tag_list_payload>(
+                    nbt::nbt_path::compile("/Disabled"));
+            if (disabled_datapacks_node != nullptr &&
+                disabled_datapacks_node->payload_type() ==
+                    nbt::tag_type::TAG_STRING) {
+                for (auto *p : **disabled_datapacks_node) {
+                    disabled_datapacks_.push_back(
+                        **static_cast<nbt::tag_string_payload *>(p));
+                }
+            }
+            delete disabled_datapacks_node;
+
+            delete datapacks_node;
+        }
+
+        delete leveldat;
+        delete data;
+
+        return true;
+#else  // not USE_V3_NBT_PARSER
+        nbt::nbt_pull_parser parser(data->data(), data->size());
+
+        int nest_level = 0;
+        std::array<std::string, 3> nbt_path = {"", "Data", "LevelName"};
+        int should_satisfy_level = 0;
+        for (;;) {
+            nbt::parser_event ev = parser.next();
+            if (ev == nbt::parser_event::TAG_START) {
+                if (nest_level < 3) {
+                    if (parser.get_tag_name() == nbt_path[nest_level]) {
+                        ++should_satisfy_level;
+                        if (should_satisfy_level == 3) {
+                            parser.next();
+                            break;
+                        }
+                    }
+                }
+
+                ++nest_level;
+            } else if (ev == nbt::parser_event::TAG_END) {
+                --nest_level;
+                if (nest_level < should_satisfy_level) {
+                    return false;
+                }
+            }
+        }
+
+        if (should_satisfy_level == 3 &&
+            parser.get_event_type() == nbt::parser_event::DATA &&
+            parser.get_tag_type() == nbt::TAG_STRING) {
+            std::string name = parser.get_string();
+            /* XXX: Avoid memory leak. (I'll rewrite NBT parser soon; this
+                    is temporary implementation) */
+            parser.next();
+            name_ = name;
+        }
+
+        return false;
+#endif // USE_V3_NBT_PARSER
+    }
+
     world::world(std::filesystem::path const &save_path) {
-        name_ = read_world_name(save_path);
+        parse_level_dat(save_path);
         save_file_path_ = save_path.string();
     }
 
