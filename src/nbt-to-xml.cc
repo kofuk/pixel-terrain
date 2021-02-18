@@ -9,7 +9,11 @@
 #include "config.h"
 
 #include "nbt/file.hh"
+#if USE_V3_NBT_PARSER
+#include "nbt/tag.hh"
+#else
 #include "nbt/pull_parser/nbt_pull_parser.hh"
+#endif
 #include "pixel-terrain.hh"
 #include "utils/array.hh"
 #include "utils/path_hack.hh"
@@ -28,6 +32,7 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
     std::string indent_str = "  ";
     bool pretty_print = true;
 
+#if !USE_V3_NBT_PARSER
     auto get_tag_name(unsigned char tag_type) -> std::string {
         using namespace pixel_terrain;
         using namespace std::string_literals;
@@ -77,8 +82,9 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
             return "unknown"s;
         }
     }
+#endif
 
-    auto handle_file(const std::filesystem::path &file) -> bool {
+    auto handle_file(std::filesystem::path const &file) -> bool {
         using namespace pixel_terrain;
 
         pixel_terrain::file<unsigned char> *f;
@@ -88,6 +94,20 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
             std::cerr << "Fatal: Unable to open input file.\n";
             return false;
         }
+
+#if USE_V3_NBT_PARSER
+        std::vector<std::uint8_t> data(f->get_raw_data(), f->get_raw_data() + f->size());
+        auto [nbt, itr] = nbt::tag_compound::parse_buffer(data.begin(), data.end());
+        if (nbt == nullptr) {
+            std::cerr << "Fatal: Parse error in NBT.\n";
+            return false;
+        }
+
+        std::cout << R"(<?xml version="1.0" encoding="utf-8"?>)";
+        nbt->repr(std::cout, indent_str, 0);
+
+        delete nbt;
+#else
         unsigned char *data = f->get_raw_data();
         size_t size = f->size();
 
@@ -201,6 +221,8 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
                 return false;
             }
         }
+#endif
+
         delete f;
         return true;
     }
