@@ -32,6 +32,14 @@ namespace pixel_terrain::nbt {
         TAG_LONG_ARRAY,
     };
     inline constexpr std::size_t num_types = 13;
+    extern std::array<std::string, num_types> tag_type_repr_table;
+
+    inline auto tag_type_repr(tag_type ty) -> std::string {
+        if (static_cast<std::size_t>(ty) >= 13) [[unlikely]] {
+            return "<invalid tag type>";
+        }
+        return tag_type_repr_table[static_cast<std::size_t>(ty)];
+    }
 
     class tag_payload;
 
@@ -71,6 +79,9 @@ namespace pixel_terrain::nbt {
 
             return static_cast<Tp *>(result);
         }
+
+        virtual void repr(std::ostream &out, std::string const &indent,
+                          unsigned int indent_level) const = 0;
     };
 
     class tag_null_payload : public tag_payload {
@@ -82,6 +93,9 @@ namespace pixel_terrain::nbt {
         [[nodiscard]] auto clone() const -> tag_payload * override {
             return new tag_null_payload;
         }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {}
     };
 
     class tag {
@@ -102,6 +116,9 @@ namespace pixel_terrain::nbt {
         [[nodiscard]] auto name() const -> std::string const & { return name_; }
 
         [[nodiscard]] virtual auto clone() const -> tag * = 0;
+
+        virtual void repr(std::ostream &out, std::string const &indent,
+                          unsigned int indent_level) const = 0;
     };
 
     namespace factory {
@@ -132,6 +149,14 @@ namespace pixel_terrain::nbt {
         auto clone() const -> tag_payload * override {
             return new tag_byte_payload(data_);
         }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << +data_ << '\n';
+        }
     };
 
     class tag_short_payload : public tag_payload {
@@ -151,6 +176,14 @@ namespace pixel_terrain::nbt {
 
         auto clone() const -> tag_payload * override {
             return new tag_short_payload(data_);
+        }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << data_ << '\n';
         }
     };
 
@@ -172,6 +205,14 @@ namespace pixel_terrain::nbt {
         auto clone() const -> tag_payload * override {
             return new tag_int_payload(data_);
         }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << data_ << '\n';
+        }
     };
 
     class tag_long_payload : public tag_payload {
@@ -191,6 +232,14 @@ namespace pixel_terrain::nbt {
 
         auto clone() const -> tag_long_payload * override {
             return new tag_long_payload(data_);
+        }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << data_ << '\n';
         }
     };
 
@@ -212,6 +261,14 @@ namespace pixel_terrain::nbt {
         auto clone() const -> tag_float_payload * override {
             return new tag_float_payload(data_);
         }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << data_ << '\n';
+        }
     };
 
     class tag_double_payload : public tag_payload {
@@ -231,6 +288,14 @@ namespace pixel_terrain::nbt {
 
         auto clone() const -> tag_payload * override {
             return new tag_double_payload(data_);
+        }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << data_ << '\n';
         }
     };
 
@@ -260,6 +325,16 @@ namespace pixel_terrain::nbt {
         auto clone() const -> tag_byte_array_payload * override {
             return new tag_byte_array_payload(data_);
         }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (auto b : data_) {
+                for (unsigned int i = 0; i < indent_level; ++i) {
+                    out << indent;
+                }
+                out << "<element>" << +b << "</element>\n";
+            }
+        }
     };
 
     class tag_string_payload : public tag_payload {
@@ -279,6 +354,14 @@ namespace pixel_terrain::nbt {
 
         auto clone() const -> tag_payload * override {
             return new tag_string_payload(data_);
+        }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << data_ << '\n';
         }
     };
 
@@ -327,6 +410,29 @@ namespace pixel_terrain::nbt {
                 result->data_.push_back(payload->clone());
             }
             return result;
+        }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << "<payloadtype>" << tag_type_repr(payload_type_)
+                << "</payloadtype>\n";
+
+            for (auto *p : data_) {
+                for (unsigned int i = 0; i < indent_level; ++i) {
+                    out << indent;
+                }
+                out << "<element>\n";
+
+                p->repr(out, indent, indent_level + 1);
+
+                for (unsigned int i = 0; i < indent_level; ++i) {
+                    out << indent;
+                }
+                out << "</element>\n";
+            }
         }
     };
 
@@ -381,6 +487,13 @@ namespace pixel_terrain::nbt {
             }
             return result;
         }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (auto *t : data_) {
+                t->repr(out, indent, indent_level);
+            }
+        }
     };
 
     class tag_int_array_payload : public tag_payload {
@@ -409,6 +522,16 @@ namespace pixel_terrain::nbt {
         auto clone() const -> tag_payload * override {
             return new tag_int_array_payload(data_);
         }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (auto b : data_) {
+                for (unsigned int i = 0; i < indent_level; ++i) {
+                    out << indent;
+                }
+                out << "<element>" << b << "</element>\n";
+            }
+        }
     };
 
     class tag_long_array_payload : public tag_payload {
@@ -436,6 +559,16 @@ namespace pixel_terrain::nbt {
 
         auto clone() const -> tag_payload * override {
             return new tag_long_array_payload(data_);
+        }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (auto b : data_) {
+                for (unsigned int i = 0; i < indent_level; ++i) {
+                    out << indent;
+                }
+                out << "<element>" << b << "</element>\n";
+            }
         }
     };
 
@@ -492,6 +625,22 @@ namespace pixel_terrain::nbt {
                 result->data_ = data_->clone();
             }
             return result;
+        }
+
+        void repr(std::ostream &out, std::string const &indent,
+                  unsigned int indent_level) const override {
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+
+            out << '<' << tag_type_repr(TT) << R"( name=")" << name_ << "\">\n";
+
+            data_->repr(out, indent, indent_level + 1);
+
+            for (unsigned int i = 0; i < indent_level; ++i) {
+                out << indent;
+            }
+            out << "</" << tag_type_repr(TT) << ">\n";
         }
 
         template <class Tp, class = std::is_convertible<Tp, tag_payload>>
