@@ -677,6 +677,72 @@ namespace pixel_terrain::nbt {
     using tag_compound = basic_tag<tag_type::TAG_COMPOUND>;
     using tag_int_array = basic_tag<tag_type::TAG_INT_ARRAY>;
     using tag_long_array = basic_tag<tag_type::TAG_LONG_ARRAY>;
+
+    template <>
+    struct cxx_to_nbt_type<tag_null_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_END; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_byte_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_BYTE; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_short_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_SHORT; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_int_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_INT; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_long_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_LONG; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_float_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_FLOAT; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_double_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_DOUBLE; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_byte_array_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_BYTE_ARRAY; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_string_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_STRING; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_list_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_LIST; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_compound_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_COMPOUND; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_int_array_payload> {
+    public:
+        static auto type() -> tag_type { return tag_type::TAG_INT_ARRAY; }
+    };
+
+    template <>
+    struct cxx_to_nbt_type<tag_long_array_payload> {
+        static auto type() -> tag_type { return tag_type::TAG_LONG_ARRAY; }
+    };
 } // namespace pixel_terrain::nbt
 
 #endif
