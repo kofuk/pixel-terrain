@@ -4,6 +4,7 @@
    This file make easy to handle pixel buffer and PNG file. */
 
 #include <algorithm>
+#include <array>
 #include <cerrno>
 #include <cmath>
 #include <csetjmp>

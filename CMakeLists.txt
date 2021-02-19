@@ -39,6 +39,13 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   set(OS_LINUX Yes)
 endif()
 
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("#define A(...)a(1 __VA_OPT__(,)__VA_ARGS__)
+void a(...){}int main(){A();}" HAVE_VA_OPT)
+if(HAVE_VA_OPT)
+  add_definitions(-DHAVE_VA_OPT=1)
+endif()
+
 option(USE_V3_NBT_PARSER "Use experimental NBT parser")
 if(USE_V3_NBT_PARSER)
   add_definitions(-DUSE_V3_NBT_PARSER=1)

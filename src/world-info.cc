@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 #include <array>
-#include <bits/ranges_algo.h>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>

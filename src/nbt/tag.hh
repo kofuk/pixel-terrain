@@ -4,6 +4,7 @@
 #define NBT_TAG_HH
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <functional>
 #include <iterator>

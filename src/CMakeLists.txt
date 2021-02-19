@@ -21,6 +21,7 @@ add_dependencies(pixel-terrain
   block_colors_data
   )
 target_link_libraries(pixel-terrain PRIVATE
+  graphics
   mcregion
   logger
   pixtimage

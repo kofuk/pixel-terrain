@@ -59,13 +59,21 @@ Subcommands:
         std::exit(status);
     }
 
-    struct feature {
-        std::string feature;
-        bool enabled;
+    class feature {
+        std::string feature_;
+        bool enabled_;
+    public:
+        feature(std::string const &feature, bool enabled): feature_(feature), enabled_(enabled) {}
+
+        auto get_feature() const -> std::string const & {
+            return feature_;
+        }
+
+        auto enabled() const -> bool { return enabled_; }
     };
 
     auto features = pixel_terrain::make_array<feature>(
-        feature{"v3_nbt_parser", USE_V3_NBT_PARSER});
+        feature("v3_nbt_parser", USE_V3_NBT_PARSER));
 
     [[noreturn]] void print_version_and_exit() {
         std::printf("%s %d.%d.%d\n", PRODUCT_NAME, VERSION_MAJOR, VERSION_MINOR,
@@ -76,7 +84,7 @@ Subcommands:
             if (static_cast<bool>(i) && i % 3 == 0) {
                 std::puts("");
             }
-            std::printf(" %s=%s", f.feature.c_str(), f.enabled ? "on" : "off");
+            std::printf(" %s=%s", f.get_feature().c_str(), f.enabled() ? "on" : "off");
             ++i;
         }
         std::puts("");

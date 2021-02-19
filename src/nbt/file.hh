@@ -50,7 +50,7 @@ namespace pixel_terrain {
             std::vector<T> d;
             T buf[1024];
             do {
-                ifs.read(reinterpret_cast<std::uint8_t *>(buf),
+                ifs.read(reinterpret_cast<char *>(buf),
                          sizeof(T) * 1024);
                 if (ifs.gcount() % sizeof(T) != 0) {
                     throw std::runtime_error("Corrupted data.");
@@ -133,7 +133,7 @@ namespace pixel_terrain {
             std::ifstream ifs(filename, std::ios::binary);
             if (!ifs) {
                 if (writable) {
-                    data = new T[data_len / sizeof(T)];
+                    data = new T[nmemb];
                 } else {
                     throw std::runtime_error("Unable to open file");
                 }
@@ -149,7 +149,7 @@ namespace pixel_terrain {
                 }
                 d.insert(d.end(), buf, buf + ifs.gcount() / sizeof(T));
             } while (!ifs.eof());
-            if (d.size() > data_len / sizeof(T)) {
+            if (d.size() > nmemb) {
                 throw std::runtime_error("File too long");
             }
 
@@ -204,7 +204,7 @@ namespace pixel_terrain {
                     return;
                 }
 
-                ofs.write(reinterpret_cast<std::uint8_t *>(data),
+                ofs.write(reinterpret_cast<char *>(data),
                           sizeof(T) * nmemb);
                 /* TODO: check if ofstream::write success. */
             }

@@ -3,6 +3,7 @@
 #ifndef REQUEST_HH
 #define REQUEST_HH
 
+#include <array>
 #include <string>
 #include <unordered_map>
 
