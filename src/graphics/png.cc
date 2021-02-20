@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 #include <png.h>
 #include <pngconf.h>
@@ -40,54 +41,49 @@ namespace pixel_terrain::graphics {
             throw std::runtime_error(strerror(errno));
         }
 
-        std::array<std::uint8_t, PNG_SIG_LEN> sig;
-        std::fread(sig.data(), 1, PNG_SIG_LEN, in);
-        if (!png_check_sig(sig.data(), PNG_SIG_LEN)) {
-            throw std::runtime_error("corrupted png file");
+        ::png_image png;
+        std::memset(&png, 0, sizeof(::png_image));
+        png.version = PNG_IMAGE_VERSION;
+
+#ifdef OS_WIN
+        /* XXX    I don't know why, but reader function called inside
+           libpng cause this application to crash. */
+        std::vector<std::uint8_t> png_data;
+        std::array<std::uint8_t, 4096> buf;
+        std::size_t nread;
+        do {
+            nread = std::fread(buf.data(), 1, buf.size(), in);
+            png_data.insert(png_data.end(), buf.begin(), buf.begin() + nread);
+        } while (nread > 0);
+        if (!static_cast<bool>(std::feof(in))) {
+            throw std::runtime_error("Failed to read data");
         }
 
-        ::png_structp png = ::png_create_read_struct(PNG_LIBPNG_VER_STRING,
-                                                     nullptr, nullptr, nullptr);
-        ::png_infop png_info = ::png_create_info_struct(png);
+        ::png_image_begin_read_from_memory(&png, png_data.data(), png_data.size());;
+#else // not defined(OS_WIN)
+        ::png_image_begin_read_from_stdio(&png, in);
+#endif // defined(OS_WIN)
 
-        if (setjmp(png_jmpbuf(png))) {
-            ::png_destroy_read_struct(&png, &png_info, nullptr);
-
-            throw std::runtime_error("error reading png");
-        }
-        ::png_init_io(png, in);
-        ::png_set_sig_bytes(png, PNG_SIG_LEN);
-
-        ::png_read_info(png, png_info);
-
-        ::png_uint_32 width;
-        ::png_uint_32 height;
-        int bit_depth;
-        int color_type;
-        ::png_get_IHDR(png, png_info, &width, &height, &bit_depth, &color_type,
-                       nullptr, nullptr, nullptr);
-
-        if (bit_depth != SUPPORTED_BIT_DEPTH ||
-            color_type != PNG_COLOR_TYPE_RGBA) {
-            ::png_destroy_read_struct(&png, &png_info, nullptr);
-
-            throw std::runtime_error("unsupported format");
+        if (PNG_IMAGE_FAILED(png)) {
+            std::fclose(in);
+            std::runtime_error err(png.message);
+            ::png_image_free(&png);
+            throw err;
         }
 
-        data = new ::png_byte[width * height * 4];
+        ::png_uint_32 stride = PNG_IMAGE_ROW_STRIDE(png);
+        data = new ::png_byte[png.width * png.height * 4];
 
-        auto *rows = new ::png_bytep[height];
-        for (int i = 0; i < (int)height; ++i) {
-            rows[i] = data + width * i * 4;
+        width = png.width;
+        height = png.height;
+
+        if (png.format == PNG_FORMAT_RGBA) {
+            ::png_image_finish_read(&png, nullptr, data, stride, nullptr);
+        } else {
+            std::memset(data, 0, png.width * png.height * 4);
         }
-        ::png_read_image(png, rows);
-        delete[] rows;
 
-        this->width = static_cast<int>(width);
-        this->height = static_cast<int>(height);
-
-        ::png_destroy_read_struct(&png, &png_info, nullptr);
-
+        ::png_image_free(&png);
         std::fclose(in);
     }
 
@@ -155,58 +151,47 @@ namespace pixel_terrain::graphics {
             return false;
         }
 
-        ::png_structp png = ::png_create_write_struct(
-            PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-        ::png_infop info = ::png_create_info_struct(png);
+        ::png_image png;
+        std::memset(&png, 0, sizeof(::png_image));
+        png.version = PNG_IMAGE_VERSION;
+        png.width = width;
+        png.height = height;
+        png.format = PNG_FORMAT_RGBA;
+        ::png_uint_32 stride = PNG_IMAGE_ROW_STRIDE(png);
 
-        if (setjmp(png_jmpbuf(png))) {
-            ::png_destroy_write_struct(&png, &info);
-
+#if defined(OS_WIN)
+        /* XXX   Same as its reader function.
+           We write the data to memory once, then write to file. */
+        int result;
+        /* First we try 512 KiB because it's large enough in
+           almost all cases. */
+        ::png_alloc_size_t mem_size = 1024 * 512;
+        std::uint8_t *out = nullptr;
+        do {
+            delete[] out;
+            out = new std::uint8_t[mem_size];
+            /* png_image_write_to_memory writes required memory size to
+               `mem_size` even if the invocation fails. We allocate sifficient
+               memory later, in case the function fails. */
+            result = ::png_image_write_to_memory(&png, out, &mem_size, 0, data,
+                                                 stride, nullptr);
+        } while (!static_cast<bool>(result));
+        std::size_t n = std::fwrite(out, 1, mem_size, f);
+        if (n != mem_size) {
+            delete[] out;
             return false;
         }
-        ::png_init_io(png, f);
-
-        if (setjmp(png_jmpbuf(png))) {
-            ::png_destroy_write_struct(&png, &info);
-
+        delete[] out;
+#else  // not defined(OS_WIN)
+        if (::png_image_write_to_stdio(&png, f, 0, data, stride, nullptr) ==
+            0) {
+            ::png_image_free(&png);
+            std::fclose(f);
             return false;
         }
-        ::png_set_IHDR(png, info, width, height, SUPPORTED_BIT_DEPTH,
-                       PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
-                       PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+#endif // defined(OS_WIN)
 
-        if (setjmp(png_jmpbuf(png))) {
-            ::png_destroy_write_struct(&png, &info);
-
-            return false;
-        }
-        ::png_write_info(png, info);
-
-        if (setjmp(png_jmpbuf(png))) {
-            ::png_destroy_write_struct(&png, &info);
-
-            return false;
-        }
-
-        auto *rows = new png_bytep[height];
-
-        for (unsigned int i = 0; i < height; ++i) {
-            rows[i] = data + i * width * 4;
-        }
-
-        ::png_write_rows(png, rows, width);
-
-        delete[] rows;
-
-        if (setjmp(png_jmpbuf(png))) {
-            ::png_destroy_write_struct(&png, &info);
-
-            return false;
-        }
-        ::png_write_end(png, info);
-
-        ::png_destroy_write_struct(&png, &info);
-
+        ::png_image_free(&png);
         std::fclose(f);
 
         return true;
