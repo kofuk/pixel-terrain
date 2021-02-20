@@ -11,7 +11,7 @@ set(REGION_SRCS
 add_library(mcregion STATIC ${REGION_SRCS})
 target_include_directories(mcregion PRIVATE SYSTEM ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(mcregion PRIVATE nbtpullparser)
-target_link_libraries(mcregion PRIVATE ${ZLIB_MOD_NAME})
+target_link_libraries(mcregion PRIVATE ZLIB::ZLIB)
 
 file(GLOB NBT_TESTDATA ${CMAKE_CURRENT_SOURCE_DIR}/testdata/*.nbt)
 generate_binary_header(nbt_testdata ${CMAKE_BINARY_DIR}/nbt_test_testdata.hh

@@ -1,8 +1,4 @@
 /build
-/superbuild/build
-/third_party/zlib
-/third_party/libpng
-/third_party/regetopt
 /.vscode
 /.cache
 compile_commands.json

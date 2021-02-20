@@ -11,21 +11,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_STANDARD_REQUIRED ON)
 
 find_package(Threads REQUIRED)
-
-if(PIXEL_TERRAIN_SUPER_BUILDING)
-  include(${ZLIB_CONFIG_CMAKE})
-  include(${PNG_CONFIG_CMAKE})
-
-  set(ZLIB_MOD_NAME zlibstatic)
-  set(PNG_MOD_NAME png_static)
-else()
-  find_package(ZLIB REQUIRED)
-  find_package(PNG REQUIRED)
-
-  set(ZLIB_MOD_NAME ZLIB::ZLIB)
-  set(PNG_MOD_NAME PNG::PNG)
-endif()
-set(REGETOPT_MOD_NAME regetopt_static)
+find_package(ZLIB REQUIRED)
+find_package(PNG REQUIRED)
 
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_CONTACT "Koki Fukuda <ko.fu.dev@gmail.com>")
@@ -53,10 +40,17 @@ else()
   add_definitions(-DUSE_V3_NBT_PARSER=0)
 endif()
 
-enable_testing()
 find_package(Boost COMPONENTS unit_test_framework)
 
-add_custom_target(test_executable)
+if (Boost_FOUND)
+  enable_testing()
+  add_custom_target(test_executable)
+else()
+  add_custom_target(test_executable
+    COMMAND
+    echo "Can't build test executables because Boost Unit Test Framework is missing."
+    VERBATIM)
+endif()
 
 function(add_boost_test target_name test_name)
   if(NOT Boost_FOUND)
