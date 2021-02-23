@@ -31,10 +31,10 @@ namespace pixel_terrain::server {
             std::exit(0);
         }
 
-        void handle_signals(sigset_t *sigs) {
+        void handle_signals(sigset_t sigs) {
             int sig;
             for (;;) {
-                if (::sigwait(sigs, &sig) != 0) {
+                if (::sigwait(&sigs, &sig) != 0) {
                     std::exit(1);
                 }
 
@@ -57,7 +57,7 @@ namespace pixel_terrain::server {
             ::sigaddset(&sigs, SIGINT);
             ::pthread_sigmask(SIG_BLOCK, &sigs, nullptr);
 
-            std::thread t(&handle_signals, &sigs);
+            std::thread t(&handle_signals, sigs);
             t.detach();
         }
 
