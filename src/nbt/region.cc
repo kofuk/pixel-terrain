@@ -92,7 +92,7 @@ namespace pixel_terrain::anvil {
         -> std::vector<std::uint8_t> * {
         std::size_t location_off = chunk_location_off(chunk_x, chunk_z);
         std::size_t location_sec = chunk_location_sectors(chunk_x, chunk_z);
-        if (location_off == 0 && location_sec == 0) {
+        if (location_off == 0 || location_sec == 0) {
             return nullptr;
         }
 
@@ -133,8 +133,8 @@ namespace pixel_terrain::anvil {
         return cur_chunk;
     }
 
-    auto region::exists_chunk_data(int chunk_x, int chunk_z) -> bool {
-        return chunk_location_off(chunk_x, chunk_z) == 0 &&
+    auto region::is_chunk_missing(int chunk_x, int chunk_z) -> bool {
+        return chunk_location_off(chunk_x, chunk_z) == 0 ||
                chunk_location_sectors(chunk_x, chunk_z) == 0;
     }
 

@@ -34,7 +34,7 @@ namespace pixel_terrain::anvil {
             -> std::vector<std::uint8_t> *;
         auto get_chunk(int chunk_x, int chunk_z) -> chunk *;
         auto get_chunk_if_dirty(int chunk_x, int chunk_z) -> chunk *;
-        auto exists_chunk_data(int chunk_x, int chunk_z) -> bool;
+        auto is_chunk_missing(int chunk_x, int chunk_z) -> bool;
     };
 } // namespace pixel_terrain::anvil
 

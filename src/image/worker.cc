@@ -292,7 +292,7 @@ namespace pixel_terrain::image {
                 try {
                     /* Avoid nonexisting chunk to be recorded as reused chunk.
                      */
-                    if (region->exists_chunk_data(chunk_x, chunk_z)) {
+                    if (region->is_chunk_missing(chunk_x, chunk_z)) {
                         continue;
                     }
 
@@ -346,8 +346,8 @@ namespace pixel_terrain::image {
                     for (int t_chunk_z = chunk_z + 1; t_chunk_z < chunk_z + 4;
                          ++t_chunk_z) {
                         try {
-                            if (region->exists_chunk_data(t_chunk_x,
-                                                          t_chunk_z)) {
+                            if (region->is_chunk_missing(t_chunk_x,
+                                                         t_chunk_z)) {
                                 continue;
                             }
 
