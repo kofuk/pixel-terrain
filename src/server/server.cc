@@ -21,12 +21,8 @@
 #include "nbt/region.hh"
 #include "server/request.hh"
 #include "server/server.hh"
-#include "server/writer.hh"
-#ifdef OS_WIN
-#include "server/server_generic.hh"
-#elif defined(OS_LINUX)
 #include "server/server_unix_socket.hh"
-#endif
+#include "server/writer.hh"
 
 namespace pixel_terrain::server {
     std::string overworld_dir;
@@ -268,14 +264,7 @@ namespace pixel_terrain::server {
     } // namespace
 
     void launch_server(bool daemon_mode) {
-#ifdef OS_WIN
-        if (daemon_mode) {
-            std::cout << "Warning: Daemon mode has no effect on Windows.\n";
-        }
-        server_base *s = new server_generic();
-#elif defined(OS_LINUX)
         server_base *s = new server_unix_socket(daemon_mode);
-#endif
         s->start_server();
     }
 
