@@ -5,7 +5,9 @@
 
 #include <array>
 #include <cstdint>
+#include <exception>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 #include "nbt/constants.hh"
@@ -16,6 +18,27 @@
 #endif
 
 namespace pixel_terrain::anvil {
+    class chunk_exception : public std::runtime_error {
+    public:
+        chunk_exception(std::string const &msg) : std::runtime_error(msg) {}
+    };
+
+    class chunk_parse_error : public chunk_exception {
+    public:
+        chunk_parse_error(std::string const &msg) : chunk_exception(msg) {}
+    };
+
+    class not_generated_chunk_error : public chunk_exception {
+    public:
+        not_generated_chunk_error(std::string const &msg)
+            : chunk_exception(msg) {}
+    };
+
+    class broken_chunk_error : public chunk_exception {
+    public:
+        broken_chunk_error(std::string const &msg) : chunk_exception(msg) {}
+    };
+
     class chunk {
 #if !USE_V3_NBT_PARSER
         nbt::nbt_pull_parser parser;

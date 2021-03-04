@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <exception>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -28,13 +29,13 @@ namespace pixel_terrain::anvil {
 
         auto *nbt_file = nbt::nbt::from_iterator(data.begin(), data.end());
         if (nbt_file == nullptr) {
-            throw std::runtime_error("Parse error");
+            throw chunk_parse_error("Parse error");
         }
         try {
             init_fields(*nbt_file);
-        } catch (std::runtime_error const &e) {
+        } catch (...) {
             delete nbt_file;
-            throw e;
+            std::rethrow_exception(std::current_exception());
         }
         delete nbt_file;
     }
@@ -84,12 +85,12 @@ namespace pixel_terrain::anvil {
         auto *sections_node =
             nbt_file.query<nbt::tag_list_payload>(sections_path);
         if (sections_node == nullptr) {
-            throw std::runtime_error("Sections data not found");
+            throw not_generated_chunk_error("Sections data not found");
         }
         if (sections_node->payload_type() != nbt::tag_type::TAG_COMPOUND) {
             nbt::tag_type got_type = sections_node->payload_type();
             delete sections_node;
-            throw std::runtime_error("Invalid Sections data type: " +
+            throw broken_chunk_error("Invalid Sections data type: " +
                                      nbt::tag_type_repr(got_type));
         }
         for (std::size_t i = 0, E = (*sections_node)->size(); i < E; ++i) {
@@ -150,7 +151,7 @@ namespace pixel_terrain::anvil {
         auto *last_update_node =
             nbt_file.query<nbt::tag_long_payload>(last_update_path);
         if (last_update_node == nullptr) {
-            throw std::runtime_error("LastUpdate data not found");
+            throw broken_chunk_error("LastUpdate data not found");
         }
         last_update = **last_update_node;
         delete last_update_node;
@@ -158,7 +159,7 @@ namespace pixel_terrain::anvil {
         auto *biomes_node =
             nbt_file.query<nbt::tag_int_array_payload>(biomes_path);
         if (biomes_node == nullptr) {
-            throw std::runtime_error("Biomes data not found");
+            throw broken_chunk_error("Biomes data not found");
         }
         biomes = **biomes_node;
         delete biomes_node;
@@ -166,7 +167,7 @@ namespace pixel_terrain::anvil {
         auto *data_version_node =
             nbt_file.query<nbt::tag_int_payload>(data_version_path);
         if (data_version_node == nullptr) {
-            throw std::runtime_error("DataVersion data not found");
+            throw broken_chunk_error("DataVersion data not found");
         }
         data_version = **data_version_node;
         delete data_version_node;

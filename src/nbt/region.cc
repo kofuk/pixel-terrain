@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "logger/logger.hh"
+#include "nbt/chunk.hh"
 #include "nbt/constants.hh"
 #include "nbt/file.hh"
 #include "nbt/region.hh"
@@ -154,8 +155,20 @@ namespace pixel_terrain::anvil {
         chunk *cur_chunk;
         try {
             cur_chunk = new chunk(*data);
-        } catch (std::runtime_error const &e) {
+        } catch (chunk_parse_error const &e) {
             ELOG("Error parsing chunk: %s\n", e.what());
+            delete data;
+            return nullptr;
+        } catch (broken_chunk_error const &e) {
+            ELOG("Error parsing chunk: broken chunk: %s\n", e.what());
+            delete data;
+            return nullptr;
+        } catch (chunk_exception const &) {
+            /* Ignore this because it won't be a very big problem. */
+            delete data;
+            return nullptr;
+        } catch (std::runtime_error const &e) {
+            ELOG("Error parsing chunk: unknown error occurred!: %s\n", e.what());
             delete data;
             return nullptr;
         }
