@@ -40,30 +40,22 @@ else()
   add_definitions(-DUSE_V3_NBT_PARSER=0)
 endif()
 
-find_package(Boost COMPONENTS unit_test_framework)
-
-if (Boost_FOUND)
+option(BUILD_TESTS "Enable testing")
+if(BUILD_TESTS)
+  find_package(Boost COMPONENTS unit_test_framework REQUIRED)
   enable_testing()
-  add_custom_target(test_executable)
-else()
-  add_custom_target(test_executable
-    COMMAND
-    echo "Can't build test executables because Boost Unit Test Framework is missing."
-    VERBATIM)
 endif()
 
 function(add_boost_test target_name test_name)
-  if(NOT Boost_FOUND)
+  if(NOT BUILD_TESTS)
     return()
   endif()
 
-  add_executable(${target_name} EXCLUDE_FROM_ALL ${ARGN})
+  add_executable(${target_name} ${ARGN})
   target_include_directories(${target_name} PRIVATE SYSTEM ${Boost_INCLUDE_DIRS})
   target_compile_definitions(${target_name} PRIVATE "BOOST_TEST_DYN_LINK=1")
   target_compile_definitions(${target_name} PRIVATE "BOOST_TEST_MAIN")
   target_link_libraries(${target_name} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-
-  add_dependencies(test_executable ${target_name})
 
   add_test(NAME ${test_name} COMMAND ${target_name})
 endfunction()
