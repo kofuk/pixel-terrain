@@ -2,9 +2,13 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR})
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-  add_definitions(-DOS_LINUX=1)
+  add_definitions(-DOS_LINUX)
+  set(OS_LINUX ON)
+  set(OS_WIN OFF)
 elseif(WIN32)
-  add_definitions(-DOS_WIN=1)
+  add_definitions(-DOS_WIN)
+  set(OS_LINUX OFF)
+  set(OS_WIN ON)
 endif()
 
 set(PIXEL_TERRAIN_SRCS
@@ -25,19 +29,23 @@ target_link_libraries(pixel-terrain PRIVATE
   mcregion
   logger
   pixtimage
-  pixtserver
   nbtpullparser
   worlds
   regetopt
   )
+
 install(TARGETS pixel-terrain DESTINATION bin)
 
 add_subdirectory(graphics)
 add_subdirectory(image)
 add_subdirectory(nbt)
-add_subdirectory(server)
 add_subdirectory(logger)
 add_subdirectory(utils)
 add_subdirectory(worlds)
+
+if(OS_LINUX)
+  add_subdirectory(server)
+  target_link_libraries(pixel-terrain PRIVATE pixtserver)
+endif()
 
 add_subdirectory(third_party/regetopt)

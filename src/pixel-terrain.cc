@@ -23,8 +23,10 @@ namespace {
          {&pixel_terrain::dump_nbt_main, "Dump zlib-compressed NBT data."}},
         {"nbt-to-xml",
          {&pixel_terrain::nbt_to_xml_main, "Convert NBT data into XML."}},
+#ifdef OS_LINUX
         {"server",
          {&pixel_terrain::server_main, "Altitude and surface block server."}},
+#endif
         {"world-info",
          {&pixel_terrain::world_info_main,
           "List saved worlds and their information."}},
@@ -62,12 +64,12 @@ Subcommands:
     class feature {
         std::string feature_;
         bool enabled_;
-    public:
-        feature(std::string const &feature, bool enabled): feature_(feature), enabled_(enabled) {}
 
-        auto get_feature() const -> std::string const & {
-            return feature_;
-        }
+    public:
+        feature(std::string const &feature, bool enabled)
+            : feature_(feature), enabled_(enabled) {}
+
+        auto get_feature() const -> std::string const & { return feature_; }
 
         auto enabled() const -> bool { return enabled_; }
     };
@@ -84,7 +86,8 @@ Subcommands:
             if (static_cast<bool>(i) && i % 3 == 0) {
                 std::puts("");
             }
-            std::printf(" %s=%s", f.get_feature().c_str(), f.enabled() ? "on" : "off");
+            std::printf(" %s=%s", f.get_feature().c_str(),
+                        f.enabled() ? "on" : "off");
             ++i;
         }
         std::puts("");
