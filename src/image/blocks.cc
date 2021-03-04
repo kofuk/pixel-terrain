@@ -46,7 +46,7 @@ namespace pixel_terrain::image {
 
         /* first, check if block is water or grass_block because the most
          * blocks are one of them. */
-        if (block == "water" || block == "grass_block") {
+        if (block == "minecraft:water" || block == "minecraft:grass_block") {
             return true;
         }
 
@@ -63,8 +63,8 @@ namespace pixel_terrain::image {
         }
 
         /* capture remains */
-        if (block == "fern" || block == "large_fern" || block == "vine" ||
-            block == "bubble_column") {
+        if (block == "minecraft:fern" || block == "minecraft:large_fern" ||
+            block == "minecraft:vine" || block == "minecraft:bubble_column") {
             return true;
         }
 
