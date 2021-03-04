@@ -52,10 +52,9 @@ function(add_boost_test target_name test_name)
   endif()
 
   add_executable(${target_name} ${ARGN})
-  target_include_directories(${target_name} PRIVATE SYSTEM ${Boost_INCLUDE_DIRS})
   target_compile_definitions(${target_name} PRIVATE "BOOST_TEST_DYN_LINK=1")
   target_compile_definitions(${target_name} PRIVATE "BOOST_TEST_MAIN")
-  target_link_libraries(${target_name} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  target_link_libraries(${target_name} Boost::unit_test_framework)
 
   add_test(NAME ${test_name} COMMAND ${target_name})
 endfunction()
