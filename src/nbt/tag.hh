@@ -668,6 +668,15 @@ namespace pixel_terrain::nbt {
                 return nullptr;
             }
 
+            if (path.ignore_empty_list() &&
+                result->type() == tag_type::TAG_LIST) {
+                auto *t = static_cast<tag_list_payload *>(result);
+                if (t->payload_type() == tag_type::TAG_END && (*t)->empty()) {
+                    delete result;
+                    return nullptr;
+                }
+            }
+
             return static_cast<Tp *>(result);
         }
     };

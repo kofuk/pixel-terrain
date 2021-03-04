@@ -76,14 +76,20 @@ namespace pixel_terrain::nbt {
         std::list<pathspec> path_;
         bool valid_;
 
+        /* Minecraft use empty list of TAG_End to represent
+           empty TAG_List. It true, treat these as unset. */
+        bool ignore_empty_list_;
+
         nbt_path() = default;
 
     public:
         nbt_path(nbt_path const &another)
-            : path_(another.path_), valid_(another.valid_) {}
+            : path_(another.path_), valid_(another.valid_),
+              ignore_empty_list_(another.ignore_empty_list_) {}
 
         nbt_path(nbt_path &&another)
-            : path_(std::move(another.path_)), valid_(another.valid_) {}
+            : path_(std::move(another.path_)), valid_(another.valid_),
+              ignore_empty_list_(another.ignore_empty_list_) {}
 
         static auto compile(std::string const &path) -> nbt_path;
 
@@ -104,6 +110,14 @@ namespace pixel_terrain::nbt {
 
         auto remain() const -> bool { return !path_.empty(); }
 
+        auto ignore_empty_list() const -> bool { return ignore_empty_list_; }
+
+        auto set_ignore_empty_list(bool ignore = true) const -> nbt_path {
+            nbt_path result(*this);
+            result.ignore_empty_list_ = ignore;
+            return result;
+        }
+
         operator bool() const { return valid_; }
 
         auto operator!() const -> bool { return !valid_; }
@@ -111,12 +125,14 @@ namespace pixel_terrain::nbt {
         auto operator=(nbt_path const &another) -> nbt_path & {
             path_ = another.path_;
             valid_ = another.valid_;
+            ignore_empty_list_ = another.ignore_empty_list_;
             return *this;
         }
 
         auto operator=(nbt_path &&another) -> nbt_path & {
             path_ = std::move(another.path_);
             valid_ = another.valid_;
+            ignore_empty_list_ = another.ignore_empty_list_;
             return *this;
         }
     };

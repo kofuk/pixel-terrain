@@ -159,7 +159,15 @@ namespace pixel_terrain::nbt {
     }
 
     auto tag_payload::query_internal(nbt_path *path) -> tag_payload * {
-        return query_payload(path, this);
+        auto *result = query_payload(path, this);
+        if (result != nullptr && path->ignore_empty_list() &&
+            result->type() == tag_type::TAG_LIST) {
+            auto *t = static_cast<tag_list_payload *>(result);
+            if (t->payload_type() == tag_type::TAG_END && (*t)->empty()) {
+                return nullptr;
+            }
+        }
+        return result;
     }
 
     namespace {

@@ -61,15 +61,23 @@ namespace pixel_terrain::anvil {
 
 #if USE_V3_NBT_PARSER
     namespace {
-        auto const sections_path = nbt::nbt_path::compile("//Level/Sections");
+        auto const sections_path =
+            nbt::nbt_path::compile("//Level/Sections").set_ignore_empty_list();
         auto const last_update_path =
-            nbt::nbt_path::compile("//Level/LastUpdate");
-        auto const y_path = nbt::nbt_path::compile("/Y");
-        auto const block_states_path = nbt::nbt_path::compile("/BlockStates");
-        auto const palette_path = nbt::nbt_path::compile("/Palette");
-        auto const name_path = nbt::nbt_path::compile("/Name");
-        auto const biomes_path = nbt::nbt_path::compile("//Level/Biomes");
-        auto const data_version_path = nbt::nbt_path::compile("//DataVersion");
+            nbt::nbt_path::compile("//Level/LastUpdate")
+                .set_ignore_empty_list();
+        auto const y_path =
+            nbt::nbt_path::compile("/Y").set_ignore_empty_list();
+        auto const block_states_path =
+            nbt::nbt_path::compile("/BlockStates").set_ignore_empty_list();
+        auto const palette_path =
+            nbt::nbt_path::compile("/Palette").set_ignore_empty_list();
+        auto const name_path =
+            nbt::nbt_path::compile("/Name").set_ignore_empty_list();
+        auto const biomes_path =
+            nbt::nbt_path::compile("//Level/Biomes").set_ignore_empty_list();
+        auto const data_version_path =
+            nbt::nbt_path::compile("//DataVersion").set_ignore_empty_list();
     } // namespace
 
     void chunk::init_fields(nbt::nbt const &nbt_file) noexcept(false) {
