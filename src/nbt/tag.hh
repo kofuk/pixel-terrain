@@ -71,6 +71,10 @@ namespace pixel_terrain::nbt {
 
         template <class Tp, class = std::is_convertible<Tp, tag_payload>>
         [[nodiscard]] auto query(nbt_path path) -> Tp * {
+            if (!path) {
+                return nullptr;
+            }
+
             tag_payload *result = query_internal(&path);
 
             if (result == nullptr ||
@@ -652,6 +656,10 @@ namespace pixel_terrain::nbt {
 
         template <class Tp, class = std::is_convertible<Tp, tag_payload>>
         [[nodiscard]] auto query(nbt_path path) -> Tp * {
+            if (!path) {
+                return nullptr;
+            }
+
             tag_payload *result = query_internal(&path);
 
             if (result == nullptr ||
