@@ -60,11 +60,12 @@ namespace {
             }
         }
 
+        std::vector<std::uint8_t> *data;
         try {
             std::filesystem::path infile(filename);
             pixel_terrain::anvil::region r =
                 pixel_terrain::anvil::region(infile);
-            std::vector<std::uint8_t> *data = r.chunk_data(x, z);
+            data = r.chunk_data(x, z);
             if (data == nullptr) {
                 std::cerr << outname << ": Chunk not exists.\n";
                 return false;
@@ -79,9 +80,11 @@ namespace {
 
             out.write(reinterpret_cast<char *>(data->data()), data->size());
         } catch (...) {
+            delete data;
             std::cerr << outname << ": Error dumping nbt.\n";
             return false;
         }
+        delete data;
         return true;
     }
 
