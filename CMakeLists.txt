@@ -7,6 +7,8 @@ project(pixel-terrain
   HOMEPAGE_URL "https://github.com/kofuk/pixel-terrain"
   LANGUAGES C CXX)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_STANDARD_REQUIRED ON)
 
@@ -33,12 +35,8 @@ if(HAVE_VA_OPT)
   add_definitions(-DHAVE_VA_OPT=1)
 endif()
 
-option(USE_V3_NBT_PARSER "Use experimental NBT parser")
-if(USE_V3_NBT_PARSER)
-  add_definitions(-DUSE_V3_NBT_PARSER=1)
-else()
-  add_definitions(-DUSE_V3_NBT_PARSER=0)
-endif()
+include(PTFeatureFlags)
+define_feature_flag(USE_V3_NBT_PARSER "Use experimental NBT parser" OFF)
 
 option(BUILD_TESTS "Enable testing")
 if(BUILD_TESTS)
