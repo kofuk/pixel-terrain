@@ -111,6 +111,10 @@ namespace pixel_terrain::image {
                             }
                         }
                     }
+#if USE_BLOCK_LIGHT_DATA
+                    pixel_state.set_block_light(
+                        chunk->get_block_light(x, pixel_state.top_height(), z));
+#endif
                 }
                 pixel_state.set_bg_color(pixel_state.bg_color() |
                                          color::CHAN_FULL);
@@ -220,9 +224,24 @@ namespace pixel_terrain::image {
         }
     }
 
+#if USE_BLOCK_LIGHT_DATA
+    void worker::handle_block_light(pixel_states *pixel_states) {
+        for (int x = 0; x < 16; ++x) {
+            for (int z = 0; z < 16; ++z) {
+                pixel_state &pixel_state = get_pixel_state(pixel_states, x, z);
+                pixel_state.set_bg_color(graphics::increase_brightness(
+                    pixel_state.bg_color(), pixel_state.block_light() * 5));
+            }
+        }
+    }
+#endif
+
     void worker::process_pipeline(pixel_states *pixel_states) {
         handle_biomes(pixel_states);
         handle_inclination(pixel_states);
+#if USE_BLOCK_LIGHT_DATA
+        handle_block_light(pixel_states);
+#endif
     }
 
     void worker::generate_image(int chunk_x, int chunk_z,

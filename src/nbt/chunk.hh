@@ -45,6 +45,11 @@ namespace pixel_terrain::anvil {
         std::vector<std::uint8_t> *chunk_data_;
 #endif
 
+#if USE_BLOCK_LIGHT_DATA
+        std::array<std::vector<std::uint8_t>, nbt::biomes::BLOCK_STATES_COUNT>
+            block_lights_;
+#endif
+
         std::array<std::vector<std::string> *, nbt::biomes::PALETTE_Y_MAX>
             palettes;
         std::array<std::vector<std::uint64_t> *,
@@ -86,6 +91,11 @@ namespace pixel_terrain::anvil {
         [[nodiscard]] auto get_biome(std::int32_t x, std::int32_t y,
                                      std::int32_t z) -> std::int32_t;
         [[nodiscard]] auto get_max_height() -> int;
+
+#if USE_BLOCK_LIGHT_DATA
+        [[nodiscard]] auto get_block_light(std::int32_t x, std::int32_t y,
+                                           std::int32_t z) -> std::uint8_t;
+#endif
     };
 } // namespace pixel_terrain::anvil
 

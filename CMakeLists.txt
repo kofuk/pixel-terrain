@@ -37,6 +37,7 @@ endif()
 
 include(PTFeatureFlags)
 define_feature_flag(USE_V3_NBT_PARSER "Use experimental NBT parser" OFF)
+define_feature_flag(USE_BLOCK_LIGHT_DATA "Use block light data in save data" OFF)
 
 option(BUILD_TESTS "Enable testing")
 if(BUILD_TESTS)

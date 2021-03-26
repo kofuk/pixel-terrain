@@ -73,6 +73,10 @@ namespace pixel_terrain::anvil {
             nbt::nbt_path::compile("/BlockStates").set_ignore_empty_list();
         auto const palette_path =
             nbt::nbt_path::compile("/Palette").set_ignore_empty_list();
+#if USE_BLOCK_LIGHT_DATA
+        auto const block_light_path =
+            nbt::nbt_path::compile("/BlockLight").set_ignore_empty_list();
+#endif
         auto const name_path =
             nbt::nbt_path::compile("/Name").set_ignore_empty_list();
         auto const biomes_path =
@@ -80,6 +84,18 @@ namespace pixel_terrain::anvil {
         auto const data_version_path =
             nbt::nbt_path::compile("//DataVersion").set_ignore_empty_list();
     } // namespace
+
+#if USE_BLOCK_LIGHT_DATA
+    auto decode_nibble(std::vector<std::uint8_t> input)
+        -> std::vector<std::uint8_t> {
+        std::vector<uint8_t> result;
+        for (auto const &e : input) {
+            result.push_back(e & 0xf);
+            result.push_back(e >> 4);
+        }
+        return result;
+    }
+#endif
 
     void chunk::init_fields(nbt::nbt const &nbt_file) noexcept(false) {
         auto *sections_node =
@@ -145,6 +161,19 @@ namespace pixel_terrain::anvil {
             palettes[static_cast<std::size_t>(y)] = palette;
 
             delete palette_node;
+
+#if USE_BLOCK_LIGHT_DATA
+            auto *block_light_node =
+                node->query<nbt::tag_byte_array_payload>(block_light_path);
+            if (block_light_node != nullptr) {
+                if ((*block_light_node)->size() == 2048) {
+                    std::vector<std::uint8_t> nibbles =
+                        decode_nibble(**block_light_node);
+                    block_lights_[y] = std::move(nibbles);
+                }
+                delete block_light_node;
+            }
+#endif
         }
         delete sections_node;
 
@@ -529,4 +558,18 @@ namespace pixel_terrain::anvil {
         return 0;
     }
 
+#if USE_BLOCK_LIGHT_DATA
+    [[nodiscard]] auto chunk::get_block_light(std::int32_t x, std::int32_t y,
+                                              std::int32_t z) -> std::uint8_t {
+        if (y < 0 || 255 < y) {
+            return 0;
+        }
+        auto block_light = block_lights_[y / nbt::biomes::BLOCK_STATES_COUNT];
+        if (block_light.empty()) {
+            return 0;
+        }
+        return block_light[(y % nbt::biomes::BLOCK_STATES_COUNT) * 16 * 16 +
+                           z * 16 + x];
+    }
+#endif
 } // namespace pixel_terrain::anvil

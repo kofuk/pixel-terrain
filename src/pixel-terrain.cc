@@ -75,6 +75,7 @@ Subcommands:
     };
 
     auto features = pixel_terrain::make_array<feature>(
+        feature("block_light_data", USE_BLOCK_LIGHT_DATA),
         feature("v3_nbt_parser", USE_V3_NBT_PARSER));
 
     [[noreturn]] void print_version_and_exit() {

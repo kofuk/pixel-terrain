@@ -27,6 +27,9 @@ namespace pixel_terrain::image {
             std::uint32_t mid_color_ = 0;
             std::uint32_t bg_color_ = 0;
             std::int32_t top_biome_ = 0;
+#if USE_BLOCK_LIGHT_DATA
+            std::uint8_t block_light_ = 0;
+#endif
 
         public:
             static constexpr std::int32_t IS_TRANSPARENT = 1;
@@ -85,6 +88,14 @@ namespace pixel_terrain::image {
             [[nodiscard]] auto top_biome() const -> std::int32_t {
                 return top_biome_;
             }
+
+#if USE_BLOCK_LIGHT_DATA
+            void set_block_light(std::uint8_t level) { block_light_ = level; }
+
+            [[nodiscard]] auto block_light() -> std::uint8_t {
+                return block_light_;
+            }
+#endif
         };
 
         using pixel_states =
@@ -109,6 +120,10 @@ namespace pixel_terrain::image {
         static void handle_biomes(pixel_states *pixel_states);
 
         static void handle_inclination(pixel_states *pixel_states);
+
+#if USE_BLOCK_LIGHT_DATA
+        static void handle_block_light(pixel_states *pixel_states);
+#endif
 
         static void process_pipeline(pixel_states *pixel_states);
 
