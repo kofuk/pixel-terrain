@@ -79,8 +79,7 @@ Subcommands:
         feature("v3_nbt_parser", USE_V3_NBT_PARSER));
 
     [[noreturn]] void print_version_and_exit() {
-        std::printf("%s %d.%d.%d\n", PRODUCT_NAME, VERSION_MAJOR, VERSION_MINOR,
-                    VERSION_REVISION);
+        std::puts(PRODUCT_NAME " " VERSION_STR);
 
         std::puts("\nFeatures:");
         for (int i = 0; auto f : features) {

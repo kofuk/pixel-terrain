@@ -7,7 +7,7 @@
 #include <cstring>
 #include <string>
 
-#include "block/block_colors_data.hh"
+#include "block_colors_data.hh"
 #include "image/blocks.hh"
 
 namespace pixel_terrain::image {

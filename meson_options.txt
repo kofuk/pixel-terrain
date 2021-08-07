@@ -1,0 +1,6 @@
+option('v3_nbt_parser', type : 'feature', value : 'enabled',
+       description : 'Use newly introduced NBT parser.')
+option('block_light', type : 'feature', value : 'enabled',
+       description : 'Enable BlockLight data parser.')
+option('bash_comp', type : 'boolean', value : true,
+       description : 'Install bash-completion script.')

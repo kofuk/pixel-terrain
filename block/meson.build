@@ -1,0 +1,32 @@
+block_colors_srcs = [
+  'minecraft/block_colors_a.tsv',
+  'minecraft/block_colors_f.tsv',
+  'minecraft/block_colors_k.tsv',
+  'minecraft/block_colors_p.tsv',
+  'minecraft/block_colors_v.tsv',
+  'minecraft/block_colors_b.tsv',
+  'minecraft/block_colors_g.tsv',
+  'minecraft/block_colors_l.tsv',
+  'minecraft/block_colors_q.tsv',
+  'minecraft/block_colors_w.tsv',
+  'minecraft/block_colors_c.tsv',
+  'minecraft/block_colors_h.tsv',
+  'minecraft/block_colors_m.tsv',
+  'minecraft/block_colors_r.tsv',
+  'minecraft/block_colors_y.tsv',
+  'minecraft/block_colors_d.tsv',
+  'minecraft/block_colors_i.tsv',
+  'minecraft/block_colors_n.tsv',
+  'minecraft/block_colors_s.tsv',
+  'minecraft/block_colors_z.tsv',
+  'minecraft/block_colors_e.tsv',
+  'minecraft/block_colors_j.tsv',
+  'minecraft/block_colors_o.tsv',
+  'minecraft/block_colors_t.tsv',
+  'minecraft/upcoming.tsv']
+
+block_colors_data_header = custom_target(
+  'block_colors_data',
+  input : block_colors_srcs,
+  output : 'block_colors_data.hh',
+  command : [block_data_generator, '@OUTPUT@', '@INPUT@'])
