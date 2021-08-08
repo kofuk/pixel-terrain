@@ -6,8 +6,7 @@ regetopt_inc = include_directories('include')
 
 regetopt_lib = static_library(
   'regetopt', 'regetopt.c',
-  include_directories : regetopt_inc,
-  install : true)
+  include_directories : regetopt_inc)
 
 regetopt_dep = declare_dependency(
   include_directories : regetopt_inc,
