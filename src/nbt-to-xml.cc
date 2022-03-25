@@ -96,8 +96,10 @@ Usage: pixel-terrain nbt-to-xml [OPTION]... [--] FILE
         }
 
 #if USE_V3_NBT_PARSER
-        std::vector<std::uint8_t> data(f->get_raw_data(), f->get_raw_data() + f->size());
-        auto [nbt, itr] = nbt::tag_compound::parse_buffer(data.begin(), data.end());
+        std::vector<std::uint8_t> data(f->get_raw_data(),
+                                       f->get_raw_data() + f->size());
+        auto [nbt, itr] =
+            nbt::tag_compound::parse_buffer(data.begin(), data.end());
         if (nbt == nullptr) {
             std::cerr << "Fatal: Parse error in NBT.\n";
             return false;

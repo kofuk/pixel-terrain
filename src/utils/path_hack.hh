@@ -10,7 +10,7 @@ namespace pixel_terrain {
 #ifdef OS_WIN
     using path_string = std::wstring;
     using path_char = wchar_t;
-    static inline auto to_path_string(int num) -> path_string{
+    static inline auto to_path_string(int num) -> path_string {
         return std::to_wstring(num);
     }
 

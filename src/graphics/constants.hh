@@ -15,7 +15,7 @@ namespace pixel_terrain::graphics {
 
         inline constexpr std::uint8_t CHAN_FULL = 255;
         inline constexpr std::uint8_t CHAN_MIN = 0;
-    }
-}
+    } // namespace color
+} // namespace pixel_terrain::graphics
 
 #endif

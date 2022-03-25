@@ -60,21 +60,24 @@ namespace pixel_terrain::logger {
         switch (log_level) {
         case logger::INFO:
             if (is_tty) {
-                std::fputs("\e[1mPixelTerrain-\e[1;32mINFO\e[0m: ", stderr);
+                std::fputs("\033[1mPixelTerrain-\033[1;32mINFO\033[0m: ",
+                           stderr);
             } else {
                 std::fputs("PixelTerrain-INFO: ", stderr);
             }
             break;
         case logger::DEBUG:
             if (is_tty) {
-                std::fputs("\e[1mPixelTerrain-\e[1;33mDEBUG\e[0m: ", stderr);
+                std::fputs("\033[1mPixelTerrain-\033[1;33mDEBUG\033[0m: ",
+                           stderr);
             } else {
                 std::fputs("PixelTerrain-DEBUG: ", stderr);
             }
             break;
         case logger::ERROR:
             if (is_tty) {
-                std::fputs("\e[1mPixelTerrain-\e[1;31mERROR\e[0m: ", stderr);
+                std::fputs("\033[1mPixelTerrain-\033[1;31mERROR\033[0m: ",
+                           stderr);
             } else {
                 std::fputs("PixelTerrain-ERROR: ", stderr);
             }
@@ -145,10 +148,10 @@ namespace pixel_terrain::logger {
 
                 line_written = false;
                 if (is_tty && !line_written) {
-                    std::fprintf(stderr, "Generating...    %u%%\e[J\r",
+                    std::fprintf(stderr, "Generating...    %u%%\033[J\r",
                                  progress);
                 } else {
-                    std::fprintf(stderr, "Generating...    %u%%\e[J\n",
+                    std::fprintf(stderr, "Generating...    %u%%\033[J\n",
                                  progress);
                 }
 

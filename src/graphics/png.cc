@@ -59,8 +59,10 @@ namespace pixel_terrain::graphics {
             throw std::runtime_error("Failed to read data");
         }
 
-        ::png_image_begin_read_from_memory(&png, png_data.data(), png_data.size());;
-#else // not defined(OS_WIN)
+        ::png_image_begin_read_from_memory(&png, png_data.data(),
+                                           png_data.size());
+        ;
+#else  // not defined(OS_WIN)
         ::png_image_begin_read_from_stdio(&png, in);
 #endif // defined(OS_WIN)
 

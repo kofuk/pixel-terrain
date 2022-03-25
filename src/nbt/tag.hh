@@ -100,8 +100,9 @@ namespace pixel_terrain::nbt {
             return new tag_null_payload;
         }
 
-        void repr(std::ostream &out, std::string const &indent,
-                  unsigned int indent_level) const override {}
+        void repr([[maybe_unused]] std::ostream &out,
+                  [[maybe_unused]] std::string const &indent,
+                  [[maybe_unused]] unsigned int indent_level) const override {}
     };
 
     class tag {

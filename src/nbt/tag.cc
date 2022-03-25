@@ -237,8 +237,9 @@ namespace pixel_terrain::nbt {
                 return std::make_pair(t, itr);
             }
 
-            auto make_tag_end_payload(tag::data_iterator const &first,
-                                      tag::data_iterator const &last)
+            auto make_tag_end_payload(
+                tag::data_iterator const &first,
+                [[maybe_unused]] tag::data_iterator const &last)
                 -> std::pair<tag_payload *, tag::data_iterator> {
                 return std::make_pair(new tag_null_payload, first);
             }

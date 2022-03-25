@@ -50,8 +50,7 @@ namespace pixel_terrain {
             std::vector<T> d;
             T buf[1024];
             do {
-                ifs.read(reinterpret_cast<char *>(buf),
-                         sizeof(T) * 1024);
+                ifs.read(reinterpret_cast<char *>(buf), sizeof(T) * 1024);
                 if (ifs.gcount() % sizeof(T) != 0) {
                     throw std::runtime_error("Corrupted data.");
                 }
@@ -204,8 +203,7 @@ namespace pixel_terrain {
                     return;
                 }
 
-                ofs.write(reinterpret_cast<char *>(data),
-                          sizeof(T) * nmemb);
+                ofs.write(reinterpret_cast<char *>(data), sizeof(T) * nmemb);
                 /* TODO: check if ofstream::write success. */
             }
             delete[] data;

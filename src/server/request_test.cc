@@ -78,8 +78,7 @@ public:
         if (test_data[this->off] == 0) {
             return -1;
         }
-        std::size_t N =
-            std::min(len - off, static_cast<std::size_t>(4));
+        std::size_t N = std::min(len - off, static_cast<std::size_t>(4));
         for (std::size_t i = 0; i < N; ++i) {
             if (test_data[this->off] == 0) {
                 return i;

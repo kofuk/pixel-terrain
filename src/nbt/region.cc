@@ -168,7 +168,8 @@ namespace pixel_terrain::anvil {
             delete data;
             return nullptr;
         } catch (std::runtime_error const &e) {
-            ELOG("Error parsing chunk: unknown error occurred!: %s\n", e.what());
+            ELOG("Error parsing chunk: unknown error occurred!: %s\n",
+                 e.what());
             delete data;
             return nullptr;
         }

@@ -18,8 +18,8 @@ namespace pixel_terrain::logger {
 #define LOG_PRINTF_ATTRIBUTE
 #endif
 
-    LOG_PRINTF_ATTRIBUTE void print_log(unsigned int log_level,
-                                                         char const *fmt, ...);
+    LOG_PRINTF_ATTRIBUTE void print_log(unsigned int log_level, char const *fmt,
+                                        ...);
 
 #undef LOG_PRINTF_ATTRIBUTE
 
@@ -32,30 +32,30 @@ namespace pixel_terrain::logger {
 
 #if !defined(HAVE_VA_OPT)
 /* MSVC automatically removes a `,' if __VA_ARGS__ is empty. */
-#define ILOG(fmt, ...)                                            \
-    pixel_terrain::logger::print_log(pixel_terrain::logger::INFO, \
-                                     fmt, __VA_ARGS__)
-#define DLOG(fmt, ...)                                              \
-    pixel_terrain::logger::print_log(pixel_terrain::logger::DEBUG,  \
-                                     "%s(%d): " fmt, __FILE__, \
-                                     __LINE__, __VA_ARGS__)
+#define ILOG(fmt, ...)                                                 \
+    pixel_terrain::logger::print_log(pixel_terrain::logger::INFO, fmt, \
+                                     __VA_ARGS__)
+#define DLOG(fmt, ...)                                                   \
+    pixel_terrain::logger::print_log(pixel_terrain::logger::DEBUG,       \
+                                     "%s(%d): " fmt, __FILE__, __LINE__, \
+                                     __VA_ARGS__)
 
-#define ELOG(fmt, ...)                                              \
-    pixel_terrain::logger::print_log(pixel_terrain::logger::ERROR,  \
-                                     "%s(%d): " fmt, __FILE__, \
-                                     __LINE__, __VA_ARGS__)
+#define ELOG(fmt, ...)                                                   \
+    pixel_terrain::logger::print_log(pixel_terrain::logger::ERROR,       \
+                                     "%s(%d): " fmt, __FILE__, __LINE__, \
+                                     __VA_ARGS__)
 #else
 #define ILOG(fmt, ...)                                            \
     pixel_terrain::logger::print_log(pixel_terrain::logger::INFO, \
                                      fmt __VA_OPT__(, ) __VA_ARGS__)
-#define DLOG(fmt, ...)                                              \
-    pixel_terrain::logger::print_log(pixel_terrain::logger::DEBUG,  \
-                                     "%s(%d): " fmt, __FILE__, \
+#define DLOG(fmt, ...)                                             \
+    pixel_terrain::logger::print_log(pixel_terrain::logger::DEBUG, \
+                                     "%s(%d): " fmt, __FILE__,     \
                                      __LINE__ __VA_OPT__(, ) __VA_ARGS__)
 
-#define ELOG(fmt, ...)                                              \
-    pixel_terrain::logger::print_log(pixel_terrain::logger::ERROR,  \
-                                     "%s(%d): " fmt, __FILE__, \
+#define ELOG(fmt, ...)                                             \
+    pixel_terrain::logger::print_log(pixel_terrain::logger::ERROR, \
+                                     "%s(%d): " fmt, __FILE__,     \
                                      __LINE__ __VA_OPT__(, ) __VA_ARGS__)
 #endif
 #endif

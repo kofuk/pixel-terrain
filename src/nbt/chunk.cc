@@ -116,10 +116,13 @@ namespace pixel_terrain::anvil {
             if (y_node == nullptr) {
                 continue;
             }
+
+            /* TODO: y can be negative because negative Y is allowed in current
+             * version. */
             std::uint8_t y = **y_node;
             delete y_node;
 
-            if (y < 0 || 16 <= y) {
+            if (16 <= y) {
                 /* Out of range. */
                 continue;
             }

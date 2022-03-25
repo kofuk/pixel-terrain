@@ -18,7 +18,8 @@ namespace pixel_terrain {
     namespace {
         enum class signal_type { JOB, TERMINATE };
 
-        template <typename T> class worker_signal {
+        template <typename T>
+        class worker_signal {
             signal_type type_;
             T data_;
 
@@ -34,7 +35,8 @@ namespace pixel_terrain {
         };
     } // namespace
 
-    template <typename T> class threaded_worker {
+    template <typename T>
+    class threaded_worker {
         unsigned int n_workers_;
         std::function<void(T)> handler_;
 
@@ -91,7 +93,7 @@ namespace pixel_terrain {
             -> threaded_worker<T> = delete;
 
         auto start() -> bool {
-            for (int i = 0; i < n_workers_; ++i) {
+            for (unsigned int i = 0; i < n_workers_; ++i) {
                 try {
                     auto *th = new std::thread(
                         &threaded_worker<T>::handle_jobs_internal, this);
