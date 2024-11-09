@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <array>
+#include <cstdint>
 #include <cstring>
 #include <fstream>
 #include <iostream>

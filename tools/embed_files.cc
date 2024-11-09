@@ -35,8 +35,8 @@ namespace {
         std::fprintf(out, R"(
     auto get_embedded_data(std::string_view const &filename)
         -> std::optional<std::vector<std::uint8_t>> {
-        auto itr = embedded_files_%1$lX.find(filename);
-        if (itr == embedded_files_%1$lX.end()) {
+        auto itr = embedded_files_%lX.find(filename);
+        if (itr == embedded_files_%lX.end()) {
             return std::nullopt;
         }
         auto [ptr, len] = itr->second;
@@ -45,7 +45,7 @@ namespace {
 } // namespace
 
 )",
-                     header_id);
+                     header_id, header_id);
         std::fprintf(out, "#endif /* EMBEDDED_FILE_%lX */\n", header_id);
     }
 
