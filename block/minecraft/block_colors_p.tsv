@@ -5,6 +5,8 @@ minecraft:petrified_oak_slab	b8	94	5f	ff
 minecraft:petrified_oak_stairs	b8	94	5f	ff
 minecraft:pink_banner	7e	82	81	50
 minecraft:pink_bed	f6	89	ac	ff
+minecraft:pink_candle	f3	87	aa	78
+minecraft:pink_candle_cake	ff	b7	da	ff
 minecraft:pink_carpet	f1	85	a6	ff
 minecraft:pink_concrete	d7	65	90	ff
 minecraft:pink_concrete_powder	d7	65	90	ff
@@ -67,6 +69,7 @@ minecraft:potted_red_tulip	ed	30	2c	64
 minecraft:potted_spruce_sapling	39	5a	39	64
 minecraft:potted_white_tulip	9b	bd	bd	64
 minecraft:potted_wither_rose	2a	1f	19	64
+minecraft:powder_snow_cauldron	f4	fc	fc	ff
 minecraft:powered_rail	9e	42	26	78
 minecraft:prismarine	5e	a4	96	ff
 minecraft:prismarine_brick_slab	5a	af	a4	ff
@@ -79,6 +82,8 @@ minecraft:pumpkin	f4	86	00	ff
 minecraft:pumpkin_stem	93	8d	1e	64
 minecraft:purple_banner	7e	82	81	50
 minecraft:purple_bed	8b	30	bd	ff
+minecraft:purple_candle	92	2a	c8	78
+minecraft:purple_candle_cake	c2	5a	ff	ff
 minecraft:purple_carpet	74	21	a7	ff
 minecraft:purple_concrete	65	1a	9e	ff
 minecraft:purple_concrete_powder	65	1a	9e	ff

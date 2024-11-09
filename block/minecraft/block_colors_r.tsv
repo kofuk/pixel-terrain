@@ -2,6 +2,8 @@ block_id	r	g	b	a
 minecraft:rail	6f	7d	6f	78
 minecraft:red_banner	7e	82	81	50
 minecraft:red_bed	b5	31	29	ff
+minecraft:red_candle	d0	37	2d	78
+minecraft:red_candle_cake	ff	67	5d	ff
 minecraft:red_carpet	97	1e	1b	ff
 minecraft:red_concrete	90	1b	1b	ff
 minecraft:red_concrete_powder	90	1b	1b	ff

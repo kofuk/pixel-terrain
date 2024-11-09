@@ -1,6 +1,8 @@
 block_id	r	g	b	a
 minecraft:yellow_banner	7e	82	81	50
 minecraft:yellow_bed	ff	ce	29	ff
+minecraft:yellow_candle	d7	a9	33	78
+minecraft:yellow_candle_cake	ff	d9	63	ff
 minecraft:yellow_carpet	ff	ce	29	ff
 minecraft:yellow_concrete	f2	b0	0d	ff
 minecraft:yellow_concrete_powder	f2	b0	0d	ff

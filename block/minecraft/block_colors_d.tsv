@@ -49,6 +49,7 @@ minecraft:diorite_slab	ce	ce	cf	ff
 minecraft:diorite_stairs	ce	ce	cf	ff
 minecraft:diorite_wall	be	bf	c1	e6
 minecraft:dirt	9f	6b	49	ff
+minecraft:dirt_path	94	77	3f	ff
 minecraft:dispenser	86	86	86	ff
 minecraft:dragon_egg	14	00	16	ff
 minecraft:dragon_head	0f	0f	0f	96

@@ -18,6 +18,8 @@ minecraft:observer	64	64	64	ff
 minecraft:obsidian	0b	00	16	ff
 minecraft:orange_banner	7e	82	81	50
 minecraft:orange_bed	ff	81	18	ff
+minecraft:orange_candle	fc	97	29	78
+minecraft:orange_candle_cake	ff	b7	59	ff
 minecraft:orange_carpet	f9	85	1a	ff
 minecraft:orange_concrete	e0	60	00	ff
 minecraft:orange_concrete_powder	e0	60	00	ff

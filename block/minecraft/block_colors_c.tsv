@@ -1,7 +1,10 @@
 block_id	r	g	b	a
 minecraft:cactus	2d	9c	33	ff
 minecraft:cake	f9	f5	f8	ff
+minecraft:calcite	a3	a3	9e	ff
 minecraft:campfire	f0	ce	56	ff
+minecraft:candle	fc	f4	e3	78
+minecraft:candle_cake	ff	ff	ff	ff
 minecraft:carrots	00	9f	30	64
 minecraft:cartography_table	4a	2e	15	ff
 minecraft:carved_pumpkin	ef	8f	20	ff
@@ -31,6 +34,8 @@ minecraft:command_block	a6	60	30	ff
 minecraft:comparator	d3	00	00	ff
 minecraft:composter	51	30	16	ff
 minecraft:conduit	80	74	50	64
+minecraft:copper_block	86	4a	34	ff
+minecraft:copper_ore	63	63	63	ff
 minecraft:cornflower	46	6a	eb	64
 minecraft:cracked_nether_bricks	44	24	2a	ff
 minecraft:cracked_polished_blackstone_bricks	1f	12	1b	ff
@@ -52,6 +57,8 @@ minecraft:crimson_stairs	7e	3a	56	ff
 minecraft:crimson_stem	52	18	10	ff
 minecraft:crimson_wall_sign	7e	3a	56	0a
 minecraft:crying_obsidian	2b	01	78	ff
+minecraft:cut_copper	86	4a	34	ff
+minecraft:cut_copper_stairs	86	4a	34	ff
 minecraft:cut_red_sandstone	9f	4e	0b	ff
 minecraft:cut_red_sandstone_slab	9f	4e	0b	ff
 minecraft:cut_red_sandstone_stairs	9f	4e	0b	ff
@@ -60,6 +67,8 @@ minecraft:cut_sandstone_slab	e3	db	b0	ff
 minecraft:cut_sandstone_stairs	e3	db	b0	ff
 minecraft:cyan_banner	7e	82	81	50
 minecraft:cyan_bed	10	88	87	ff
+minecraft:cyan_candle	14	b2	b2	78
+minecraft:cyan_candle_cake	44	e2	e2	ff
 minecraft:cyan_carpet	0d	7f	8c	ff
 minecraft:cyan_concrete	0f	79	8a	ff
 minecraft:cyan_concrete_powder	0f	79	8a	ff

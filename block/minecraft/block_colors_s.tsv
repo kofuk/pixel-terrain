@@ -8,12 +8,17 @@ minecraft:scaffolding	84	58	35	e6
 minecraft:sea_lantern	cb	dd	d6	ff
 minecraft:sea_pickle	38	44	17	78
 minecraft:seagrass	34	96	9b	c8
+minecraft:semi_weathered_copper_block	69	60	48	ff
+minecraft:semi_weathered_cut_copper	69	60	48	ff
+minecraft:semi_weathered_cut_copper_slab	69	60	48	ff
+minecraft:semi_weathered_cut_copper_stairs	69	60	48	ff
 minecraft:shroomlight	fe	ac	6d	ff
 minecraft:shulker_box	98	69	98	ff
 minecraft:skeleton_skull	d3	d3	d3	ff
 minecraft:skeleton_wall_skull	d3	d3	d3	ff
 minecraft:skull	3a	21	09	96
 minecraft:slime_block	9e	d5	8e	c8
+minecraft:small_amethyst_bud	64	47	9e	aa
 minecraft:smithing_table	1e	1e	23	ff
 minecraft:smoker	73	72	72	ff
 minecraft:smooth_quartz	ee	ea	e6	ff

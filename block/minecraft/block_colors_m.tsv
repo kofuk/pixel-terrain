@@ -1,6 +1,8 @@
 block_id	r	g	b	a
 minecraft:magenta_banner	7e	82	81	50
 minecraft:magenta_bed	bd	3c	b4	ff
+minecraft:magenta_candle	bb	3b	b2	78
+minecraft:magenta_candle_cake	eb	6b	e2	ff
 minecraft:magenta_carpet	b4	38	aa	ff
 minecraft:magenta_concrete	a8	2b	9e	ff
 minecraft:magenta_concrete_powder	a8	2b	9e	ff
@@ -12,6 +14,7 @@ minecraft:magenta_terracotta	97	59	6b	ff
 minecraft:magenta_wall_banner	7e	82	81	0a
 minecraft:magenta_wool	b4	38	aa	ff
 minecraft:magma_block	9b	54	16	ff
+minecraft:medium_amethyst_bud	64	47	9e	aa
 minecraft:melon	50	9f	2a	ff
 minecraft:melon_stem	60	5a	03	32
 minecraft:mossy_cobblestone	6b	83	63	ff
