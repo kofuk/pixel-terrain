@@ -8,15 +8,10 @@ minecraft:scaffolding	#845835e6
 minecraft:sea_lantern	#cbddd6ff
 minecraft:sea_pickle	#38441778
 minecraft:seagrass	#34969bc8
-minecraft:semi_weathered_copper_block	#696048ff
-minecraft:semi_weathered_cut_copper	#696048ff
-minecraft:semi_weathered_cut_copper_slab	#696048ff
-minecraft:semi_weathered_cut_copper_stairs	#696048ff
 minecraft:shroomlight	#feac6dff
 minecraft:shulker_box	#986998ff
 minecraft:skeleton_skull	#d3d3d3ff
 minecraft:skeleton_wall_skull	#d3d3d3ff
-minecraft:skull	#3a210996
 minecraft:slime_block	#9ed58ec8
 minecraft:small_amethyst_bud	#64479eaa
 minecraft:smithing_table	#1e1e23ff
@@ -32,7 +27,6 @@ minecraft:smooth_sandstone_slab	#e3dbb0ff
 minecraft:smooth_sandstone_stairs	#e3dbb0ff
 minecraft:smooth_stone	#a2a2a2ff
 minecraft:smooth_stone_slab	#a8a8a8ff
-minecraft:smooth_stone_stairs	#a8a8a8ff
 minecraft:snow	#e7f9f8ff
 minecraft:snow_block	#effaf9ff
 minecraft:soul_campfire	#25c6cdff

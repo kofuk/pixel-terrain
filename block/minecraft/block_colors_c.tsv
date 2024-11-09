@@ -45,7 +45,6 @@ minecraft:creeper_head	#6ac76296
 minecraft:creeper_wall_head	#6ac76296
 minecraft:crimson_button	#7e3a56ff
 minecraft:crimson_door	#843d5996
-minecraft:crimson_fungi	#94181864
 minecraft:crimson_fungus	#a4242910
 minecraft:crimson_hyphae	#4b2737ff
 minecraft:crimson_nylium	#941818ff
@@ -61,10 +60,8 @@ minecraft:cut_copper	#864a34ff
 minecraft:cut_copper_stairs	#864a34ff
 minecraft:cut_red_sandstone	#9f4e0bff
 minecraft:cut_red_sandstone_slab	#9f4e0bff
-minecraft:cut_red_sandstone_stairs	#9f4e0bff
 minecraft:cut_sandstone	#e3dbb0ff
 minecraft:cut_sandstone_slab	#e3dbb0ff
-minecraft:cut_sandstone_stairs	#e3dbb0ff
 minecraft:cyan_banner	#7e828150
 minecraft:cyan_bed	#108887ff
 minecraft:cyan_candle	#14b2b278
