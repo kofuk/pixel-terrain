@@ -1,19 +1,19 @@
-block_id	r	g	b	a
-minecraft:jack_o_lantern	f4	86	00	ff
-minecraft:jigsaw	74	61	74	ff
-minecraft:jukebox	7f	47	31	ff
-minecraft:jungle_button	97	6a	44	32
-minecraft:jungle_door	b2	82	5e	96
-minecraft:jungle_fence	b8	87	64	96
-minecraft:jungle_fence_gate	b8	87	64	96
-minecraft:jungle_leaves	3f	82	04	ff
-minecraft:jungle_log	40	36	12	ff
-minecraft:jungle_planks	b8	87	64	ff
-minecraft:jungle_pressure_plate	97	6a	44	ff
-minecraft:jungle_sapling	39	3d	0d	64
-minecraft:jungle_sign	b8	87	64	50
-minecraft:jungle_slab	b8	87	64	ff
-minecraft:jungle_stairs	b8	87	64	ff
-minecraft:jungle_trapdoor	b8	87	64	c8
-minecraft:jungle_wall_sign	b8	87	64	0a
-minecraft:jungle_wood	3e	30	13	ff
+block_id	color
+minecraft:jack_o_lantern	#f48600ff
+minecraft:jigsaw	#746174ff
+minecraft:jukebox	#7f4731ff
+minecraft:jungle_button	#976a4432
+minecraft:jungle_door	#b2825e96
+minecraft:jungle_fence	#b8876496
+minecraft:jungle_fence_gate	#b8876496
+minecraft:jungle_leaves	#3f8204ff
+minecraft:jungle_log	#403612ff
+minecraft:jungle_planks	#b88764ff
+minecraft:jungle_pressure_plate	#976a44ff
+minecraft:jungle_sapling	#393d0d64
+minecraft:jungle_sign	#b8876450
+minecraft:jungle_slab	#b88764ff
+minecraft:jungle_stairs	#b88764ff
+minecraft:jungle_trapdoor	#b88764c8
+minecraft:jungle_wall_sign	#b887640a
+minecraft:jungle_wood	#3e3013ff

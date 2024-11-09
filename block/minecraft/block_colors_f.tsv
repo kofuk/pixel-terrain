@@ -1,12 +1,12 @@
-block_id	r	g	b	a
-minecraft:farmland	78	38	0a	ff
-minecraft:fern	48	6b	3e	64
-minecraft:fire	cd	73	01	ff
-minecraft:fire_coral	8c	1d	2a	c8
-minecraft:fire_coral_block	8c	1d	2a	ff
-minecraft:fire_coral_fan	8c	1d	2a	c8
-minecraft:fire_coral_wall_fan	8c	1d	2a	c8
-minecraft:fletching_table	c1	b3	7d	ff
-minecraft:flower_pot	79	43	34	64
-minecraft:frosted_ice	94	a8	d9	ff
-minecraft:furnace	54	54	54	ff
+block_id	color
+minecraft:farmland	#78380aff
+minecraft:fern	#486b3e64
+minecraft:fire	#cd7301ff
+minecraft:fire_coral	#8c1d2ac8
+minecraft:fire_coral_block	#8c1d2aff
+minecraft:fire_coral_fan	#8c1d2ac8
+minecraft:fire_coral_wall_fan	#8c1d2ac8
+minecraft:fletching_table	#c1b37dff
+minecraft:flower_pot	#79433464
+minecraft:frosted_ice	#94a8d9ff
+minecraft:furnace	#545454ff

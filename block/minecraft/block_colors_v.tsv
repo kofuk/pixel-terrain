@@ -1,2 +1,2 @@
-block_id	r	g	b	a
-minecraft:vine	00	43	0a	0a
+block_id	color
+minecraft:vine	#00430a0a

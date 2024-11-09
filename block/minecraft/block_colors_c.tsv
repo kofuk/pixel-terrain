@@ -1,81 +1,81 @@
-block_id	r	g	b	a
-minecraft:cactus	2d	9c	33	ff
-minecraft:cake	f9	f5	f8	ff
-minecraft:calcite	a3	a3	9e	ff
-minecraft:campfire	f0	ce	56	ff
-minecraft:candle	fc	f4	e3	78
-minecraft:candle_cake	ff	ff	ff	ff
-minecraft:carrots	00	9f	30	64
-minecraft:cartography_table	4a	2e	15	ff
-minecraft:carved_pumpkin	ef	8f	20	ff
-minecraft:cauldron	41	41	41	ff
-minecraft:chain	3e	44	53	55
-minecraft:chain_command_block	88	c0	a7	ff
-minecraft:chest	a5	74	2a	ff
-minecraft:chipped_anvil	42	42	42	ff
-minecraft:chiseled_nether_bricks	3e	1e	24	ff
-minecraft:chiseled_quartz_block	ee	ea	e6	ff
-minecraft:chiseled_red_sandstone	9f	4e	0b	ff
-minecraft:chiseled_sandstone	d1	ba	8a	ff
-minecraft:chiseled_stone_bricks	5a	59	5a	ff
-minecraft:chorus_flower	af	6a	9f	ff
-minecraft:chorus_plant	51	00	46	ff
-minecraft:clay	80	85	8e	ff
-minecraft:coal_block	10	0d	0d	ff
-minecraft:coal_ore	52	52	52	ff
-minecraft:coarse_dirt	61	3f	29	ff
-minecraft:cobblestone	89	88	89	ff
-minecraft:cobblestone_slab	88	87	88	ff
-minecraft:cobblestone_stairs	88	87	88	ff
-minecraft:cobblestone_wall	6e	6d	6d	e6
-minecraft:cobweb	cc	cc	cc	c8
-minecraft:cocoa	cc	7a	3a	64
-minecraft:command_block	a6	60	30	ff
-minecraft:comparator	d3	00	00	ff
-minecraft:composter	51	30	16	ff
-minecraft:conduit	80	74	50	64
-minecraft:copper_block	86	4a	34	ff
-minecraft:copper_ore	63	63	63	ff
-minecraft:cornflower	46	6a	eb	64
-minecraft:cracked_nether_bricks	44	24	2a	ff
-minecraft:cracked_polished_blackstone_bricks	1f	12	1b	ff
-minecraft:cracked_stone_bricks	7f	7f	7f	ff
-minecraft:crafting_table	bc	64	37	ff
-minecraft:creeper_head	6a	c7	62	96
-minecraft:creeper_wall_head	6a	c7	62	96
-minecraft:crimson_button	7e	3a	56	ff
-minecraft:crimson_door	84	3d	59	96
-minecraft:crimson_fungi	94	18	18	64
-minecraft:crimson_fungus	a4	24	29	10
-minecraft:crimson_hyphae	4b	27	37	ff
-minecraft:crimson_nylium	94	18	18	ff
-minecraft:crimson_planks	5c	30	42	ff
-minecraft:crimson_pressure_plate	7e	3a	56	ff
-minecraft:crimson_roots	ad	10	1c	10
-minecraft:crimson_sign	7e	3a	56	50
-minecraft:crimson_stairs	7e	3a	56	ff
-minecraft:crimson_stem	52	18	10	ff
-minecraft:crimson_wall_sign	7e	3a	56	0a
-minecraft:crying_obsidian	2b	01	78	ff
-minecraft:cut_copper	86	4a	34	ff
-minecraft:cut_copper_stairs	86	4a	34	ff
-minecraft:cut_red_sandstone	9f	4e	0b	ff
-minecraft:cut_red_sandstone_slab	9f	4e	0b	ff
-minecraft:cut_red_sandstone_stairs	9f	4e	0b	ff
-minecraft:cut_sandstone	e3	db	b0	ff
-minecraft:cut_sandstone_slab	e3	db	b0	ff
-minecraft:cut_sandstone_stairs	e3	db	b0	ff
-minecraft:cyan_banner	7e	82	81	50
-minecraft:cyan_bed	10	88	87	ff
-minecraft:cyan_candle	14	b2	b2	78
-minecraft:cyan_candle_cake	44	e2	e2	ff
-minecraft:cyan_carpet	0d	7f	8c	ff
-minecraft:cyan_concrete	0f	79	8a	ff
-minecraft:cyan_concrete_powder	0f	79	8a	ff
-minecraft:cyan_glazed_terracotta	0f	9d	9d	ff
-minecraft:cyan_shulker_box	0f	87	92	ff
-minecraft:cyan_stained_glass	b3	c7	d2	96
-minecraft:cyan_stained_glass_pane	3a	70	7a	0a
-minecraft:cyan_terracotta	52	58	58	ff
-minecraft:cyan_wall_banner	7e	82	81	0a
-minecraft:cyan_wool	0d	7f	8c	ff
+block_id	color
+minecraft:cactus	#2d9c33ff
+minecraft:cake	#f9f5f8ff
+minecraft:calcite	#a3a39eff
+minecraft:campfire	#f0ce56ff
+minecraft:candle	#fcf4e378
+minecraft:candle_cake	#ffffffff
+minecraft:carrots	#009f3064
+minecraft:cartography_table	#4a2e15ff
+minecraft:carved_pumpkin	#ef8f20ff
+minecraft:cauldron	#414141ff
+minecraft:chain	#3e445355
+minecraft:chain_command_block	#88c0a7ff
+minecraft:chest	#a5742aff
+minecraft:chipped_anvil	#424242ff
+minecraft:chiseled_nether_bricks	#3e1e24ff
+minecraft:chiseled_quartz_block	#eeeae6ff
+minecraft:chiseled_red_sandstone	#9f4e0bff
+minecraft:chiseled_sandstone	#d1ba8aff
+minecraft:chiseled_stone_bricks	#5a595aff
+minecraft:chorus_flower	#af6a9fff
+minecraft:chorus_plant	#510046ff
+minecraft:clay	#80858eff
+minecraft:coal_block	#100d0dff
+minecraft:coal_ore	#525252ff
+minecraft:coarse_dirt	#613f29ff
+minecraft:cobblestone	#898889ff
+minecraft:cobblestone_slab	#888788ff
+minecraft:cobblestone_stairs	#888788ff
+minecraft:cobblestone_wall	#6e6d6de6
+minecraft:cobweb	#ccccccc8
+minecraft:cocoa	#cc7a3a64
+minecraft:command_block	#a66030ff
+minecraft:comparator	#d30000ff
+minecraft:composter	#513016ff
+minecraft:conduit	#80745064
+minecraft:copper_block	#864a34ff
+minecraft:copper_ore	#636363ff
+minecraft:cornflower	#466aeb64
+minecraft:cracked_nether_bricks	#44242aff
+minecraft:cracked_polished_blackstone_bricks	#1f121bff
+minecraft:cracked_stone_bricks	#7f7f7fff
+minecraft:crafting_table	#bc6437ff
+minecraft:creeper_head	#6ac76296
+minecraft:creeper_wall_head	#6ac76296
+minecraft:crimson_button	#7e3a56ff
+minecraft:crimson_door	#843d5996
+minecraft:crimson_fungi	#94181864
+minecraft:crimson_fungus	#a4242910
+minecraft:crimson_hyphae	#4b2737ff
+minecraft:crimson_nylium	#941818ff
+minecraft:crimson_planks	#5c3042ff
+minecraft:crimson_pressure_plate	#7e3a56ff
+minecraft:crimson_roots	#ad101c10
+minecraft:crimson_sign	#7e3a5650
+minecraft:crimson_stairs	#7e3a56ff
+minecraft:crimson_stem	#521810ff
+minecraft:crimson_wall_sign	#7e3a560a
+minecraft:crying_obsidian	#2b0178ff
+minecraft:cut_copper	#864a34ff
+minecraft:cut_copper_stairs	#864a34ff
+minecraft:cut_red_sandstone	#9f4e0bff
+minecraft:cut_red_sandstone_slab	#9f4e0bff
+minecraft:cut_red_sandstone_stairs	#9f4e0bff
+minecraft:cut_sandstone	#e3dbb0ff
+minecraft:cut_sandstone_slab	#e3dbb0ff
+minecraft:cut_sandstone_stairs	#e3dbb0ff
+minecraft:cyan_banner	#7e828150
+minecraft:cyan_bed	#108887ff
+minecraft:cyan_candle	#14b2b278
+minecraft:cyan_candle_cake	#44e2e2ff
+minecraft:cyan_carpet	#0d7f8cff
+minecraft:cyan_concrete	#0f798aff
+minecraft:cyan_concrete_powder	#0f798aff
+minecraft:cyan_glazed_terracotta	#0f9d9dff
+minecraft:cyan_shulker_box	#0f8792ff
+minecraft:cyan_stained_glass	#b3c7d296
+minecraft:cyan_stained_glass_pane	#3a707a0a
+minecraft:cyan_terracotta	#525858ff
+minecraft:cyan_wall_banner	#7e82810a
+minecraft:cyan_wool	#0d7f8cff

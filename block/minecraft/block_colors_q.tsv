@@ -1,6 +1,6 @@
-block_id	r	g	b	a
-minecraft:quartz_block	ee	ea	e6	ff
-minecraft:quartz_bricks	ee	e6	de	ff
-minecraft:quartz_pillar	ee	ea	e6	ff
-minecraft:quartz_slab	ee	e6	de	ff
-minecraft:quartz_stairs	ee	e6	de	ff
+block_id	color
+minecraft:quartz_block	#eeeae6ff
+minecraft:quartz_bricks	#eee6deff
+minecraft:quartz_pillar	#eeeae6ff
+minecraft:quartz_slab	#eee6deff
+minecraft:quartz_stairs	#eee6deff

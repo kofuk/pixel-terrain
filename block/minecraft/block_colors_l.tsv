@@ -1,60 +1,60 @@
-block_id	r	g	b	a
-minecraft:ladder	9a	74	3f	0a
-minecraft:lantern	81	40	23	c8
-minecraft:lapis_block	16	27	6c	ff
-minecraft:lapis_ore	56	5c	7a	ff
-minecraft:large_amethyst_bud	64	47	9e	aa
-minecraft:large_fern	48	6b	3e	64
-minecraft:lava	d2	58	10	ff
-minecraft:lava_cauldron	cb	43	02	ff
-minecraft:lectern	d1	aa	6e	ff
-minecraft:lever	ab	ab	ad	32
-minecraft:light_blue_banner	7e	82	81	50
-minecraft:light_blue_bed	31	ae	de	ff
-minecraft:light_blue_candle	20	8b	cb	78
-minecraft:light_blue_candle_cake	50	bb	ff	ff
-minecraft:light_blue_carpet	48	c3	e5	ff
-minecraft:light_blue_concrete	20	8b	c9	ff
-minecraft:light_blue_concrete_powder	20	8b	c9	ff
-minecraft:light_blue_glazed_terracotta	1a	7f	b8	ff
-minecraft:light_blue_shulker_box	39	b5	dc	ff
-minecraft:light_blue_stained_glass	bd	d1	ec	96
-minecraft:light_blue_stained_glass_pane	55	7a	c6	0a
-minecraft:light_blue_terracotta	70	6b	88	ff
-minecraft:light_blue_wall_banner	7e	82	81	0a
-minecraft:light_blue_wool	48	c3	e5	ff
-minecraft:light_gray_banner	7e	82	81	50
-minecraft:light_gray_bed	93	95	8c	ff
-minecraft:light_gray_carpet	87	87	7e	ff
-minecraft:light_gray_concrete	7f	7f	75	ff
-minecraft:light_gray_concrete_powder	7f	7f	75	ff
-minecraft:light_gray_glazed_terracotta	92	92	92	ff
-minecraft:light_gray_shulker_box	8c	8c	83	ff
-minecraft:light_gray_stained_glass	f8	f9	fa	96
-minecraft:light_gray_stained_glass_pane	80	80	80	0a
-minecraft:light_gray_terracotta	83	66	5c	ff
-minecraft:light_gray_wall_banner	7e	82	81	0a
-minecraft:light_gray_wool	87	87	7e	ff
-minecraft:light_weighted_pressure_plate	ff	d8	3e	ff
-minecraft:lightly_weathered_copper_block	69	60	48	ff
-minecraft:lightly_weathered_cut_copper	69	60	48	ff
-minecraft:lightning_rod	e1	81	6b	64
-minecraft:lilac	de	93	f1	64
-minecraft:lily_of_the_valley	e7	e7	e7	64
-minecraft:lily_pad	00	54	20	ff
-minecraft:lime_banner	7e	82	81	50
-minecraft:lime_bed	7b	c6	18	ff
-minecraft:lime_candle	7a	c4	18	78
-minecraft:lime_candle_cake	aa	ff	48	ff
-minecraft:lime_carpet	77	bf	12	ff
-minecraft:lime_concrete	5f	ab	12	ff
-minecraft:lime_concrete_powder	5f	ab	12	ff
-minecraft:lime_glazed_terracotta	86	d0	1b	ff
-minecraft:lime_shulker_box	72	bd	10	ff
-minecraft:lime_stained_glass	c7	e7	a0	96
-minecraft:lime_stained_glass_pane	75	c5	02	0a
-minecraft:lime_terracotta	64	74	2d	ff
-minecraft:lime_wall_banner	7e	82	81	0a
-minecraft:lime_wool	77	bf	12	ff
-minecraft:lodestone	74	74	74	ff
-minecraft:loom	63	50	37	ff
+block_id	color
+minecraft:ladder	#9a743f0a
+minecraft:lantern	#814023c8
+minecraft:lapis_block	#16276cff
+minecraft:lapis_ore	#565c7aff
+minecraft:large_amethyst_bud	#64479eaa
+minecraft:large_fern	#486b3e64
+minecraft:lava	#d25810ff
+minecraft:lava_cauldron	#cb4302ff
+minecraft:lectern	#d1aa6eff
+minecraft:lever	#ababad32
+minecraft:light_blue_banner	#7e828150
+minecraft:light_blue_bed	#31aedeff
+minecraft:light_blue_candle	#208bcb78
+minecraft:light_blue_candle_cake	#50bbffff
+minecraft:light_blue_carpet	#48c3e5ff
+minecraft:light_blue_concrete	#208bc9ff
+minecraft:light_blue_concrete_powder	#208bc9ff
+minecraft:light_blue_glazed_terracotta	#1a7fb8ff
+minecraft:light_blue_shulker_box	#39b5dcff
+minecraft:light_blue_stained_glass	#bdd1ec96
+minecraft:light_blue_stained_glass_pane	#557ac60a
+minecraft:light_blue_terracotta	#706b88ff
+minecraft:light_blue_wall_banner	#7e82810a
+minecraft:light_blue_wool	#48c3e5ff
+minecraft:light_gray_banner	#7e828150
+minecraft:light_gray_bed	#93958cff
+minecraft:light_gray_carpet	#87877eff
+minecraft:light_gray_concrete	#7f7f75ff
+minecraft:light_gray_concrete_powder	#7f7f75ff
+minecraft:light_gray_glazed_terracotta	#929292ff
+minecraft:light_gray_shulker_box	#8c8c83ff
+minecraft:light_gray_stained_glass	#f8f9fa96
+minecraft:light_gray_stained_glass_pane	#8080800a
+minecraft:light_gray_terracotta	#83665cff
+minecraft:light_gray_wall_banner	#7e82810a
+minecraft:light_gray_wool	#87877eff
+minecraft:light_weighted_pressure_plate	#ffd83eff
+minecraft:lightly_weathered_copper_block	#696048ff
+minecraft:lightly_weathered_cut_copper	#696048ff
+minecraft:lightning_rod	#e1816b64
+minecraft:lilac	#de93f164
+minecraft:lily_of_the_valley	#e7e7e764
+minecraft:lily_pad	#005420ff
+minecraft:lime_banner	#7e828150
+minecraft:lime_bed	#7bc618ff
+minecraft:lime_candle	#7ac41878
+minecraft:lime_candle_cake	#aaff48ff
+minecraft:lime_carpet	#77bf12ff
+minecraft:lime_concrete	#5fab12ff
+minecraft:lime_concrete_powder	#5fab12ff
+minecraft:lime_glazed_terracotta	#86d01bff
+minecraft:lime_shulker_box	#72bd10ff
+minecraft:lime_stained_glass	#c7e7a096
+minecraft:lime_stained_glass_pane	#75c5020a
+minecraft:lime_terracotta	#64742dff
+minecraft:lime_wall_banner	#7e82810a
+minecraft:lime_wool	#77bf12ff
+minecraft:lodestone	#747474ff
+minecraft:loom	#635037ff

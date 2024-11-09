@@ -1,44 +1,44 @@
-block_id	r	g	b	a
-minecraft:gilded_blackstone	31	2c	36	ff
-minecraft:glass	c1	e8	e5	96
-minecraft:glass_pane	a4	f3	fa	0a
-minecraft:glowstone	ce	b8	5d	ff
-minecraft:gold_block	ff	d8	3e	ff
-minecraft:gold_ore	aa	8f	64	ff
-minecraft:granite	b5	78	65	ff
-minecraft:granite_slab	9f	6b	58	ff
-minecraft:granite_stairs	9f	6b	58	ff
-minecraft:granite_wall	5f	40	34	e6
-minecraft:grass	48	6b	3e	64
-minecraft:grass_block	50	7b	46	ff
-minecraft:grass_path	94	77	3f	ff
-minecraft:gravel	83	7f	7e	ff
-minecraft:gray_banner	7e	82	81	50
-minecraft:gray_bed	62	71	73	ff
-minecraft:gray_candle	61	70	72	78
-minecraft:gray_candle_cake	91	a0	a2	ff
-minecraft:gray_carpet	38	3d	40	ff
-minecraft:gray_concrete	33	37	3b	ff
-minecraft:gray_concrete_powder	33	37	3b	ff
-minecraft:gray_glazed_terracotta	60	73	78	ff
-minecraft:gray_shulker_box	3b	40	44	ff
-minecraft:gray_stained_glass	b3	b3	b4	96
-minecraft:gray_stained_glass_pane	3a	3a	3a	0a
-minecraft:gray_terracotta	34	24	19	ff
-minecraft:gray_wall_banner	7e	82	81	0a
-minecraft:gray_wool	38	3d	40	ff
-minecraft:green_banner	7e	82	81	50
-minecraft:green_bed	60	81	16	ff
-minecraft:green_candle	5f	7f	16	78
-minecraft:green_candle_cake	8f	af	46	ff
-minecraft:green_carpet	59	75	0f	ff
-minecraft:green_concrete	48	5a	1f	ff
-minecraft:green_concrete_powder	48	5a	1f	ff
-minecraft:green_glazed_terracotta	48	5b	1f	ff
-minecraft:green_shulker_box	52	6a	18	ff
-minecraft:green_stained_glass	bd	c7	aa	96
-minecraft:green_stained_glass_pane	5e	75	12	0a
-minecraft:green_terracotta	47	4e	21	ff
-minecraft:green_wall_banner	7e	82	81	0a
-minecraft:green_wool	59	75	0f	ff
-minecraft:grindstone	8f	8f	8f	ff
+block_id	color
+minecraft:gilded_blackstone	#312c36ff
+minecraft:glass	#c1e8e596
+minecraft:glass_pane	#a4f3fa0a
+minecraft:glowstone	#ceb85dff
+minecraft:gold_block	#ffd83eff
+minecraft:gold_ore	#aa8f64ff
+minecraft:granite	#b57865ff
+minecraft:granite_slab	#9f6b58ff
+minecraft:granite_stairs	#9f6b58ff
+minecraft:granite_wall	#5f4034e6
+minecraft:grass	#486b3e64
+minecraft:grass_block	#507b46ff
+minecraft:grass_path	#94773fff
+minecraft:gravel	#837f7eff
+minecraft:gray_banner	#7e828150
+minecraft:gray_bed	#627173ff
+minecraft:gray_candle	#61707278
+minecraft:gray_candle_cake	#91a0a2ff
+minecraft:gray_carpet	#383d40ff
+minecraft:gray_concrete	#33373bff
+minecraft:gray_concrete_powder	#33373bff
+minecraft:gray_glazed_terracotta	#607378ff
+minecraft:gray_shulker_box	#3b4044ff
+minecraft:gray_stained_glass	#b3b3b496
+minecraft:gray_stained_glass_pane	#3a3a3a0a
+minecraft:gray_terracotta	#342419ff
+minecraft:gray_wall_banner	#7e82810a
+minecraft:gray_wool	#383d40ff
+minecraft:green_banner	#7e828150
+minecraft:green_bed	#608116ff
+minecraft:green_candle	#5f7f1678
+minecraft:green_candle_cake	#8faf46ff
+minecraft:green_carpet	#59750fff
+minecraft:green_concrete	#485a1fff
+minecraft:green_concrete_powder	#485a1fff
+minecraft:green_glazed_terracotta	#485b1fff
+minecraft:green_shulker_box	#526a18ff
+minecraft:green_stained_glass	#bdc7aa96
+minecraft:green_stained_glass_pane	#5e75120a
+minecraft:green_terracotta	#474e21ff
+minecraft:green_wall_banner	#7e82810a
+minecraft:green_wool	#59750fff
+minecraft:grindstone	#8f8f8fff

@@ -76,8 +76,8 @@ namespace {
             return color_;
         }
 
-        [[nodiscard]] auto color() const
-            -> std::array<std::uint8_t, 4> const & {
+        [[nodiscard]] auto
+        color() const -> std::array<std::uint8_t, 4> const & {
             return color_;
         }
 
@@ -97,8 +97,36 @@ namespace {
             namespace_id_ = namespace_id;
         }
 
-        void set_color(std::array<std::uint8_t, 4> const &color) {
-            color_ = color;
+        void set_css_color(std::string const &color) {
+            std::size_t len = color.size();
+            if (len != 4 && len != 5 && len != 7 && len != 9) {
+                throw std::invalid_argument("invalid color length");
+            }
+            if (color[0] != '#') {
+                throw std::invalid_argument("invalid color format");
+            }
+            std::string rrggbbaa;
+            if (len == 4) {
+                for (int i = 1; i < 4; ++i) {
+                    rrggbbaa += color[i];
+                    rrggbbaa += color[i];
+                }
+                rrggbbaa += "ff";
+            } else if (len == 5) {
+                for (int i = 1; i < 5; ++i) {
+                    rrggbbaa += color[i];
+                    rrggbbaa += color[i];
+                }
+            } else {
+                rrggbbaa = color.substr(1);
+                if (len == 7) {
+                    rrggbbaa += "ff";
+                }
+            }
+
+            for (int i = 0; i < 4; ++i) {
+                color_[i] = std::stoi(rrggbbaa.substr(i * 2, 2), nullptr, 16);
+            }
         }
 
         auto operator==(block_color const &another) const -> bool {
@@ -172,8 +200,8 @@ const std::uint8_t block_colors_data[] = {
         return result;
     }
 
-    auto load_colors(std::string const &in_name, std::set<block_color> *to)
-        -> bool {
+    auto load_colors(std::string const &in_name,
+                     std::set<block_color> *to) -> bool {
         std::ifstream in_file(in_name);
         if (!in_file) {
             std::cerr << "fatal: cannot open " << in_name << '\n';
@@ -195,7 +223,7 @@ const std::uint8_t block_colors_data[] = {
             }
 
             std::vector<std::string> fields = split_field(line);
-            if (fields.size() != 5) { // NOLINT
+            if (fields.size() != 2) { // NOLINT
                 std::cerr << "fatal: invalid line: " << in_name << ": "
                           << lineno << '\n';
                 return false;
@@ -210,22 +238,12 @@ const std::uint8_t block_colors_data[] = {
                 return false;
             }
 
-            for (int c = 0; c < 4; ++c) {
-                try {
-                    int color = std::stoi(fields[c + 1], nullptr, 16); // NOLINT
-                    if (color < 0 ||
-                        std::numeric_limits<std::uint8_t>::max() < color) {
-                        std::cerr
-                            << "fatal: invalid color component (out of range): "
-                            << in_name << ": " << lineno << '\n';
-                        return false;
-                    }
-                    element.color()[c] = color;
-                } catch (std::invalid_argument const &e) {
-                    std::cerr << "fatal: invalid color component: " << in_name
-                              << ": " << lineno << '\n';
-                    return false;
-                }
+            try {
+                element.set_css_color(fields[1]);
+            } catch (std::invalid_argument const &e) {
+                std::cerr << "fatal: invalid color: " << in_name << ": "
+                          << lineno << ": " << e.what() << '\n';
+                return false;
             }
 
             auto [_, inserted] = to->insert(element);

@@ -1,95 +1,95 @@
-block_id	r	g	b	a
-minecraft:bamboo	06	7f	17	ff
-minecraft:bamboo_sapling	65	5c	1e	64
-minecraft:barrel	54	3b	21	ff
-minecraft:basalt	3a	3b	48	ff
-minecraft:beacon	61	fa	ef	c8
-minecraft:bedrock	55	55	55	ff
-minecraft:bee_nest	f7	ce	46	ff
-minecraft:beehive	c2	9d	62	ff
-minecraft:beetroots	18	76	1a	64
-minecraft:bell	ff	df	39	b4
-minecraft:birch_button	9e	8b	61	32
-minecraft:birch_door	d6	ca	8c	96
-minecraft:birch_fence	d7	cb	8d	96
-minecraft:birch_fence_gate	d7	cb	8d	96
-minecraft:birch_leaves	4a	5e	31	ff
-minecraft:birch_log	ff	ff	ff	ff
-minecraft:birch_planks	d7	cb	8d	ff
-minecraft:birch_pressure_plate	d7	c1	85	ff
-minecraft:birch_sapling	ac	bf	62	64
-minecraft:birch_sign	d7	cb	8d	50
-minecraft:birch_slab	c8	b7	7a	ff
-minecraft:birch_stairs	c8	b7	7a	ff
-minecraft:birch_trapdoor	d7	cb	8d	c8
-minecraft:birch_wall_sign	d7	cb	8d	0a
-minecraft:birch_wood	d8	d8	ce	ff
-minecraft:black_banner	7e	82	81	50
-minecraft:black_bed	23	23	28	ff
-minecraft:black_candle	00	00	00	78
-minecraft:black_candle_cake	30	30	30	ff
-minecraft:black_carpet	0d	0d	12	ff
-minecraft:black_concrete	01	02	05	ff
-minecraft:black_concrete_powder	01	02	05	ff
-minecraft:black_glazed_terracotta	22	22	2a	ff
-minecraft:black_shulker_box	14	14	19	ff
-minecraft:black_stained_glass	9f	9f	a0	96
-minecraft:black_stained_glass_pane	16	16	16	0a
-minecraft:black_terracotta	1d	0d	04	ff
-minecraft:black_wall_banner	7e	82	81	0a
-minecraft:black_wool	0d	0d	12	ff
-minecraft:blackstone	1f	12	1b	ff
-minecraft:blackstone_slab	1f	12	1b	ff
-minecraft:blackstone_stairs	1f	12	1b	ff
-minecraft:blackstone_wall	1f	12	1b	ff
-minecraft:blast_furnace	57	56	56	ff
-minecraft:blue_banner	7e	82	81	50
-minecraft:blue_bed	3a	4d	a5	ff
-minecraft:blue_candle	59	82	ce	78
-minecraft:blue_candle_cake	89	b2	ff	ff
-minecraft:blue_carpet	28	2b	91	ff
-minecraft:blue_concrete	28	2a	90	ff
-minecraft:blue_concrete_powder	28	2a	90	ff
-minecraft:blue_glazed_terracotta	28	2a	90	ff
-minecraft:blue_ice	6f	9d	fa	ff
-minecraft:blue_orchid	27	a9	f4	64
-minecraft:blue_shulker_box	2e	30	99	ff
-minecraft:blue_stained_glass	a9	b3	dc	96
-minecraft:blue_stained_glass_pane	12	3a	91	0a
-minecraft:blue_terracotta	46	36	58	ff
-minecraft:blue_wall_banner	7e	82	81	0a
-minecraft:blue_wool	28	2b	91	ff
-minecraft:bone_block	ba	ba	aa	ff
-minecraft:bookshelf	b4	91	52	ff
-minecraft:brain_coral	e4	7e	b9	c8
-minecraft:brain_coral_block	e4	7e	b9	ff
-minecraft:brain_coral_fan	e4	7e	b9	c8
-minecraft:brain_coral_wall_fan	e4	7e	b9	ff
-minecraft:brewing_stand	b8	69	23	ff
-minecraft:brick_slab	9b	56	43	ff
-minecraft:brick_stairs	9b	56	43	ff
-minecraft:brick_wall	8f	50	3f	e6
-minecraft:bricks	c2	57	47	ff
-minecraft:brown_banner	7e	82	81	50
-minecraft:brown_bed	8f	5b	35	ff
-minecraft:brown_candle	aa	6d	41	78
-minecraft:brown_candle_cake	da	9d	71	ff
-minecraft:brown_carpet	69	3f	1f	ff
-minecraft:brown_concrete	61	3a	1a	ff
-minecraft:brown_concrete_powder	61	3a	1a	ff
-minecraft:brown_glazed_terracotta	84	54	2f	ff
-minecraft:brown_mushroom	da	99	76	64
-minecraft:brown_mushroom_block	9d	70	50	ff
-minecraft:brown_mushroom_stem	c2	bc	ac	ff
-minecraft:brown_shulker_box	66	3d	1d	ff
-minecraft:brown_stained_glass	bd	b3	aa	96
-minecraft:brown_stained_glass_pane	55	3a	0e	0a
-minecraft:brown_terracotta	4d	30	1e	ff
-minecraft:brown_wall_banner	7e	82	81	0a
-minecraft:brown_wool	69	3f	1f	ff
-minecraft:bubble_column	34	56	9b	96
-minecraft:bubble_coral	a5	1d	a5	c8
-minecraft:bubble_coral_block	a5	1d	a5	ff
-minecraft:bubble_coral_fan	a5	1d	a5	c8
-minecraft:bubble_coral_wall_fan	a5	1d	a5	c8
-minecraft:budding_amethyst	64	47	9e	ff
+block_id	color
+minecraft:bamboo	#067f17ff
+minecraft:bamboo_sapling	#655c1e64
+minecraft:barrel	#543b21ff
+minecraft:basalt	#3a3b48ff
+minecraft:beacon	#61faefc8
+minecraft:bedrock	#555555ff
+minecraft:bee_nest	#f7ce46ff
+minecraft:beehive	#c29d62ff
+minecraft:beetroots	#18761a64
+minecraft:bell	#ffdf39b4
+minecraft:birch_button	#9e8b6132
+minecraft:birch_door	#d6ca8c96
+minecraft:birch_fence	#d7cb8d96
+minecraft:birch_fence_gate	#d7cb8d96
+minecraft:birch_leaves	#4a5e31ff
+minecraft:birch_log	#ffffffff
+minecraft:birch_planks	#d7cb8dff
+minecraft:birch_pressure_plate	#d7c185ff
+minecraft:birch_sapling	#acbf6264
+minecraft:birch_sign	#d7cb8d50
+minecraft:birch_slab	#c8b77aff
+minecraft:birch_stairs	#c8b77aff
+minecraft:birch_trapdoor	#d7cb8dc8
+minecraft:birch_wall_sign	#d7cb8d0a
+minecraft:birch_wood	#d8d8ceff
+minecraft:black_banner	#7e828150
+minecraft:black_bed	#232328ff
+minecraft:black_candle	#00000078
+minecraft:black_candle_cake	#303030ff
+minecraft:black_carpet	#0d0d12ff
+minecraft:black_concrete	#010205ff
+minecraft:black_concrete_powder	#010205ff
+minecraft:black_glazed_terracotta	#22222aff
+minecraft:black_shulker_box	#141419ff
+minecraft:black_stained_glass	#9f9fa096
+minecraft:black_stained_glass_pane	#1616160a
+minecraft:black_terracotta	#1d0d04ff
+minecraft:black_wall_banner	#7e82810a
+minecraft:black_wool	#0d0d12ff
+minecraft:blackstone	#1f121bff
+minecraft:blackstone_slab	#1f121bff
+minecraft:blackstone_stairs	#1f121bff
+minecraft:blackstone_wall	#1f121bff
+minecraft:blast_furnace	#575656ff
+minecraft:blue_banner	#7e828150
+minecraft:blue_bed	#3a4da5ff
+minecraft:blue_candle	#5982ce78
+minecraft:blue_candle_cake	#89b2ffff
+minecraft:blue_carpet	#282b91ff
+minecraft:blue_concrete	#282a90ff
+minecraft:blue_concrete_powder	#282a90ff
+minecraft:blue_glazed_terracotta	#282a90ff
+minecraft:blue_ice	#6f9dfaff
+minecraft:blue_orchid	#27a9f464
+minecraft:blue_shulker_box	#2e3099ff
+minecraft:blue_stained_glass	#a9b3dc96
+minecraft:blue_stained_glass_pane	#123a910a
+minecraft:blue_terracotta	#463658ff
+minecraft:blue_wall_banner	#7e82810a
+minecraft:blue_wool	#282b91ff
+minecraft:bone_block	#babaaaff
+minecraft:bookshelf	#b49152ff
+minecraft:brain_coral	#e47eb9c8
+minecraft:brain_coral_block	#e47eb9ff
+minecraft:brain_coral_fan	#e47eb9c8
+minecraft:brain_coral_wall_fan	#e47eb9ff
+minecraft:brewing_stand	#b86923ff
+minecraft:brick_slab	#9b5643ff
+minecraft:brick_stairs	#9b5643ff
+minecraft:brick_wall	#8f503fe6
+minecraft:bricks	#c25747ff
+minecraft:brown_banner	#7e828150
+minecraft:brown_bed	#8f5b35ff
+minecraft:brown_candle	#aa6d4178
+minecraft:brown_candle_cake	#da9d71ff
+minecraft:brown_carpet	#693f1fff
+minecraft:brown_concrete	#613a1aff
+minecraft:brown_concrete_powder	#613a1aff
+minecraft:brown_glazed_terracotta	#84542fff
+minecraft:brown_mushroom	#da997664
+minecraft:brown_mushroom_block	#9d7050ff
+minecraft:brown_mushroom_stem	#c2bcacff
+minecraft:brown_shulker_box	#663d1dff
+minecraft:brown_stained_glass	#bdb3aa96
+minecraft:brown_stained_glass_pane	#553a0e0a
+minecraft:brown_terracotta	#4d301eff
+minecraft:brown_wall_banner	#7e82810a
+minecraft:brown_wool	#693f1fff
+minecraft:bubble_column	#34569b96
+minecraft:bubble_coral	#a51da5c8
+minecraft:bubble_coral_block	#a51da5ff
+minecraft:bubble_coral_fan	#a51da5c8
+minecraft:bubble_coral_wall_fan	#a51da5c8
+minecraft:budding_amethyst	#64479eff

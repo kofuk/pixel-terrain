@@ -1,50 +1,50 @@
-block_id	r	g	b	a
-minecraft:wall_torch	ff	e8	0a	32
-minecraft:warped_button	39	83	82	ff
-minecraft:warped_fence_gate	39	83	82	96
-minecraft:warped_fungus	14	b4	85	10
-minecraft:warped_hyphae	45	2d	5c	ff
-minecraft:warped_nylium	16	7e	86	ff
-minecraft:warped_planks	28	70	67	ff
-minecraft:warped_pressure_plate	39	83	82	ff
-minecraft:warped_roots	14	b4	85	10
-minecraft:warped_sign	45	2d	5c	50
-minecraft:warped_stairs	39	83	82	ff
-minecraft:warped_stem	45	2d	5c	ff
-minecraft:warped_wall_sign	45	2d	5c	0a
-minecraft:warped_wart_block	16	7e	86	ff
-minecraft:water	34	56	9b	96
-minecraft:water_cauldron	23	4a	93	ff
-minecraft:waxed_copper	86	4a	34	ff
-minecraft:waxed_cut_copper_slab	86	4a	34	ff
-minecraft:waxed_lightly_weathered_copper	69	60	48	ff
-minecraft:waxed_lightly_weathered_cut_copper_slab	69	60	48	ff
-minecraft:waxed_lightly_weathered_cut_copper_stairs	69	60	48	ff
-minecraft:waxed_semi_weathered_copper	66	a9	77	ff
-minecraft:waxed_semi_weathered_cut_copper_stairs	66	a9	77	ff
-minecraft:weathered_copper_block	53	a1	78	ff
-minecraft:weathered_cut_copper	53	a1	78	ff
-minecraft:weathered_cut_copper_slab	53	a1	78	ff
-minecraft:weathered_cut_copper_stairs	53	a1	78	ff
-minecraft:weeping_vines	5a	00	00	64
-minecraft:weeping_vines_plant	5a	00	00	64
-minecraft:wet_sponge	c1	bc	4e	ff
-minecraft:wheat	e2	c3	64	ff
-minecraft:white_banner	7e	82	81	50
-minecraft:white_bed	c2	c2	c2	ff
-minecraft:white_candle	ff	ff	ff	78
-minecraft:white_candle_cake	ff	ff	ff	ff
-minecraft:white_carpet	d4	da	db	ff
-minecraft:white_concrete	d2	d7	d8	ff
-minecraft:white_concrete_powder	d2	d7	d8	ff
-minecraft:white_glazed_terracotta	fe	dd	56	ff
-minecraft:white_shulker_box	e7	eb	eb	ff
-minecraft:white_stained_glass	eb	eb	eb	96
-minecraft:white_stained_glass_pane	eb	eb	eb	0a
-minecraft:white_terracotta	cf	b1	9f	ff
-minecraft:white_tulip	d6	e8	e8	64
-minecraft:white_wall_banner	7e	82	81	0a
-minecraft:white_wool	d4	da	db	ff
-minecraft:wither_rose	21	1a	16	64
-minecraft:wither_skeleton_skull	34	34	34	ff
-minecraft:wither_skeleton_wall_skull	34	34	34	ff
+block_id	color
+minecraft:wall_torch	#ffe80a32
+minecraft:warped_button	#398382ff
+minecraft:warped_fence_gate	#39838296
+minecraft:warped_fungus	#14b48510
+minecraft:warped_hyphae	#452d5cff
+minecraft:warped_nylium	#167e86ff
+minecraft:warped_planks	#287067ff
+minecraft:warped_pressure_plate	#398382ff
+minecraft:warped_roots	#14b48510
+minecraft:warped_sign	#452d5c50
+minecraft:warped_stairs	#398382ff
+minecraft:warped_stem	#452d5cff
+minecraft:warped_wall_sign	#452d5c0a
+minecraft:warped_wart_block	#167e86ff
+minecraft:water	#34569b96
+minecraft:water_cauldron	#234a93ff
+minecraft:waxed_copper	#864a34ff
+minecraft:waxed_cut_copper_slab	#864a34ff
+minecraft:waxed_lightly_weathered_copper	#696048ff
+minecraft:waxed_lightly_weathered_cut_copper_slab	#696048ff
+minecraft:waxed_lightly_weathered_cut_copper_stairs	#696048ff
+minecraft:waxed_semi_weathered_copper	#66a977ff
+minecraft:waxed_semi_weathered_cut_copper_stairs	#66a977ff
+minecraft:weathered_copper_block	#53a178ff
+minecraft:weathered_cut_copper	#53a178ff
+minecraft:weathered_cut_copper_slab	#53a178ff
+minecraft:weathered_cut_copper_stairs	#53a178ff
+minecraft:weeping_vines	#5a000064
+minecraft:weeping_vines_plant	#5a000064
+minecraft:wet_sponge	#c1bc4eff
+minecraft:wheat	#e2c364ff
+minecraft:white_banner	#7e828150
+minecraft:white_bed	#c2c2c2ff
+minecraft:white_candle	#ffffff78
+minecraft:white_candle_cake	#ffffffff
+minecraft:white_carpet	#d4dadbff
+minecraft:white_concrete	#d2d7d8ff
+minecraft:white_concrete_powder	#d2d7d8ff
+minecraft:white_glazed_terracotta	#fedd56ff
+minecraft:white_shulker_box	#e7ebebff
+minecraft:white_stained_glass	#ebebeb96
+minecraft:white_stained_glass_pane	#ebebeb0a
+minecraft:white_terracotta	#cfb19fff
+minecraft:white_tulip	#d6e8e864
+minecraft:white_wall_banner	#7e82810a
+minecraft:white_wool	#d4dadbff
+minecraft:wither_rose	#211a1664
+minecraft:wither_skeleton_skull	#343434ff
+minecraft:wither_skeleton_wall_skull	#343434ff

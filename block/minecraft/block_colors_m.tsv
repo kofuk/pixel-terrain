@@ -1,30 +1,30 @@
-block_id	r	g	b	a
-minecraft:magenta_banner	7e	82	81	50
-minecraft:magenta_bed	bd	3c	b4	ff
-minecraft:magenta_candle	bb	3b	b2	78
-minecraft:magenta_candle_cake	eb	6b	e2	ff
-minecraft:magenta_carpet	b4	38	aa	ff
-minecraft:magenta_concrete	a8	2b	9e	ff
-minecraft:magenta_concrete_powder	a8	2b	9e	ff
-minecraft:magenta_glazed_terracotta	aa	2d	a0	ff
-minecraft:magenta_shulker_box	ac	2e	a2	ff
-minecraft:magenta_stained_glass	eb	c7	aa	96
-minecraft:magenta_stained_glass_pane	91	3a	d0	0a
-minecraft:magenta_terracotta	97	59	6b	ff
-minecraft:magenta_wall_banner	7e	82	81	0a
-minecraft:magenta_wool	b4	38	aa	ff
-minecraft:magma_block	9b	54	16	ff
-minecraft:medium_amethyst_bud	64	47	9e	aa
-minecraft:melon	50	9f	2a	ff
-minecraft:melon_stem	60	5a	03	32
-minecraft:mossy_cobblestone	6b	83	63	ff
-minecraft:mossy_cobblestone_slab	52	5d	39	ff
-minecraft:mossy_cobblestone_stairs	52	5d	39	ff
-minecraft:mossy_cobblestone_wall	44	50	30	e6
-minecraft:mossy_stone_brick_slab	62	79	41	ff
-minecraft:mossy_stone_brick_stairs	62	79	41	ff
-minecraft:mossy_stone_brick_wall	37	44	24	e6
-minecraft:mossy_stone_bricks	78	76	78	ff
-minecraft:moving_piston	73	73	73	c8
-minecraft:mushroom_stem	97	72	51	ff
-minecraft:mycelium	67	5b	58	ff
+block_id	color
+minecraft:magenta_banner	#7e828150
+minecraft:magenta_bed	#bd3cb4ff
+minecraft:magenta_candle	#bb3bb278
+minecraft:magenta_candle_cake	#eb6be2ff
+minecraft:magenta_carpet	#b438aaff
+minecraft:magenta_concrete	#a82b9eff
+minecraft:magenta_concrete_powder	#a82b9eff
+minecraft:magenta_glazed_terracotta	#aa2da0ff
+minecraft:magenta_shulker_box	#ac2ea2ff
+minecraft:magenta_stained_glass	#ebc7aa96
+minecraft:magenta_stained_glass_pane	#913ad00a
+minecraft:magenta_terracotta	#97596bff
+minecraft:magenta_wall_banner	#7e82810a
+minecraft:magenta_wool	#b438aaff
+minecraft:magma_block	#9b5416ff
+minecraft:medium_amethyst_bud	#64479eaa
+minecraft:melon	#509f2aff
+minecraft:melon_stem	#605a0332
+minecraft:mossy_cobblestone	#6b8363ff
+minecraft:mossy_cobblestone_slab	#525d39ff
+minecraft:mossy_cobblestone_stairs	#525d39ff
+minecraft:mossy_cobblestone_wall	#445030e6
+minecraft:mossy_stone_brick_slab	#627941ff
+minecraft:mossy_stone_brick_stairs	#627941ff
+minecraft:mossy_stone_brick_wall	#374424e6
+minecraft:mossy_stone_bricks	#787678ff
+minecraft:moving_piston	#737373c8
+minecraft:mushroom_stem	#977251ff
+minecraft:mycelium	#675b58ff

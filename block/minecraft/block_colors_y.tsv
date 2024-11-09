@@ -1,15 +1,15 @@
-block_id	r	g	b	a
-minecraft:yellow_banner	7e	82	81	50
-minecraft:yellow_bed	ff	ce	29	ff
-minecraft:yellow_candle	d7	a9	33	78
-minecraft:yellow_candle_cake	ff	d9	63	ff
-minecraft:yellow_carpet	ff	ce	29	ff
-minecraft:yellow_concrete	f2	b0	0d	ff
-minecraft:yellow_concrete_powder	f2	b0	0d	ff
-minecraft:yellow_glazed_terracotta	f3	b1	0d	ff
-minecraft:yellow_shulker_box	fc	c8	1f	ff
-minecraft:yellow_stained_glass	f1	f1	aa	96
-minecraft:yellow_stained_glass_pane	d0	d0	11	0a
-minecraft:yellow_terracotta	b9	84	1b	ff
-minecraft:yellow_wall_banner	7e	82	81	0a
-minecraft:yellow_wool	f5	bb	15	ff
+block_id	color
+minecraft:yellow_banner	#7e828150
+minecraft:yellow_bed	#ffce29ff
+minecraft:yellow_candle	#d7a93378
+minecraft:yellow_candle_cake	#ffd963ff
+minecraft:yellow_carpet	#ffce29ff
+minecraft:yellow_concrete	#f2b00dff
+minecraft:yellow_concrete_powder	#f2b00dff
+minecraft:yellow_glazed_terracotta	#f3b10dff
+minecraft:yellow_shulker_box	#fcc81fff
+minecraft:yellow_stained_glass	#f1f1aa96
+minecraft:yellow_stained_glass_pane	#d0d0110a
+minecraft:yellow_terracotta	#b9841bff
+minecraft:yellow_wall_banner	#7e82810a
+minecraft:yellow_wool	#f5bb15ff

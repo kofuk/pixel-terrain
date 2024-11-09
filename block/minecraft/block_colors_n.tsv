@@ -1,15 +1,15 @@
-block_id	r	g	b	a
-minecraft:nether_brick_fence	15	0b	0d	96
-minecraft:nether_brick_slab	38	18	1e	ff
-minecraft:nether_brick_stairs	38	18	1e	ff
-minecraft:nether_brick_wall	19	0d	10	e6
-minecraft:nether_bricks	38	18	1e	ff
-minecraft:nether_gold_ore	72	32	32	ff
-minecraft:nether_portal	3f	26	66	aa
-minecraft:nether_quartz_ore	aa	83	7a	ff
-minecraft:nether_sprouts	16	7e	86	10
-minecraft:nether_wart	86	00	01	e6
-minecraft:nether_wart_block	7b	00	00	ff
-minecraft:netherite_block	4d	49	4d	ff
-minecraft:netherrack	66	00	19	ff
-minecraft:note_block	5a	34	20	ff
+block_id	color
+minecraft:nether_brick_fence	#150b0d96
+minecraft:nether_brick_slab	#38181eff
+minecraft:nether_brick_stairs	#38181eff
+minecraft:nether_brick_wall	#190d10e6
+minecraft:nether_bricks	#38181eff
+minecraft:nether_gold_ore	#723232ff
+minecraft:nether_portal	#3f2666aa
+minecraft:nether_quartz_ore	#aa837aff
+minecraft:nether_sprouts	#167e8610
+minecraft:nether_wart	#860001e6
+minecraft:nether_wart_block	#7b0000ff
+minecraft:netherite_block	#4d494dff
+minecraft:netherrack	#660019ff
+minecraft:note_block	#5a3420ff

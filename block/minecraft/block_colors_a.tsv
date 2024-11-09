@@ -1,29 +1,29 @@
-block_id	r	g	b	a
-minecraft:acacia_button	a0	56	30	32
-minecraft:acacia_door	b1	66	40	96
-minecraft:acacia_fence	99	50	2b	96
-minecraft:acacia_fence_gate	99	50	2b	96
-minecraft:acacia_leaves	29	63	0d	ff
-minecraft:acacia_log	58	53	49	ff
-minecraft:acacia_planks	99	50	2b	ff
-minecraft:acacia_pressure_plate	c2	6d	3f	ff
-minecraft:acacia_sapling	7e	98	21	64
-minecraft:acacia_sign	99	50	2b	50
-minecraft:acacia_slab	ad	5d	32	ff
-minecraft:acacia_stairs	ad	5d	32	ff
-minecraft:acacia_trapdoor	99	50	2b	c8
-minecraft:acacia_wall_sign	99	50	2b	0a
-minecraft:acacia_wood	69	62	59	ff
-minecraft:activator_rail	f2	00	00	78
-minecraft:allium	d2	a6	f6	64
-minecraft:amethyst_block	64	47	9e	ff
-minecraft:amethyst_cluster	64	47	9e	aa
-minecraft:ancient_debris	65	47	40	ff
-minecraft:andesite	82	82	81	ff
-minecraft:andesite_slab	74	74	74	ff
-minecraft:andesite_stairs	74	74	74	ff
-minecraft:andesite_wall	74	74	74	e6
-minecraft:anvil	30	30	30	ee
-minecraft:attached_melon_stem	93	8d	1e	64
-minecraft:attached_pumpkin_stem	93	8d	1e	64
-minecraft:azure_bluet	f7	f7	f7	64
+block_id	color
+minecraft:acacia_button	#a0563032
+minecraft:acacia_door	#b1664096
+minecraft:acacia_fence	#99502b96
+minecraft:acacia_fence_gate	#99502b96
+minecraft:acacia_leaves	#29630dff
+minecraft:acacia_log	#585349ff
+minecraft:acacia_planks	#99502bff
+minecraft:acacia_pressure_plate	#c26d3fff
+minecraft:acacia_sapling	#7e982164
+minecraft:acacia_sign	#99502b50
+minecraft:acacia_slab	#ad5d32ff
+minecraft:acacia_stairs	#ad5d32ff
+minecraft:acacia_trapdoor	#99502bc8
+minecraft:acacia_wall_sign	#99502b0a
+minecraft:acacia_wood	#696259ff
+minecraft:activator_rail	#f2000078
+minecraft:allium	#d2a6f664
+minecraft:amethyst_block	#64479eff
+minecraft:amethyst_cluster	#64479eaa
+minecraft:ancient_debris	#654740ff
+minecraft:andesite	#828281ff
+minecraft:andesite_slab	#747474ff
+minecraft:andesite_stairs	#747474ff
+minecraft:andesite_wall	#747474e6
+minecraft:anvil	#303030ee
+minecraft:attached_melon_stem	#938d1e64
+minecraft:attached_pumpkin_stem	#938d1e64
+minecraft:azure_bluet	#f7f7f764
