@@ -3,6 +3,7 @@ minecraft:acacia_button	#a0563032
 minecraft:acacia_door	#b1664096
 minecraft:acacia_fence	#99502b96
 minecraft:acacia_fence_gate	#99502b96
+minecraft:acacia_hanging_sign	#99502b50
 minecraft:acacia_leaves	#29630dff
 minecraft:acacia_log	#585349ff
 minecraft:acacia_planks	#99502bff
@@ -12,9 +13,11 @@ minecraft:acacia_sign	#99502b50
 minecraft:acacia_slab	#ad5d32ff
 minecraft:acacia_stairs	#ad5d32ff
 minecraft:acacia_trapdoor	#99502bc8
+minecraft:acacia_wall_hanging_sign	#99502b0a
 minecraft:acacia_wall_sign	#99502b0a
 minecraft:acacia_wood	#696259ff
 minecraft:activator_rail	#f2000078
+minecraft:air	#0000
 minecraft:allium	#d2a6f664
 minecraft:amethyst_block	#64479eff
 minecraft:amethyst_cluster	#64479eaa
@@ -26,4 +29,6 @@ minecraft:andesite_wall	#747474e6
 minecraft:anvil	#303030ee
 minecraft:attached_melon_stem	#938d1e64
 minecraft:attached_pumpkin_stem	#938d1e64
+minecraft:azalea	#6b7d30
+minecraft:azalea_leaves	#6b7d30
 minecraft:azure_bluet	#f7f7f764

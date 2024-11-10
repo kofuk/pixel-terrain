@@ -3,6 +3,7 @@ minecraft:oak_button	#c29d6232
 minecraft:oak_door	#b2945796
 minecraft:oak_fence	#af8f5596
 minecraft:oak_fence_gate	#af8f5596
+minecraft:oak_hanging_sign	#c29d6250
 minecraft:oak_leaves	#007219ff
 minecraft:oak_log	#624a2aff
 minecraft:oak_planks	#af8f55ff
@@ -12,10 +13,13 @@ minecraft:oak_sign	#af8f5550
 minecraft:oak_slab	#9f844dff
 minecraft:oak_stairs	#9f844dff
 minecraft:oak_trapdoor	#af8f55c8
+minecraft:oak_wall_hanging_sign	#c29d620a
 minecraft:oak_wall_sign	#af8f550a
 minecraft:oak_wood	#745a36ff
 minecraft:observer	#646464ff
 minecraft:obsidian	#0b0016ff
+minecraft:ochre_froglight	#f6eaad
+minecraft:open_eyeblossom	#eea33964
 minecraft:orange_banner	#7e828150
 minecraft:orange_bed	#ff8118ff
 minecraft:orange_candle	#fc972978
@@ -32,3 +36,12 @@ minecraft:orange_tulip	#f19d2564
 minecraft:orange_wall_banner	#7e82810a
 minecraft:orange_wool	#f9851aff
 minecraft:oxeye_daisy	#f7f7f764
+minecraft:oxidized_chiseled_copper	#4d9670
+minecraft:oxidized_copper	#4d9670
+minecraft:oxidized_copper_bulb	#c18737
+minecraft:oxidized_copper_door	#4d967096
+minecraft:oxidized_copper_grate	#4d9670aa
+minecraft:oxidized_copper_trapdoor	#4d9670c8
+minecraft:oxidized_cut_copper	#4d9670
+minecraft:oxidized_cut_copper_slab	#4d9670
+minecraft:oxidized_cut_copper_stairs	#4d9670

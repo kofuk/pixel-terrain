@@ -9,6 +9,7 @@ minecraft:lava	#d25810ff
 minecraft:lava_cauldron	#cb4302ff
 minecraft:lectern	#d1aa6eff
 minecraft:lever	#ababad32
+minecraft:light	#0000
 minecraft:light_blue_banner	#7e828150
 minecraft:light_blue_bed	#31aedeff
 minecraft:light_blue_candle	#208bcb78
@@ -25,6 +26,8 @@ minecraft:light_blue_wall_banner	#7e82810a
 minecraft:light_blue_wool	#48c3e5ff
 minecraft:light_gray_banner	#7e828150
 minecraft:light_gray_bed	#93958cff
+minecraft:light_gray_candle	#87897f78
+minecraft:light_gray_candle_cake	#cbcfbc
 minecraft:light_gray_carpet	#87877eff
 minecraft:light_gray_concrete	#7f7f75ff
 minecraft:light_gray_concrete_powder	#7f7f75ff

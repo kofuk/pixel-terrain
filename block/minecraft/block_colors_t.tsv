@@ -6,7 +6,10 @@ minecraft:terracotta	#9b6045ff
 minecraft:tinted_glass	#9d9c9d96
 minecraft:tnt	#ca0000ff
 minecraft:torch	#ffe80a32
+minecraft:torchflower	#efb54064
+minecraft:torchflower_crop	#c5795364
 minecraft:trapped_chest	#a5742aff
+minecraft:trial_spawner	#304d5f
 minecraft:tripwire	#d4d4d40a
 minecraft:tripwire_hook	#8c8c8d64
 minecraft:tube_coral	#3c85e5c8
@@ -14,6 +17,13 @@ minecraft:tube_coral_block	#3c85e5ff
 minecraft:tube_coral_fan	#3c85e5c8
 minecraft:tube_coral_wall_fan	#3c85e5c8
 minecraft:tuff	#5c5a55ff
+minecraft:tuff_brick_slab	#50584f
+minecraft:tuff_brick_stairs	#50584f
+minecraft:tuff_brick_wall	#50584f
+minecraft:tuff_bricks	#50584f
+minecraft:tuff_slab	#626566
+minecraft:tuff_stairs	#626566
+minecraft:tuff_wall	#626566
 minecraft:turtle_egg	#f2f0d5ff
 minecraft:twisting_vines	#119b8564
 minecraft:twisting_vines_plant	#119b8564

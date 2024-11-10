@@ -1,5 +1,8 @@
 block_id	color
 minecraft:rail	#6f7d6f78
+minecraft:raw_copper_block	#96583d
+minecraft:raw_gold_block	#c07200
+minecraft:raw_iron_block	#986f50
 minecraft:red_banner	#7e828150
 minecraft:red_bed	#b53129ff
 minecraft:red_candle	#d0372d78
@@ -32,7 +35,15 @@ minecraft:redstone_ore	#a05054ff
 minecraft:redstone_torch	#ffe60864
 minecraft:redstone_wall_torch	#ffe60864
 minecraft:redstone_wire	#ff000064
+minecraft:reinforced_deepslate	#494a4d
 minecraft:repeater	#850404ff
 minecraft:repeating_command_block	#553b9bff
+minecraft:resin_block	#c14609
+minecraft:resin_brick_slab	#c7490a
+minecraft:resin_brick_stairs	#c7490a
+minecraft:resin_brick_wall	#c7490ae6
+minecraft:resin_bricks	#c7490a
+minecraft:resin_clump	#df5e1540
 minecraft:respawn_anchor	#100c1cff
+minecraft:rooted_dirt	#956b4a
 minecraft:rose_bush	#bf252964
